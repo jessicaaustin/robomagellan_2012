@@ -1,0 +1,28 @@
+robomagellan:
+  Code for a robot competing in the Chibots Robomagellan 2012 competition
+  http://www.chibots.org/?q=node/1696
+
+SETUP/PREREQUISITES
+
+Install opencv and opencv python bindings
+make sure the current directory is on your ROS_PACKAGE_PATH
+chmod +x nodes/cone_tracker.py
+
+TO RUN
+
+make
+roslaunch robomagellan robomagellan.launch
+
+
+NOTES
+
+nodes/settings.py
+  list all project constants here, so we don't have to pollute our code with magic numbers
+
+nodes/cone_tracker.py
+  detects and tracks the any orange traffic cones in the camera's FOV
+  publishes to a topic (cone_coord) 
+
+
+TODO
+
