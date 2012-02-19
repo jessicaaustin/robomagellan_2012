@@ -1,6 +1,4 @@
-robomagellan:
-  Code for a robot competing in the Chibots Robomagellan 2012 competition
-  http://www.chibots.org/?q=node/1696
+robomagellan ROS package
 
 SETUP/PREREQUISITES
 

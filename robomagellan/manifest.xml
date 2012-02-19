@@ -4,10 +4,10 @@
      robomagellan
 
   </description>
-  <author>Jessica Austin</author>
+  <author>Jessica Austin, Eric Kinzle, Bill Mania, Jarvis Schultz</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/robomagellan</url>
+  <url>https://github.com/jessicaaustin/robomagellan_2012</url>
   <depend package="rospy"/>
   <depend package="geometry_msgs"/>
   <depend package="tf"/>
