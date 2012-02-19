@@ -9,12 +9,21 @@ cone_tracker
    plastic traffic cones." 
 - publishes to a topic (cone_coord) the coords of the cone
 - also publishes a marker on cone_marker topic
+- does NOT take in any information from other robot sensors--aggregating all available info about the cone position will be done elsewhere
 
 How it works:
 - uses opencv framework
 - detects areas of orange in the image
 - finds areas of orange and uses shape and size to determine likely cone candidates
-- uses position in the plane of the camera frame to determine x,y position, and the size of the cone to determine z (depth) 
+- chooses the largest blob as the cone candidate
+- uses position in the plane of the camera frame to determine x,y position, and the size of the cone blob to determine z (depth) 
+
+Assumptions:
+- there are no other orange objects in the vicinity (so the most significant orange object in the FOV must be the cone)
+
+TODO
+- publish the camera frames to a ROS topic, so they can show up in rviz
+- update code to track a cone instead of a blob
 
 """
 
@@ -31,8 +40,7 @@ import operator
 
 import settings
 
-# TODO parameterize whether or not we want to show the camera images (only in debug mode)
-class ColorTracker():
+class ConeTracker():
     def __init__(self, camera_index, min_thresh, max_thresh, smoothness):
         # initialize camera feed
         self.capture = cv.CaptureFromCAM(camera_index)
@@ -53,7 +61,7 @@ class ColorTracker():
         # initialize position array
         self.positions_x, self.positions_y = [0]*smoothness, [0]*smoothness
 
-        rospy.loginfo("Successfully initialized ColorTracker")
+        rospy.loginfo("Successfully initialized ConeTracker")
 
     def pixel_to_meter(self, dist):
         return dist / settings.PIXELS_TO_CM / 100
@@ -146,15 +154,15 @@ class ColorTracker():
 
 
 if __name__ == '__main__':
-    rospy.init_node('color_tracker')
+    rospy.init_node('cone_tracker')
     rospy.sleep(3)  # let rxconsole boot up
-    rospy.loginfo("Initializing color_tracker node")
-    color_tracker = ColorTracker(settings.MY_CAMERA, settings.MIN_THRESH, settings.MAX_THRESH, settings.SMOOTHNESS)
+    rospy.loginfo("Initializing cone_tracker node")
+    cone_tracker = ConeTracker(settings.MY_CAMERA, settings.MIN_THRESH, settings.MAX_THRESH, settings.SMOOTHNESS)
     pub_cone_coord = rospy.Publisher('cone_coord', PointStamped)
     pub_cone_marker = rospy.Publisher('cone_marker', Marker)
 
     while not rospy.is_shutdown():
-        cone_coord = color_tracker.find_blob()
+        cone_coord = cone_tracker.find_blob()
         if cone_coord:
             cone_coord_stamped = PointStamped()
             cone_coord_stamped.header.frame_id = "camera_lens_optical"
