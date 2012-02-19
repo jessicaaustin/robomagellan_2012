@@ -5,6 +5,7 @@ SETUP/PREREQUISITES
 Install opencv and opencv python bindings
 make sure the current directory is on your ROS_PACKAGE_PATH
 chmod +x nodes/cone_tracker.py
+chmod +x nodes/transform_broadcaster.py
 
 TO RUN
 
@@ -21,6 +22,8 @@ nodes/cone_tracker.py
   detects and tracks the any orange traffic cones in the camera's FOV
   publishes to a topic (cone_coord) 
 
+nodes/transform_broadcaster.py
+  broadcasts static transforms for the robot
 
 TODO
 
