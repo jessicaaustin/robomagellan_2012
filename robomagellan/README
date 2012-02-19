@@ -2,6 +2,7 @@ robomagellan ROS package
 
 SETUP/PREREQUISITES
 
+Install ROS Electric
 Install opencv and opencv python bindings
 make sure the current directory is on your ROS_PACKAGE_PATH
 chmod +x nodes/cone_tracker.py
