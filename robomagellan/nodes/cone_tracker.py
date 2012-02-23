@@ -87,23 +87,29 @@ class ConeTracker():
         cv.Dilate(image_threshed, image_threshed, None, 18)
         cv.Erode(image_threshed, image_threshed, None, 10)
 
-        foundBlob = False
+        blobContour = None
 
-        # finds the contours in our binary image
-        contours = cv.FindContours(cv.CloneImage(image_threshed), cv.CreateMemStorage())
+        # extract the edges from our binary image
+        current_contour = cv.FindContours(cv.CloneImage(image_threshed), cv.CreateMemStorage(), cv.CV_RETR_CCOMP, cv.CV_CHAIN_APPROX_SIMPLE)
         # if there is a matching object in the frame
-        if len(contours) != 0:
-            # calculate the moments to estimate the position of the object
-            moments = cv.Moments(contours, 1)
-            moment10 = cv.GetSpatialMoment(moments, 1, 0)
-            moment01 = cv.GetSpatialMoment(moments, 0, 1)
-            area = cv.GetCentralMoment(moments, 0, 0)
+        if len(current_contour) != 0:
+
+            # find the largest blob
+            largest_contour = current_contour
+            while True:
+                current_contour = current_contour.h_next()
+                if (not current_contour):
+                    break
+                if (cv.ContourArea(current_contour) > cv.ContourArea(largest_contour)):
+                    largest_contour = current_contour
 
             # if we got a good enough blob
-            if area>0:
-                foundBlob = True
-                self.positions_x.append(moment10/area)
-                self.positions_y.append(moment01/area)
+            if cv.ContourArea(largest_contour)>2.0:
+                blobContour = largest_contour
+                # find the center of the blob
+                moments = cv.Moments(largest_contour, 1)
+                self.positions_x.append(cv.GetSpatialMoment(moments, 1, 0)/cv.GetSpatialMoment(moments, 0, 0))
+                self.positions_y.append(cv.GetSpatialMoment(moments, 0, 1)/cv.GetSpatialMoment(moments, 0, 0))
                 # discard all but the last N positions
                 self.positions_x, self.positions_y = self.positions_x[-self.smoothness:], self.positions_y[-self.smoothness:]
 
@@ -118,7 +124,7 @@ class ConeTracker():
 
         cv.Circle(object_indicator, object_position, 8, (0,255,0), 2)
 
-        if foundBlob:
+        if blobContour:
             # draw a line to the desiredPosition
             desiredPosition = cv.GetSize(image)
             desiredPosition = tuple(map(operator.mul, desiredPosition, (0.5, 0.5)))
@@ -132,7 +138,7 @@ class ConeTracker():
         cv.ShowImage('camera', image)
         cv.WaitKey(1)
 
-        if foundBlob:
+        if blobContour:
             z = 1.0  # we assume the ball is 1 meter away (no depth perception yet!)
             return Point(self.pixel_to_meter(pos_x), self.pixel_to_meter(pos_y), z)
         else:
