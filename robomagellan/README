@@ -8,14 +8,15 @@ SETUP/PREREQUISITES
 Install ROS Electric
 Install opencv and opencv python bindings
 make sure the current directory is on your ROS_PACKAGE_PATH
-chmod +x nodes/cone_tracker.py
-chmod +x nodes/transform_broadcaster.py
+chmod +x nodes/*.py
 
 TO RUN
 
-make
+rosmake
 roslaunch robomagellan robomagellan.launch
 
+# run in production mode:
+roslaunch robomagellan robomagellan-sim.launch
 
 NOTES
 

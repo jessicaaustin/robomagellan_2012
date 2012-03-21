@@ -1,0 +1,29 @@
+#
+# Defines a simple course with three bonus waypoints marked by traffic cones.
+#
+
+include "robot.inc"
+include "cone.inc"
+include "waypoint.inc"
+
+# set the resolution of the underlying raytrace model in meters
+resolution 0.02
+
+# simulation timestep in milliseconds
+interval_sim 100  
+
+# defines the simulation window 
+window
+( 
+  size [ 750.000 600.000 ] 
+  scale 10.0 
+  center [ 15.0 15.0 ]
+)
+
+# place the robot in the world
+robot( pose [ 0.0 0.0 0 0.000 ] name "robot" color "gray")
+# place the waypoints
+waypoint( pose [ 1.0 1.0 0 0 ] name "waypoint0" )
+cone( pose [ 5.0 10.0 0 0 ] name "waypoint1" )
+waypoint( pose [ 25.0 10.0 0 0 ] name "waypoint2" )
+waypoint( pose [ 12.0 25.0 0 0 ] name "waypoint3" )
