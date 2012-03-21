@@ -11,6 +11,7 @@ import roslib; roslib.load_manifest('robomagellan')
 import rospy
 
 from robomagellan.msg import BoolStamped
+from nav_msgs.msg import Odometry
 
 import settings
 from waypoint_reader import WaypointFileReader
@@ -58,6 +59,7 @@ if __name__ == '__main__':
         # running in simulation mode
         waypoints_file = sys.argv[1]
         collision_detector = CollisionDetectorSim(waypoints_file)
+        rospy.Subscriber('odom', Odometry, collision_detector.setup_odom_callback())
     else:
         # running in normal mode
         collision_detector = CollisionDetector()
