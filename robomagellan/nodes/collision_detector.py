@@ -53,6 +53,7 @@ class CollisionDetectorSim():
 
 if __name__ == '__main__':
     rospy.init_node('collision_detector')
+    rospy.sleep(3)  # let rxconsole boot up
     rospy.loginfo("Initializing collision_detector node")
 
     if len(sys.argv) >= 2 and os.path.exists(sys.argv[1]) and os.path.isfile(sys.argv[1]):

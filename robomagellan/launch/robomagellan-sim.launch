@@ -8,5 +8,6 @@
 	<node name="rxconsole" pkg="rxtools" type="rxconsole" respawn="false" />
 <!--    <node name="cone_tracker" pkg="robomagellan" type="cone_tracker.py" /> -->
     <node name="transforms" pkg="robomagellan" type="transform_broadcaster.py" />
+    <node name="strategy" pkg="robomagellan" type="strategy.py" args="$(find robomagellan)/worlds/simple-course.waypoints"/>
 </launch>
 
