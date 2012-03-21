@@ -1,13 +1,24 @@
 <launch>
 
     <!-- simulation nodes -->
+
 	<node name="stage" pkg="stage" type="stageros" args="$(find robomagellan)/worlds/simple-course.world" respawn="false" />
 	<node name="collision" pkg="robomagellan" type="collision_detector.py" args="$(find robomagellan)/worlds/simple-course.waypoints" respawn="true" />
 
     <!-- production nodes -->
+
 	<node name="rxconsole" pkg="rxtools" type="rxconsole" respawn="false" />
-<!--    <node name="cone_tracker" pkg="robomagellan" type="cone_tracker.py" /> -->
     <node name="transforms" pkg="robomagellan" type="transform_broadcaster.py" />
-    <node name="strategy" pkg="robomagellan" type="strategy.py" args="$(find robomagellan)/worlds/simple-course.waypoints"/>
+
+    <!-- AMCL is a dependency of move_base -->
+    <include file="$(find amcl)/examples/amcl_diff.launch" />
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+        <rosparam file="$(find robomagellan)/config/costmap_common_params.yaml" command="load" ns="global_costmap"/>
+        <rosparam file="$(find robomagellan)/config/costmap_common_params.yaml" command="load" ns="local_costmap"/>
+        <rosparam file="$(find robomagellan)/config/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find robomagellan)/config/global_costmap_params.yaml" command="load" />
+        <rosparam file="$(find robomagellan)/config/base_local_planner_params.yaml" command="load" />
+    </node>
+
 </launch>
 

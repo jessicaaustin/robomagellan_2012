@@ -1,0 +1,5 @@
+config files for the base_link module
+
+see http://ros.org/wiki/navigation/Tutorials/RobotSetup
+
+TODO: bring settings.py into this folder

@@ -17,14 +17,14 @@ from math import pi
 
 def broadcast_camera_static_frames(br):
 
-    # from robot_base to camera_lens
+    # from base_link to camera_lens
     # TODO update with correct offsets once camera is mounted on robot
     br = tf.TransformBroadcaster()
     br.sendTransform((0.0, 0.0, 0.0),
                  (0.0, 0.0, 0.0, 1.0),
                  rospy.Time.now(),
                  "camera_lens",
-                 "robot_base")
+                 "base_link")
 
     # from camera_lens to camera_lens_optical
     # rotate so that the z axis is coming out of the camera lens

@@ -1,0 +1,20 @@
+# how far away we can detect obstacles
+obstacle_range: 2.5
+raytrace_range: 3.0
+
+# footprint of the robot
+footprint: [[0.5, 0.5]]
+
+# how close to our robot we will tolerate obstacles
+# this creates a "bubble" with very high cost around all obstacles
+inflation_radius: 0.05
+
+# we have information about obstacles from our IR laser
+observation_sources: laser_scan_sensor
+laser_scan_sensor: {
+    sensor_frame: base_laser_link,
+    data_type: LaserScan,
+    topic: base_scan,
+    marking: true,
+    clearing: true
+}
