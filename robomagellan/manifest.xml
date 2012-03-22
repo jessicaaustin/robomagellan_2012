@@ -15,6 +15,7 @@
   <depend package="visualization_msgs"/>
   <depend package="move_base"/>
   <depend package="move_base_msgs"/>
+  <depend package="gmapping"/>
 
 </package>
 
