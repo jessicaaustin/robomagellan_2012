@@ -2,4 +2,8 @@ This folder contains several worlds, which can be used for simulations
 
 simple-course:
   4 waypoints, including one cone waypoint
-
+many-waypoints:
+willow:
+  example from navigation_tutorials ros module
+loyola-park:
+  http://g.co/maps/6a9vu
