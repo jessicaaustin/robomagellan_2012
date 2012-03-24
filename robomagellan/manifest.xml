@@ -9,13 +9,15 @@
   <review status="unreviewed" notes=""/>
   <url>https://github.com/jessicaaustin/robomagellan_2012</url>
   <depend package="rospy"/>
+  <depend package="tf"/>
+  <depend package="move_base"/>
+  <depend package="map_server"/>
+  <depend package="stage"/>
+  <depend package="fake_localization"/>
   <depend package="geometry_msgs"/>
   <depend package="nav_msgs"/>
-  <depend package="tf"/>
   <depend package="visualization_msgs"/>
-  <depend package="move_base"/>
   <depend package="move_base_msgs"/>
-  <depend package="gmapping"/>
 
 </package>
 
