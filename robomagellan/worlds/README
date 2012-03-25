@@ -1,9 +1,18 @@
-This folder contains several worlds, which can be used for simulations
+Contains maps, waypoint files, and world files
 
-simple-course:
-  4 waypoints, including one cone waypoint
-many-waypoints:
-willow:
+*.waypoint
+   defines the list of ordered waypoints the robot should reach
+*.world
+   used for Stage simulations
+*.inc
+   includes for the Stage world files
+*.png,*.pgm
+   map files for ROS map_server module
+*.yaml
+   map metadata files for map_server module
+
+
+willow-garage:
   example from navigation_tutorials ros module
 loyola-park:
   http://g.co/maps/6a9vu

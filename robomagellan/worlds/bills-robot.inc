@@ -1,5 +1,5 @@
 # 
-# Defines our robot
+# Stage definition for Bill's robot from 2011 competition
 #
 
 # IR sensor: Parallx PING))) 

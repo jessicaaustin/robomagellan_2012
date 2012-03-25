@@ -17,6 +17,7 @@ TrajectoryPlannerROS:
   escape_vel: -0.1
   
   #For this example, we'll use a holonomic robot
+  # TODO will our robot be holonomic? probably not
   holonomic_robot: true
 
   #Since we're using a holonomic robot, we'll set the set of y velocities it will sample
