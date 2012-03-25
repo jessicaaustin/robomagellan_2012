@@ -46,11 +46,12 @@ class Strategizer():
         return cone_coord_callback
 
     def publish_waypoint_markers(self):
-        pub_waypoint_marker = rospy.Publisher('waypoint_markers', MarkerArray)
+        pub_waypoint_markers = rospy.Publisher('waypoint_markers', MarkerArray)
         marker_array = MarkerArray()
         for i in range(len(self.waypoints)):
             waypoint = self.waypoints[i]
             waypoint_marker = Marker()
+            waypoint_marker.id = i
             waypoint_marker.header.frame_id = "/odom"
             waypoint_marker.header.stamp = rospy.Time.now()
             waypoint_marker.pose.position = waypoint.coordinate
@@ -61,9 +62,9 @@ class Strategizer():
                 waypoint_marker.color.g = 224.0
                 waypoint_marker.color.b = 230.0
                 waypoint_marker.color.a = 1.0
-                waypoint_marker.scale.x = 5.0
-                waypoint_marker.scale.y = 5.0
-                waypoint_marker.scale.z = 5.0
+                waypoint_marker.scale.x = 1.0
+                waypoint_marker.scale.y = 1.0
+                waypoint_marker.scale.z = 1.0
             else:
                 waypoint_marker.type = 3  # Cylinder
                 waypoint_marker.text = 'waypoint_%s_cone' % i
@@ -71,11 +72,11 @@ class Strategizer():
                 waypoint_marker.color.g = 69.0
                 waypoint_marker.color.b = 0.0
                 waypoint_marker.color.a = 1.0
-                waypoint_marker.scale.x = 1.3
-                waypoint_marker.scale.y = 1.3
-                waypoint_marker.scale.z = 1.5
+                waypoint_marker.scale.x = 0.3
+                waypoint_marker.scale.y = 0.3
+                waypoint_marker.scale.z = 0.5
             marker_array.markers.append(waypoint_marker)
-        pub_waypoint_marker.publish(marker_array)
+        pub_waypoint_markers.publish(marker_array)
                        
         
 
@@ -95,6 +96,6 @@ if __name__ == '__main__':
 
     rate = rospy.Rate(10.0)
     while not rospy.is_shutdown():
-        strategizer.publish_waypoint_markers()
         rate.sleep()
+        strategizer.publish_waypoint_markers()
             

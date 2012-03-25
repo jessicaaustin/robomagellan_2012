@@ -25,6 +25,9 @@ Map.Alpha=0.7
 Map.Draw\ Behind=0
 Map.Enabled=1
 Map.Topic=/map
+MarkerArray.=1
+MarkerArray.Enabled=1
+MarkerArray.Marker\ Array\ Topic=/waypoint_markers
 NavFn\ Plan.Alpha=1
 NavFn\ Plan.ColorR=0.1
 NavFn\ Plan.ColorG=1
@@ -52,8 +55,8 @@ Unknown\ Space.Topic=/move_base_node/local_costmap/unknown_space
 Tool\ 2D\ Nav\ GoalTopic=move_base_simple/goal
 Tool\ 2D\ Pose\ EstimateTopic=initialpose
 Camera\ Type=rviz::OrbitViewController
-Camera\ Config=0.001 1.86178 29.5035 -16.4134 -10.8547 -34.5895
-Property\ Grid\ State=selection=NavFn Plan.Enabled.NavFn Plan.Alpha;expanded=.Global Options,Map.Enabled,Robot Footprint.Enabled,Obstacles.Enabled,Inflated Obstacles.Enabled,Unknown Space.Enabled,Local Plan.Enabled,Global Plan.Enabled,NavFn Plan.Enabled;scrollpos=0,12;splitterpos=209,418;ispageselected=1
+Camera\ Config=0.001 1.86178 173.166 -104.383 -10.8095 -108.101
+Property\ Grid\ State=selection=MarkerArray.Enabled.MarkerArray.Marker Array Topic;expanded=.Global Options,Map.Enabled,Robot Footprint.Enabled,Obstacles.Enabled,Inflated Obstacles.Enabled,Unknown Space.Enabled,Local Plan.Enabled,Global Plan.Enabled,NavFn Plan.Enabled,MarkerArray.Enabled,MarkerArray.Enabled.MarkerArray.Namespaces;scrollpos=0,40;splitterpos=157,317;ispageselected=1
 [Display0]
 Name=Map
 Package=rviz
@@ -86,3 +89,7 @@ ClassName=rviz::PathDisplay
 Name=NavFn Plan
 Package=rviz
 ClassName=rviz::PathDisplay
+[Display8]
+Name=MarkerArray
+Package=rviz
+ClassName=rviz::MarkerArrayDisplay
