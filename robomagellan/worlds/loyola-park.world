@@ -56,8 +56,8 @@ floorplan
   name "loyola-park"
   bitmap "loyola-park.png"
   size [224.500 215.200 0.5]
-  pose [ 0.000 0.000 0 0.000 ]
+  pose [ -107.60 112.25 0 90.000 ]
 )
 
 # throw in a robot
-pr2( pose [ 0.000 0.000 0 0.000 ] name "pr2" color "blue")
+pr2( pose [ -140.000 104.000 0 0.000 ] name "pr2" color "blue")

@@ -1,6 +1,5 @@
-image: loyola-park.png
-# meters/pixel
-resolution: 0.343642612
+image: willow-full.pgm
+resolution: 0.1
 origin: [0.0, 0.0, 0.0]
 occupied_thresh: 0.65
 free_thresh: 0.196
