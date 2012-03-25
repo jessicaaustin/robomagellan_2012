@@ -21,6 +21,7 @@
     <node name="transforms" pkg="robomagellan" type="transform_broadcaster.py" />
     <include file="$(find robomagellan)/config/move_base.xml"/>
     <node name="map_server" pkg="map_server" type="map_server" args="$(find robomagellan)/worlds/loyola-park.yaml" respawn="false" />
+    <node name="strategy" pkg="robomagellan" type="strategy.py" args="$(find robomagellan)/worlds/loyola-park.waypoints"/> 
 
     <!--                  -->
     <!--  visualization   -->
