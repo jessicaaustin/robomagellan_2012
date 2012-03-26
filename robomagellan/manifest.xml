@@ -14,6 +14,7 @@
   <depend package="map_server"/>
   <depend package="stage"/>
   <depend package="fake_localization"/>
+  <depend package="actionlib_msgs"/>
   <depend package="geometry_msgs"/>
   <depend package="nav_msgs"/>
   <depend package="visualization_msgs"/>

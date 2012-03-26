@@ -1,34 +1,23 @@
 robomagellan ROS package
 
-Super amazing diagram here:
+A diagram describing the project structure:
 https://cacoo.com/diagrams/XSM34UVvYIzbXs1b
 
 SETUP/PREREQUISITES
 
 Install ROS Electric
 Install opencv and opencv python bindings
-make sure the current directory is on your ROS_PACKAGE_PATH
+make sure the current directory (robomagellan) is on your ROS_PACKAGE_PATH
 chmod +x nodes/*.py
 
-TO RUN
+TO RUN (SIMULATION)
+
+rosmake
+roslaunch robomagellan robomagellan-sim-loyola-park.launch
+
+TO RUN (PRODUCTION)
 
 rosmake
 roslaunch robomagellan robomagellan.launch
 
-# run in production mode:
-roslaunch robomagellan robomagellan-sim.launch
-
-NOTES
-
-nodes/settings.py
-  list all project constants here, so we don't have to pollute our code with magic numbers
-
-nodes/cone_tracker.py
-  detects and tracks the any orange traffic cones in the camera's FOV
-  publishes to a topic (cone_coord) 
-
-nodes/transform_broadcaster.py
-  broadcasts static transforms for the robot
-
-TODO
 
