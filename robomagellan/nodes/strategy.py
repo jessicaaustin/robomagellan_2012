@@ -13,8 +13,7 @@ publishes to:
  /move_base/goal
 
 TODO:
- - handle cone waypoints
- - can clear_costmaps be used when attempting to reach a cone object?
+ - handle cone waypoints (maybe use move_slow_and_clear? maybe implement our own RecoveryBehavior using cone_tracker?)
 
 """
 
@@ -26,6 +25,7 @@ from rospy.exceptions import ROSInitException
 
 from waypoint_reader import WaypointFileReader
 
+from geometry_msgs.msg import Point
 from geometry_msgs.msg import PointStamped
 from geometry_msgs.msg import Quaternion
 from visualization_msgs.msg import Marker
@@ -74,17 +74,17 @@ class Strategizer():
             waypoint_marker.id = i
             waypoint_marker.header.frame_id = "/odom"
             waypoint_marker.header.stamp = rospy.Time.now()
-            waypoint_marker.pose.position = waypoint.coordinate
             if (waypoint.type == 'P'):
-                waypoint_marker.type = 2  # Sphere (TODO: use LINE_LIST instead)
+                waypoint_marker.type = 5  # Line List
                 waypoint_marker.text = 'waypoint_%s_point' % i
                 waypoint_marker.color.r = 176.0
                 waypoint_marker.color.g = 224.0
                 waypoint_marker.color.b = 230.0
-                waypoint_marker.color.a = 1.0
-                waypoint_marker.scale.x = 1.0
-                waypoint_marker.scale.y = 1.0
-                waypoint_marker.scale.z = 1.0
+                waypoint_marker.color.a = 0.5
+                waypoint_marker.scale.x = 0.5
+                c = waypoint.coordinate
+                waypoint_marker.points.append(Point(c.x, c.y, c.z))
+                waypoint_marker.points.append(Point(c.x, c.y, c.z + 3.0))
             else:
                 waypoint_marker.type = 3  # Cylinder
                 waypoint_marker.text = 'waypoint_%s_cone' % i
@@ -95,6 +95,7 @@ class Strategizer():
                 waypoint_marker.scale.x = 0.3
                 waypoint_marker.scale.y = 0.3
                 waypoint_marker.scale.z = 0.5
+                waypoint_marker.pose.position = waypoint.coordinate
             marker_array.markers.append(waypoint_marker)
         pub_waypoint_markers.publish(marker_array)
 
