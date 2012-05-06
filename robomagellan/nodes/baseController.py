@@ -19,7 +19,32 @@ import roslib; roslib.load_manifest('robomagellan')
 import rospy
 
 from rospy.exceptions import ROSInitException
-
 from geometry_msgs.msg import Twist
+from PhidgetMotorController import PhidgetMotorController
 
+motorController = None
 
+def handleTwistMessage(twistMessage):
+
+    rospy.logdebug("translationX: %f, rotationZ: %f" % (
+        twistMessage.linear.x,
+        twistMessage.angular.z
+        ))
+
+    motorController.move(
+        twistMessage.linear.x,
+        twistMessage.angular.z
+        )
+
+    return
+
+if __name__ == '__main__':
+    rospy.init_node('base_controller')
+    rospy.loginfo("Initializing base_controller node")
+
+    motorController = PhidgetMotorController()
+
+    rospy.Subscriber('cmd_vel', Twist, handleTwistMessage)
+
+    while not rospy.is_shutdown():
+        rospy.spin()
