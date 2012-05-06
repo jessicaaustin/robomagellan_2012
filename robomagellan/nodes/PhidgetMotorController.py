@@ -17,6 +17,7 @@ class PhidgetMotorController:
     def __init__(self):
         self.leftWheels = 0
         self.rightWheels = 1
+        self.defaultSpeed = 100.0
 
         self.motorControl = MotorControl()
 
@@ -59,6 +60,13 @@ class PhidgetMotorController:
         self.minAcceleration = self.motorControl.getAccelerationMin(self.leftWheels)
         self.maxAcceleration = self.motorControl.getAccelerationMax(self.leftWheels)
         
+    def setDefaultSpeed(self, defaultSpeed):
+        self.defaultSpeed = defaultSpeed
+
+        return
+
+    def getDefaultSpeed(self):
+        return self.defaultSpeed
 
     def move(self, translationX, rotationZ):
         """Move the rover base
@@ -78,8 +86,8 @@ class PhidgetMotorController:
         return
     
     def rotate(self, rotationZ):
-        leftSpeed = -100.0 * rotationZ
-        rightSpeed = 100.0 * rotationZ
+        leftSpeed = -(self.defaultSpeed) * rotationZ
+        rightSpeed = self.defaultSpeed * rotationZ
     
         self.motorControl.setVelocity(self.leftWheels, leftSpeed);
         self.motorControl.setVelocity(self.rightWheels, rightSpeed);
@@ -87,8 +95,8 @@ class PhidgetMotorController:
         return
     
     def translate(self, translationX):
-        leftSpeed = 100.0 * translationX
-        rightSpeed = 100.0 * translationX
+        leftSpeed =  self.defaultSpeed * translationX
+        rightSpeed = self.defaultSpeed * translationX
     
         self.motorControl.setVelocity(self.leftWheels, leftSpeed);
         self.motorControl.setVelocity(self.rightWheels, rightSpeed);
