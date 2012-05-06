@@ -14,58 +14,23 @@ import sys
 
 from math import pi
 from IMU import IMU
-from sensor_msgs import Imu as ImuMessage
+from sensor_msgs.msg import Imu as ImuMessage
+import tf
 
-def setupVisualizer():
-    global visualizer
-
-    visualizer = tf.TransformBroadcaster()
-    visualizerRotation = tf.transformations.quaternion_from_euler(
-        0,
-        0,
-        0
-        )
-    visualizer.sendTransform(
-        visualizerTranslation,
-        visualizerRotation,
-        rospy.Time.now(),
-        visualizerFrameName,
-        visualizerFrameParent
-        )
-
-    return
-
-def visualize():
-    imu = IMU('/dev/ttyUSB0')
-
-        try:
-            visualizer.sendTransform(
-                visualizerTranslation,
-                visualizerRotation,
-                rospy.Time.now(),
-                visualizerFrameName,
-                visualizerFrameParent
-                )
-        except:
-            rospy.logwarn('sendTransform exception')
-            rospy.logwarn(sys.exc_info()[0])
-            rospy.logwarn(sys.exc_info()[1])
-
-        rospy.sleep(0.5)
 
 if __name__ == '__main__':
     rospy.init_node('ImuPublisher', log_level = rospy.DEBUG)
 
-	imu = IMU('/dev/ttyUSB0')
-	imuPublisher = rospy.Publisher('imu_data', ImuMessage)
+    imu = IMU('/dev/ttyUSB0')
+    imuPublisher = rospy.Publisher('imu_data', ImuMessage)
 
-	imuMessage = ImuMessage()
-	imuMessage.header.frame_id = 'imu'
+    imuMessage = ImuMessage()
+    imuMessage.header.frame_id = 'imu'
 
-	imuMessage.orientation.x = 0.0
-	imuMessage.orientation.y = 0.0
-	imuMessage.orientation.z = 0.0
-	imuMessage.orientation.w = 0.0
+    imuMessage.orientation.x = 0.0
+    imuMessage.orientation.y = 0.0
+    imuMessage.orientation.z = 0.0
+    imuMessage.orientation.w = 0.0
 
     while not rospy.is_shutdown():
         roll, pitch, yaw = imu.getOrientation()
@@ -75,20 +40,25 @@ if __name__ == '__main__':
             pitch = 360.0 + pitch
         if yaw < 0.0:
             yaw = 360.0 + yaw
-        rospy.logdebug('orientation roll %f, pitch %f, yaw %f' % (roll, pitch, yaw))
+        print 'orientation roll %f, pitch %f, yaw %f' % (roll, pitch, yaw)
+
+        roll = roll / ( 2 * pi)
+        pitch = pitch / ( 2 * pi)
+        yaw = yaw / ( 2 * pi)
+        print 'orientation roll %f, pitch %f, yaw %f' % (roll, pitch, yaw)
 
         try:
-            imuMessage.orientation = tf.transformations.quaternion_from_euler(
-                roll / ( 2 * pi),
-                pitch / ( 2 * pi),
-                yaw / ( 2 * pi)
-                )
+            q = tf.transformations.quaternion_from_euler(roll, pitch, yaw)
+            imuMessage.orientation.x = q[0]
+            imuMessage.orientation.y = q[1]
+            imuMessage.orientation.z = q[2]
+            imuMessage.orientation.w = q[3]
         except:
             rospy.logwarn('Quaternion setup exception')
             rospy.logwarn(sys.exc_info()[0])
             rospy.logwarn(sys.exc_info()[1])
             continue
     
-		imuMessage.header.stamp = rospy.Time.now()
-		imuPublisher.publish(imuMessage)
+        imuMessage.header.stamp = rospy.Time.now()
+        imuPublisher.publish(imuMessage)
 
