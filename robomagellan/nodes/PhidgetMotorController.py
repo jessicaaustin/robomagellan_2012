@@ -78,8 +78,8 @@ class PhidgetMotorController:
         return
     
     def rotate(self, rotationZ):
-        leftSpeed = 100.0 * rotationZ
-        rightSpeed = -100.0 * rotationZ
+        leftSpeed = -100.0 * rotationZ
+        rightSpeed = 100.0 * rotationZ
     
         self.motorControl.setVelocity(self.leftWheels, leftSpeed);
         self.motorControl.setVelocity(self.rightWheels, rightSpeed);
@@ -116,6 +116,6 @@ class PhidgetMotorController:
 if __name__ == "__main__":
     motorControl = PhidgetMotorController()
 
-	while True:
-	    motorControl.move(0.0, 1.0)
-		time.sleep(0.1)
+    while True:
+        motorControl.move(0.0, 1.0)
+        time.sleep(0.1)
