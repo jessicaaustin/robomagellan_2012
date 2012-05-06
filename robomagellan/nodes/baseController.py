@@ -43,8 +43,12 @@ if __name__ == '__main__':
     rospy.loginfo("Initializing base_controller node")
 
     motorController = PhidgetMotorController()
+    motorController.setDefaultSpeed(75.0)
 
     rospy.Subscriber('cmd_vel', Twist, handleTwistMessage)
 
     while not rospy.is_shutdown():
         rospy.spin()
+
+    motorController.move(0.0, 0.0)
+
