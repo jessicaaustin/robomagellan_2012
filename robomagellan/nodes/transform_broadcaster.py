@@ -35,6 +35,16 @@ def broadcast_camera_static_frames(br):
                  "camera_lens_optical",
                  "camera_lens")
 
+    # from base_link to imu
+    # TODO update with correct offsets once IMU is mounted on robot
+    br = tf.TransformBroadcaster()
+    br.sendTransform((0.0, 0.0, 0.0),
+                 (0.0, 0.0, 0.0, 1.0),
+                 rospy.Time.now(),
+                 "imu",
+                 "base_link")
+
+ 
 
 if __name__ == '__main__':
     rospy.init_node('transforms')
