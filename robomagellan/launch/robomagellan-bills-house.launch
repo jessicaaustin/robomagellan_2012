@@ -3,16 +3,18 @@
     <master auto="start"/>
 	<node name="rxconsole" pkg="rxtools" type="rxconsole" respawn="false" />
 
-    <!--                  -->
-    <!-- simulation nodes -->
-    <!--                  -->
-
+    <!-- simulation -->
     <param name="/use_sim_time" value="true"/>
-    <node pkg="stage" type="stageros" name="stageros" args="$(find robomagellan)/worlds/loyola-park.world" respawn="false" >
+    <!-- simulation -->
+    <node pkg="stage" type="stageros" name="stageros" args="$(find robomagellan)/worlds/bills-house.world" respawn="false" >
         <param name="base_watchdog_timeout" value="0.2"/>
     </node>
+    <!-- simulation -->
     <node name="fake_localization" pkg="fake_localization" type="fake_localization" respawn="false" />
-	<node name="collision" pkg="robomagellan" type="collision_detector.py" args="$(find robomagellan)/worlds/loyola-park.waypoints" respawn="true" />
+    <!-- simulation -->
+	<node name="collision" pkg="robomagellan" type="collision_detector.py" args="$(find robomagellan)/worlds/single-waypoint.waypoints" respawn="true" />
+    <!-- production -->
+<!--	<node name="collision" pkg="robomagellan" type="collision_detector.py" respawn="true" />    -->
 
     <!--                  -->
     <!-- production nodes -->
@@ -20,8 +22,8 @@
 
     <node name="transforms" pkg="robomagellan" type="transform_broadcaster.py" />
     <include file="$(find robomagellan)/config/move_base.xml"/>
-    <node name="map_server" pkg="map_server" type="map_server" args="$(find robomagellan)/worlds/loyola-park.yaml" respawn="false" />
-    <node name="strategy" pkg="robomagellan" type="strategy.py" args="$(find robomagellan)/worlds/loyola-park.waypoints"/> 
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find robomagellan)/worlds/bills-house.yaml" respawn="false" />
+    <node name="strategy" pkg="robomagellan" type="strategy.py" args="$(find robomagellan)/worlds/single-waypoint.waypoints"/> 
 
     <!--                  -->
     <!--  visualization   -->

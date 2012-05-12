@@ -1,7 +1,9 @@
 robomagellan ROS package
 
-A diagram describing the project structure:
+A diagram describing the ROS nodes:
 https://cacoo.com/diagrams/XSM34UVvYIzbXs1b
+A diagram describing the tf mappings:
+https://cacoo.com/diagrams/kHPU6kID4jruOZMA
 
 SETUP/PREREQUISITES
 
