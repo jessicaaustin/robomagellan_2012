@@ -5,5 +5,6 @@
 <!--	<node name="collision" pkg="robomagellan" type="collision_detector.py" respawn="true" /> -->
 <!--    <node name="strategy" pkg="robomagellan" type="strategy.py" args="$(find robomagellan)/worlds/simple-course.waypoints"/> -->
     <node name="gps" pkg="robomagellan" type="gpsLocation.py" respawn="false" />
+    <node name="imu" pkg="robomagellan" type="ImuPublisher.py" respawn="false" />
 </launch>
 

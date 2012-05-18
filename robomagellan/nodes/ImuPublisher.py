@@ -19,10 +19,13 @@ import tf
 
 
 if __name__ == '__main__':
-    rospy.init_node('ImuPublisher', log_level = rospy.DEBUG)
+    rospy.init_node('ImuPublisher', log_level = rospy.INFO)
+
+    rospy.sleep(2)
+    rospy.loginfo("Initializing ImuPublisher node")
 
     imu = IMU('/dev/ttyUSB0')
-    imuPublisher = rospy.Publisher('imu_data', ImuMessage)
+    imuPublisher = rospy.Publisher('imu/data', ImuMessage)
 
     imuMessage = ImuMessage()
     imuMessage.header.frame_id = 'imu'
@@ -34,20 +37,13 @@ if __name__ == '__main__':
 
     while not rospy.is_shutdown():
         roll, pitch, yaw = imu.getOrientation()
-        if roll < 0.0:
-            roll = 360.0 + roll
-        if pitch < 0.0:
-            pitch = 360.0 + pitch
-        if yaw < 0.0:
-            yaw = 360.0 + yaw
-        print 'orientation roll %f, pitch %f, yaw %f' % (roll, pitch, yaw)
-
-        roll = roll / ( 2 * pi)
-        pitch = pitch / ( 2 * pi)
-        yaw = yaw / ( 2 * pi)
-        print 'orientation roll %f, pitch %f, yaw %f' % (roll, pitch, yaw)
+        roll = roll / 180 * pi
+        pitch = pitch / 180 * pi
+        yaw = yaw / 180 * pi
+        rospy.logdebug('orientation (radians) roll %f, pitch %f, yaw %f' % (roll, pitch, yaw))
 
         try:
+            # assumptions: IMU uses static reference frame, sxyz
             q = tf.transformations.quaternion_from_euler(roll, pitch, yaw)
             imuMessage.orientation.x = q[0]
             imuMessage.orientation.y = q[1]
