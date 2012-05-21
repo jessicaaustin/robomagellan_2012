@@ -29,10 +29,27 @@
 import roslib; roslib.load_manifest('robomagellan')
 import rospy
 
+import tf
+
+from geometry_msgs.msg import Point
+
 class RobomagellanLocalization():
     def __init__(self):
-        rospy.loginfo("Intitializing RobomagellanLocalization")
-        return
+        # we start with zero offset in our position
+        self.current_position_offset = Point()
+        # we don't care about drifts in orientation,
+        # so we'll just publish a constant for that
+        self.unit_quaternion = (0.0, 0.0, 0.0, 1.0)
+        rospy.loginfo("RobomagellanLocalization initialized")
+
+    def publish_localization(self):
+        br = tf.TransformBroadcaster()
+        p = self.current_position_offset
+        br.sendTransform((p.x, p.y, p.z),
+                         self.unit_quaternion,
+                         rospy.Time.now(),
+                         "odom",
+                         "map")
 
 if __name__ == '__main__':
     rospy.init_node('robomagellan_localization')
