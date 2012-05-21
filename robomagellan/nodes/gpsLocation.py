@@ -15,8 +15,7 @@ from subprocess import Popen, PIPE, STDOUT
 from pyproj import Proj
 
 import rospy
-from sensor_msgs.msg import NavSatFix
-from std_msgs.msg import String
+from nav_msgs.msg import Odometry
 
 import settings
 
@@ -28,7 +27,7 @@ class GpsLocation():
         self.projection = Proj({'proj':'utm', 'zone':settings.UTM_ZONE, 'ellps':'WGS84'})
         self.init_x = None
         self.init_y = None
-        self.publisher = rospy.Publisher('odom', NavSatFix)
+        self.publisher = rospy.Publisher('gps_odometry', Odometry)
 
     def knot_to_vel(self, num):
         return settings.KNOT_TO_M_S * num
@@ -57,17 +56,19 @@ class GpsLocation():
 
         x,y = self.lat_lng_to_course_frame(lat,lng)
 
-        odom = Odometry()
+        gpsOdometry = Odometry()
 
         updated_x = x - self.init_x
         updated_y = y - self.init_y
         rospy.logdebug('updated_x=%f, updated_y=%f' % (updated_x, updated_y))
-        odom.pose.pose.position.x = updated_x
-        odom.pose.pose.position.y = updated_y
-        odom.twist.twist.linear.x = self.knot_to_vel(vel)
-        odom.pose.pose.orientation.z = self.heading_in_degrees_to_radians(heading)
+        gpsOdometry.pose.pose.position.x = updated_x
+        gpsOdometry.pose.pose.position.y = updated_y
+        gpsOdometry.twist.twist.linear.x = self.knot_to_vel(vel)
+        gpsOdometry.pose.pose.orientation.z = self.heading_in_degrees_to_radians(heading)
+		gpsOdometry.header.frame_id = "base_link"
+		gpsOdometry.header.stamp = rospy.Time.now()
 
-        self.publisher.publish(odom)
+        self.publisher.publish(gpsOdometry)
 
 
 if __name__ == '__main__':
@@ -81,7 +82,6 @@ if __name__ == '__main__':
 
     rospy.init_node('gps_location')
     gps_location = GpsLocation()
-    pub_raw = rospy.Publisher('gps_raw_data', String)
     rate = rospy.Rate(10.0)
     
     rospy.loginfo("Running gps with command: %s" % CMD)
@@ -91,7 +91,6 @@ if __name__ == '__main__':
         if not line:
             rospy.logerr("Could not read from GPS!")
         else:
-            pub_raw.publish(line)
             if "GPRMC" in line:
                 gps_location.publish_location(line)
         rate.sleep()

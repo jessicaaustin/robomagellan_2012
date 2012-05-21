@@ -27,7 +27,7 @@ if __name__ == '__main__':
     imuPublisher = rospy.Publisher('imu/data', ImuMessage)
 
     imuMessage = ImuMessage()
-    imuMessage.header.frame_id = 'imu'
+    imuMessage.header.frame_id = 'base_link'
 
     imuMessage.orientation.x = 0.0
     imuMessage.orientation.y = 0.0
