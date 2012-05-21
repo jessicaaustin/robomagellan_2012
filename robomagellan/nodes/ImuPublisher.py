@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-"""
-ImuPublisher.py
+"""ImuPublisher.py
 
 Author: Bill Mania <bill@manialabs.us>
 
