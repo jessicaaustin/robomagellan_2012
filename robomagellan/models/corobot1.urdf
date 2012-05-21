@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<robot name="robomagellan">
+	<link name="base_footprint">
+		<!--
+			Attaches the base_link to the ground
+		 -->
+	</link>
+
+	<link name="base_link">
+		<!--
+			The base of the robot itself
+		 -->
+		<visual>
+			<geometry>
+				<box size="0.5 0.25 0.25" />
+			</geometry>
+			<material name="blue">
+				<color rgba="0 0 1 1"/>
+			</material>
+		</visual>
+	</link>
+
+	<link name="camera_lens">
+	</link>
+
+	<link name="camera_lens_optical">
+		<visual>
+			<geometry>
+				<cylinder radius="0.01" length="0.02" />
+			</geometry>
+			<material name="red">
+				<color rgba="1 0 0 1"/>
+			</material>
+		</visual>
+	</link>
+
+<!--
+	<link name="ultrasonic_1">
+	</link>
+
+	<link name="ultrasonic_2">
+	</link>
+
+	<link name="ultrasonic_3">
+	</link>
+
+	<link name="ultrasonic_4">
+	</link>
+
+	<link name="infrared_1">
+	</link>
+
+	<link name="gps">
+	</link>
+
+	<link name="imu">
+	</link>
+
+ -->
+
+	<joint name="base_footprint_to_base_link" type="fixed">
+		<parent link="base_footprint"/>
+		<child link="base_link"/>
+
+		<origin xyz="0.0 0.0 0.125" />
+	</joint>
+
+	<joint name="base_link_to_camera_lens" type="fixed">
+		<parent link="base_link"/>
+		<child link="camera_lens"/>
+
+		<origin xyz="0.25 0.0 0.125" />
+	</joint>
+
+	<joint name="camera_lens_to_camera_lens_optical" type="fixed">
+		<parent link="camera_lens"/>
+		<child link="camera_lens_optical"/>
+
+		<origin xyz="0 0 0" rpy="-1.57 0 -1.57" />
+	</joint>
+
+</robot>
