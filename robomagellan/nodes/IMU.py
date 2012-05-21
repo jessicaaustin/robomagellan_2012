@@ -3,8 +3,7 @@
 import serial
 
 class IMU():
-    """
-IMU - read a SparkFun 9DOF and publish the roll, pitch and yaw
+    """IMU - read a SparkFun 9DOF and publish the roll, pitch and yaw
 
     Author: Bill Mania <bill@manialabs.us>
 
@@ -15,6 +14,7 @@ getOrientation()
     returns a 3-tuple:
 
     (roll, pitch, yaw)
+
 """
 
     def __init__(self, serialPort):
@@ -42,8 +42,7 @@ getOrientation()
 
 
     def getOrientation(self):
-        """
-        read the roll, pitch and yaw values and return them as a tuple
+        """read the roll, pitch and yaw values and return them as a tuple
         """
 
         #

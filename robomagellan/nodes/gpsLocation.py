@@ -15,7 +15,7 @@ from subprocess import Popen, PIPE, STDOUT
 from pyproj import Proj
 
 import rospy
-from nav_msgs.msg import Odometry
+from sensor_msgs.msg import NavSatFix
 from std_msgs.msg import String
 
 import settings
@@ -28,7 +28,7 @@ class GpsLocation():
         self.projection = Proj({'proj':'utm', 'zone':settings.UTM_ZONE, 'ellps':'WGS84'})
         self.init_x = None
         self.init_y = None
-        self.publisher = rospy.Publisher('odom', Odometry)
+        self.publisher = rospy.Publisher('odom', NavSatFix)
 
     def knot_to_vel(self, num):
         return settings.KNOT_TO_M_S * num
