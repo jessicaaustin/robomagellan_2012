@@ -51,6 +51,11 @@ class RobomagellanLocalization():
                          "odom",
                          "map")
 
+    def recalculate_drift(self):
+        # TODO somehow get info about the pose of the robot
+        # at the exact moment that we hit the cone 
+        return
+
 if __name__ == '__main__':
     rospy.init_node('robomagellan_localization')
     rospy.sleep(3)  # let rxconsole boot up
