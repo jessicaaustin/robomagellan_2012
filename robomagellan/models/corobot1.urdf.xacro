@@ -1,8 +1,12 @@
 <?xml version="1.0"?>
-<robot name="robomagellan">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="robomagellan">
+
+	<xacro:property name="centerToAxle" value="0.2" />
+	<xacro:property name="groundToAxle" value="0.06" />
+
 	<link name="base_footprint">
 		<!--
-			Attaches the base_link to the ground
+			Attaches the robot to the world frame
 		 -->
 	</link>
 
@@ -89,7 +93,7 @@
 		<parent link="base_footprint"/>
 		<child link="base_link"/>
 
-		<origin xyz="0.0 0.0 0.125" />
+		<origin xyz="${-1 * centerToAxle} 0.0 ${groundToAxle}" />
 	</joint>
 
 	<joint name="base_link_to_camera_lens" type="fixed">
