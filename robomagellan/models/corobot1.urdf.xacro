@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="robomagellan">
 
-	<xacro:property name="centerToAxle" value="0.2" />
+	<xacro:property name="mainLength" value="0.295" />
+	<xacro:property name="mainWidth" value="0.220" />
+	<xacro:property name="mainHeight" value="0.184" />
 
     <material name="blue">
         <color rgba="0 0 1 1"/>
@@ -29,7 +31,7 @@
 		<visual>
 			<origin xyz="-0.093 0.0 0.072" rpy="0 0 0" />
 			<geometry>
-				<box size="0.295 0.22 0.184" />
+				<box size="${mainLength} ${mainWidth} ${mainHeight}" />
 			</geometry>
 			<material name="blue"/>
 		</visual>
@@ -99,7 +101,7 @@
         <parent link="base_link"/>
         <child link="infrared_1"/>
 
-        <origin xyz="0.040 0.0 0.0"/>
+        <origin xyz="0.047 0.0 0.005"/>
     </joint>
 
 	<link name="infrared_1">
@@ -115,7 +117,7 @@
         <parent link="base_link"/>
         <child link="ultrasonic_1"/>
 
-        <origin xyz="0.060 -0.040 0.145" rpy="0.0 0.0 0.0"/>
+        <origin xyz="0.090 -0.038 0.185" rpy="0.0 0.0 0.0"/>
     </joint>
 
 	<link name="ultrasonic_1">
@@ -131,7 +133,7 @@
         <parent link="base_link"/>
         <child link="ultrasonic_2"/>
 
-        <origin xyz="0.060 0.040 0.145" rpy="0.0 0.0 0.0"/>
+        <origin xyz="0.090 0.041 0.185" rpy="0.0 0.0 0.0"/>
     </joint>
 
 	<link name="ultrasonic_2">
@@ -147,7 +149,7 @@
         <parent link="base_link"/>
         <child link="ultrasonic_3"/>
 
-        <origin xyz="0.055 -0.090 0.145" rpy="0.0 0.0 -0.349"/>
+        <origin xyz="0.090 -0.100 0.185" rpy="0.0 0.0 -0.052"/>
     </joint>
 
 	<link name="ultrasonic_3">
@@ -163,7 +165,7 @@
         <parent link="base_link"/>
         <child link="ultrasonic_4"/>
 
-        <origin xyz="0.055 0.090 0.145" rpy="0.0 0.0 0.349"/>
+        <origin xyz="0.090 0.105 0.185" rpy="0.0 0.0 0.035"/>
     </joint>
 
 	<link name="ultrasonic_4">
