@@ -10,7 +10,7 @@ import serial
 class Rangefinder():
     def __init__(self):
 
-        rospy.logdebug('Initializing Rangefinder')
+        rospy.loginfo('Initializing Rangefinder')
 
         while True:
             try:
@@ -39,7 +39,6 @@ class Rangefinder():
         self.rangeMessage.max_range = 3.0
         self.rangeMessage.range = 0.0
 
-        rospy.init_node('Rangefinder', log_level = rospy.DEBUG)
         self.publisher = rospy.Publisher('bogies', Range)
 
         rospy.loginfo('Initialization complete')
@@ -53,7 +52,7 @@ class Rangefinder():
                     response = response + characterRead
                 characterRead = self.rangefinderDevice.read(1)
     
-            rospy.logdebug('Read <%s> from rangefinder' % (response))
+#            rospy.logdebug('Read <%s> from rangefinder' % (response))
         except:
             pass
 
@@ -62,7 +61,7 @@ class Rangefinder():
     def processRangefinderMessages(self):
         while not rospy.is_shutdown():
             rangefinderUnit, distance = self.readNextMessage()
-            rospy.logdebug('Read distance %s from unit %s' % (distance, rangefinderUnit))
+#            rospy.logdebug('Read distance %s from unit %s' % (distance, rangefinderUnit))
             self.rangeMessage.header.stamp = rospy.Time.now()
             self.rangeMessage.header.frame_id = 'ultrasonic_%s' % (rangefinderUnit)
             self.rangeMessage.range = float(distance)
@@ -72,9 +71,11 @@ class Rangefinder():
 
 if __name__ == '__main__':
 
+    rospy.init_node('rangefinders', log_level = rospy.DEBUG)
+
     rangefinder = Rangefinder()
     
-    rospy.logdebug('Entering processing loop')
+    rospy.loginfo('Entering processing loop')
     rangefinder.processRangefinderMessages()
 
     rospy.logwarn('Stopping')
