@@ -11,6 +11,7 @@ Install ROS Electric
   you have two options: install desktop-full, or install comm (bare bones) page and then install:
     ros-electric-navigation
     ros-electric-geometry
+    ros-electric-robot-model
 Install opencv and opencv python bindings
 make sure the current directory (robomagellan) is on your ROS_PACKAGE_PATH
 chmod +x nodes/*.py
