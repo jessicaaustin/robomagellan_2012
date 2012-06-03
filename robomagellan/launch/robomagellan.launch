@@ -1,93 +1,15 @@
 <launch>
 
-    <!--
-         tf
-     -->
+    <!-- tf -->
+    <include file="$(find robomagellan)/config/transformations.xml"/> 
 
-    <!-- provide static transforms for the robot -->
-	<param
-		name="robot_description"
-		command="$(find xacro)/xacro.py '$(find robomagellan)/models/corobot1.urdf.xacro'"
-	/>
-	<node
-		name="robot_state_publisher"
-		pkg="robot_state_publisher"
-		type="state_publisher"
-		respawn="true"
-	/>
+    <!-- odometry -->
+    <include file="$(find robomagellan)/config/odometry.xml"/> 
 
-	<!-- provide transform from /map->/odom -->
-	<node
-		name="robomagellan_localization"
-		pkg="robomagellan"
-		type="robomagellan_localization.py"
-		respawn="true"
-	/>
+    <!-- sensing -->
+    <include file="$(find robomagellan)/config/sensors.xml"/> 
 
-
-    <!--
-         odometry
-     -->
-
-    <!-- wheel encoder odometry -->
-    <node
-	name="wheel_encoders"
-	pkg="robomagellan"
-	type="wheel_encoders.py"
-	respawn="true"
-    /> 
-
-    <!-- imu odometry -->
-    <node
-	name="imu"
-	pkg="robomagellan"
-	type="ImuPublisher.py"
-	respawn="true"
-    />
-
-    <!-- gps odometry -->
-<!--
-    <node
-	name="gps"
-	pkg="robomagellan"
-	type="gpsLocation.py"
-	respawn="false"
-    /> 
- -->
-
-    <!-- fuse odometry from the above sources into a single robot pose -->
-    <node
-	pkg="robot_pose_ekf"
-	type="robot_pose_ekf"
-	name="robot_pose_ekf">
-
-      <param name="output_frame" value="odom"/>
-      <param name="freq" value="30.0"/>
-      <param name="sensor_timeout" value="1.0"/>  
-      <!-- expects a topic publishing on "wheel_odom" -->
-      <remap from="odom" to="wheel_odom" />
-      <param name="odom_used" value="true"/>
-      <!-- expects a topic publishing on "imu_data" -->
-      <param name="imu_used" value="true"/>
-      <!-- expects a topic publishing on "gps_odom" -->
-      <remap from="vo" to="gps_odom" />
-      <param name="vo_used" value="false"/>
-    </node>
-
-
-    <!--
-         sensing
-    -->
-
-    <!-- read in data from the ultrasonic ranefinder array and publish as Range messages -->
-    <node name="rangefinders" pkg="robomagellan" type="Rangefinder.py" respawn="true" /> 
-    <!-- convert the Range messages to LaserScan messages for use by the move_base node -->
-    <node name="ultrasonic_to_range" pkg="robomagellan" type="ultrasound_to_laser.py" respawn="true" /> 
-
-
-    <!--
-         navigation
-    -->
+    <!-- navigation -->
 
 <!--
     <include file="$(find robomagellan)/config/navigation-autonomous.xml"/>
@@ -95,16 +17,11 @@
     <include file="$(find robomagellan)/config/navigation-teleop.xml"/> 
     
     <node
-	pkg="robomagellan"
-	type="baseController.py"
-	name="baseController"
-	respawn="true"
+        pkg="robomagellan"
+        type="baseController.py"
+        name="baseController"
+        respawn="true"
     />
     
-    <!--
-         debugging
-         (GUI tools for monitoring, disable during actual run) 
-    -->
-
 </launch>
 

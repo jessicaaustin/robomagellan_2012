@@ -1,10 +1,9 @@
-config files for the base_link module
+config files for the move_base module
 
 see http://ros.org/wiki/navigation/Tutorials/RobotSetup
 
 TODO:
  - most of the parameters here are directly from the tutorial.
    we should tweak them to match our robot 
- - bring config from settings.py into this folder
 
 
