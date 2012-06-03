@@ -41,7 +41,10 @@
          sensing
     -->
 
-    <!-- TODO add nodes for ultrasound and IR sensors here when we have them -->
+    <!-- read in data from the ultrasonic ranefinder array and publish as Range messages -->
+    <node name="rangefinders" pkg="robomagellan" type="Rangefinder.py" respawn="true" /> 
+    <!-- convert the Range messages to LaserScan messages for use by the move_base node -->
+    <node name="ultrasonic_to_range" pkg="robomagellan" type="ultrasound_to_laser.py" respawn="true" /> 
 
 
     <!--
