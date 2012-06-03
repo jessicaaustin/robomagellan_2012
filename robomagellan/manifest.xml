@@ -20,6 +20,7 @@
   <depend package="visualization_msgs"/>
   <depend package="move_base_msgs"/>
   <depend package="sensor_msgs"/>
+  <depend package="robot_state_publisher"/>
 
 </package>
 
