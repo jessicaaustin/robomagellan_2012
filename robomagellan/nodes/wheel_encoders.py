@@ -67,7 +67,7 @@ class PhidgetEncoders:
         print '        version: %d' % (self.encoder.getDeviceVersion())
         print '        count: %d' % (self.encoder.getEncoderCount())
         print '        input count: %d' % (self.encoder.getInputCount())
-        self.encoderPublisher = rospy.Publisher('odom', Odometry)
+        self.encoderPublisher = rospy.Publisher('wheel_odom', Odometry)
 
         print "Done initializing"
 
@@ -89,7 +89,13 @@ class PhidgetEncoders:
             encoder.getPosition(e.index)
             )
             )
-
+        print "Serial %i: Encoder %i Change: %i Time: %i Position: %i" % (
+            source.getSerialNum(),
+            e.index,
+            e.positionChange,
+            e.time,
+            encoder.getPosition(e.index)
+            )
 
         return
 
