@@ -1,4 +1,10 @@
 <launch>
 
+    <!-- teleoperation is done manually, to send commands run
+    
+        rostopic pub /cmd_vel geometry_msgs/Twist -r 1 '[1, 0, 0]' '[0, 0, 0]'
+    
+    -->
+
 </launch>
 

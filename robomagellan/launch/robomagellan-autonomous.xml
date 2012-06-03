@@ -6,6 +6,12 @@
 
     <!-- load in move_base from the navigation stack. given a goal, this implements a local and global planner -->
     <include file="$(find robomagellan)/config/move_base.xml"/> 
+    <!-- publishes an empty map. 
+         some sort of map is required for move_base, even if there is no information in it.
+         due to the nature of the competition, we have no prior information about the map, so that is why the map is empty.
+         see also nodes/robomagellan_localization.py for an explanation for how we are doing localization
+    -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find robomagellan)/worlds/empty-map.yaml" respawn="false" />
     <!-- sets the goals for the navigation stack to follow -->
 <!--
     <node name="strategy" pkg="robomagellan" type="strategy.py" args="$(find robomagellan)/worlds/simple-course.waypoints"/> 
@@ -13,9 +19,9 @@
     <!-- publishes the location of a cone -->
     <node name="cone_tracker" pkg="robomagellan" type="cone_tracker.py" respawn="false" /> 
     <!-- publishes when we hit something (hopefully a cone!) -->
-	<node name="collision" pkg="robomagellan" type="collision_detector.py" respawn="false" /> 
-	<!-- TODO add capture_cone node when we have it -->
-	<!-- TODO add cmd_vel_mux node when we have it -->
+    <node name="collision" pkg="robomagellan" type="collision_detector.py" respawn="false" /> 
+    <!-- TODO add capture_cone node when we have it -->
+    <!-- TODO add cmd_vel_mux node when we have it -->
 
 </launch>
 
