@@ -1,0 +1,11 @@
+<launch>
+
+    <node
+        pkg="robomagellan"
+        type="baseController.py"
+        name="baseController"
+        respawn="true"
+    />
+    
+</launch>
+

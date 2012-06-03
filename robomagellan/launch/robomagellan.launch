@@ -15,13 +15,7 @@
     <include file="$(find robomagellan)/config/navigation-autonomous.xml"/>
 -->
     <include file="$(find robomagellan)/config/navigation-teleop.xml"/> 
-    
-    <node
-        pkg="robomagellan"
-        type="baseController.py"
-        name="baseController"
-        respawn="true"
-    />
+    <include file="$(find robomagellan)/config/base_controller.xml"/> 
     
 </launch>
 
