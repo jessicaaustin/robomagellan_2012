@@ -67,7 +67,7 @@ class PhidgetEncoders:
         print '        version: %d' % (self.encoder.getDeviceVersion())
         print '        count: %d' % (self.encoder.getEncoderCount())
         print '        input count: %d' % (self.encoder.getInputCount())
-        self.encoderPublisher = rospy.Publisher('odom', Odometry)
+        self.encoderPublisher = rospy.Publisher('wheel_odom', Odometry)
 
         print "Done initializing"
 
