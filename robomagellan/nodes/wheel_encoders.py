@@ -33,7 +33,7 @@ class PhidgetEncoders:
         self.encoder.setOnPositionChangeHandler(self.encoderPositionChange)
 
         try:
-            rospy.logdebug('openPhidget()')
+            rospy.loginfo('openPhidget()')
             print "openPhidget()"
             self.encoder.openPhidget()
 
@@ -45,7 +45,7 @@ class PhidgetEncoders:
             raise
 
         try:
-            rospy.logdebug('waitForAttach()')
+            rospy.loginfo('waitForAttach()')
             print "waitForAttach()"
             self.encoder.waitForAttach(10000)
 
@@ -56,11 +56,11 @@ class PhidgetEncoders:
     
             raise
 
-        rospy.logdebug('Encoder device: %s' % (self.encoder.getDeviceName()))
-        rospy.logdebug('        serial: %d' % (self.encoder.getSerialNum()))
-        rospy.logdebug('        version: %d' % (self.encoder.getDeviceVersion()))
-        rospy.logdebug('        count: %d' % (self.encoder.getEncoderCount()))
-        rospy.logdebug('        input count: %d' % (self.encoder.getInputCount()))
+        rospy.loginfo('Encoder device: %s' % (self.encoder.getDeviceName()))
+        rospy.loginfo('        serial: %d' % (self.encoder.getSerialNum()))
+        rospy.loginfo('        version: %d' % (self.encoder.getDeviceVersion()))
+        rospy.loginfo('        count: %d' % (self.encoder.getEncoderCount()))
+        rospy.loginfo('        input count: %d' % (self.encoder.getInputCount()))
 
         print 'Encoder device: %s' % (self.encoder.getDeviceName())
         print '        serial: %d' % (self.encoder.getSerialNum())
@@ -79,9 +79,11 @@ class PhidgetEncoders:
            position in the base_link frame and then publish an Odometry
            message to the odom topic.
         """
+	rospy.loginfo('encoderPositionChange() called')
+
 
         source = e.device
-        rospy.logdebug("Serial %i: Encoder %i Change: %i Time: %i Position: %i" % (
+        rospy.loginfo("Serial %i: Encoder %i Change: %i Time: %i Position: %i" % (
             source.getSerialNum(),
             e.index,
             e.positionChange,
@@ -177,29 +179,27 @@ class PhidgetEncoders:
         return
 
     def encoderAttached(self, e):
+	rospy.loginfo('encoderAttached() called')
         return
     
     def encoderDetached(self, e):
+	rospy.loginfo('encoderDetached() called')
         return
     
     def encoderError(self, e):
-        return
-    
-    def mcCurrentChanged(self, e):
+	rospy.loginfo('encoderError() called')
         return
     
     def encoderInputChanged(self, e):
+	rospy.loginfo('encoderInputChanged() called')
         return
     
-    def mcVelocityChanged(self, e):
-        return
-
 if __name__ == "__main__":
     print "Starting wheel_encoders"
     rospy.init_node('wheel_encoders', log_level = rospy.DEBUG)
     print "init_node() called"
 
-    rospy.logdebug('Starting wheel_encoders node')
+    rospy.loginfo('Starting wheel_encoders node')
 
     encoder = PhidgetEncoders()
 
