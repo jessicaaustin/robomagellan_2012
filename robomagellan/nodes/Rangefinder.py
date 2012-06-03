@@ -46,13 +46,16 @@ class Rangefinder():
 
     def readNextMessage(self):
         response = ''
-        characterRead = self.rangefinderDevice.read(1)
-        while characterRead != '\n':
-            if characterRead not in [ '\r', '\n' ]:
-                response = response + characterRead
+        try:
             characterRead = self.rangefinderDevice.read(1)
-
-        rospy.logdebug('Read <%s> from rangefinder' % (response))
+            while characterRead != '\n':
+                if characterRead not in [ '\r', '\n' ]:
+                    response = response + characterRead
+                characterRead = self.rangefinderDevice.read(1)
+    
+            rospy.logdebug('Read <%s> from rangefinder' % (response))
+        except:
+            pass
 
         return response.split(',')
 
