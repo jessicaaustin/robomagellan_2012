@@ -13,6 +13,8 @@ Install ROS Electric
     ros-electric-geometry
     ros-electric-robot-model
 Install opencv and opencv python bindings
+Install python-pyproj (GPS nodes requires it)
+  sudo apt-get install python-pyproj
 make sure the current directory (robomagellan) is on your ROS_PACKAGE_PATH
 chmod +x nodes/*.py
 
