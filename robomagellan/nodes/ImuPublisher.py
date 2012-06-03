@@ -24,7 +24,7 @@ if __name__ == '__main__':
     rospy.loginfo("Initializing ImuPublisher node")
 
     imu = IMU('/dev/ttyUSB0')
-    imuPublisher = rospy.Publisher('imu/data', ImuMessage)
+    imuPublisher = rospy.Publisher('imu_data', ImuMessage)
 
     imuMessage = ImuMessage()
     imuMessage.header.frame_id = 'base_link'
