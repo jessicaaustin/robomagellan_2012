@@ -46,12 +46,14 @@
     />
 
     <!-- gps odometry -->
+<!--
     <node
 	name="gps"
 	pkg="robomagellan"
 	type="gpsLocation.py"
 	respawn="false"
     /> 
+ -->
 
     <!-- fuse odometry from the above sources into a single robot pose -->
     <node
@@ -92,6 +94,12 @@
 -->
     <include file="$(find robomagellan)/launch/robomagellan-teleop.xml"/> 
     
+    <node
+	pkg="robomagellan"
+	type="baseController.py"
+	name="baseController"
+	respawn="true"
+    />
     
     <!--
          debugging
