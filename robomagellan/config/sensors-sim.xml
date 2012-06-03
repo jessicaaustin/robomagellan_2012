@@ -1,0 +1,11 @@
+<launch>
+
+    <!-- stage will publish laser scans -->
+
+    <!-- publishes the location of a cone -->
+    <node name="cone_tracker" pkg="robomagellan" type="cone_tracker.py" args="$(find robomagellan)/worlds/loyola-park.waypoints" respawn="false" /> 
+    <!-- publishes when we hit something (hopefully a cone!) -->
+    <node name="collision" pkg="robomagellan" type="collision_detector.py" args="$(find robomagellan)/worlds/loyola-park.waypoints" respawn="true" />
+
+</launch>
+

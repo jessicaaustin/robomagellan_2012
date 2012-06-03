@@ -1,5 +1,9 @@
 <launch>
 
+    <arg name="simulation" default="false"/>
+    <!-- if not in autonomous mode, then will run in teleop mode -->
+    <arg name="autonomous" default="true"/>
+
     <!-- tf -->
     <include file="$(find robomagellan)/config/transformations.xml"/> 
 
@@ -10,12 +14,14 @@
     <include file="$(find robomagellan)/config/sensors.xml"/> 
 
     <!-- navigation -->
-
-<!--
-    <include file="$(find robomagellan)/config/navigation-autonomous.xml"/>
--->
-    <include file="$(find robomagellan)/config/navigation-teleop.xml"/> 
-    <include file="$(find robomagellan)/config/base_controller.xml"/> 
+    <include if="$(arg autonomous)"
+        file="$(find robomagellan)/config/navigation-autonomous.xml"/>
+    <include unless="$(arg autonomous)"
+        file="$(find robomagellan)/config/navigation-teleop.xml"/> 
+    <include unless="$(arg simulation)"
+        file="$(find robomagellan)/config/base_controller.xml"/> 
+    <include if="$(arg simulation)"
+        file="$(find robomagellan)/config/base_controller-stage.xml"/> 
     
 </launch>
 

@@ -5,5 +5,10 @@
     <!-- convert the Range messages to LaserScan messages for use by the move_base node -->
     <node name="ultrasonic_to_range" pkg="robomagellan" type="ultrasound_to_laser.py" respawn="true" /> 
 
+    <!-- publishes the location of a cone -->
+    <node name="cone_tracker" pkg="robomagellan" type="cone_tracker.py" respawn="false" /> 
+    <!-- publishes when we hit something (hopefully a cone!) -->
+    <node name="collision" pkg="robomagellan" type="collision_detector.py" respawn="false" /> 
+
 </launch>
 

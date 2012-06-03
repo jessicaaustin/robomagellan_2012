@@ -16,10 +16,6 @@
 <!--
     <node name="strategy" pkg="robomagellan" type="strategy.py" args="$(find robomagellan)/worlds/simple-course.waypoints"/> 
 -->    
-    <!-- publishes the location of a cone -->
-    <node name="cone_tracker" pkg="robomagellan" type="cone_tracker.py" respawn="false" /> 
-    <!-- publishes when we hit something (hopefully a cone!) -->
-    <node name="collision" pkg="robomagellan" type="collision_detector.py" respawn="false" /> 
     <!-- TODO add capture_cone node when we have it -->
     <!-- TODO add cmd_vel_mux node when we have it -->
 
