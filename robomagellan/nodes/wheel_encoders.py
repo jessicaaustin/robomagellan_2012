@@ -89,7 +89,13 @@ class PhidgetEncoders:
             encoder.getPosition(e.index)
             )
             )
-
+        print "Serial %i: Encoder %i Change: %i Time: %i Position: %i" % (
+            source.getSerialNum(),
+            e.index,
+            e.positionChange,
+            e.time,
+            encoder.getPosition(e.index)
+            )
 
         return
 
