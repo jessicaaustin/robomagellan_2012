@@ -65,8 +65,8 @@ class GpsLocation():
         gpsOdometry.pose.pose.position.y = updated_y
         gpsOdometry.twist.twist.linear.x = self.knot_to_vel(vel)
         gpsOdometry.pose.pose.orientation.z = self.heading_in_degrees_to_radians(heading)
-		gpsOdometry.header.frame_id = "base_link"
-		gpsOdometry.header.stamp = rospy.Time.now()
+        gpsOdometry.header.frame_id = "base_link"
+        gpsOdometry.header.stamp = rospy.Time.now()
 
         self.publisher.publish(gpsOdometry)
 

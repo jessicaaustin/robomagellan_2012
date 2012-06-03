@@ -5,10 +5,24 @@
      -->
 
     <!-- provide static transforms for the robot -->
-	<param name="robot_description" textfile="$(find robomagellan)/models/corobot1.urdf" />
-	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" respawn="true" />
+	<param
+		name="robot_description"
+		command="$(find xacro)/xacro.py '$(find robomagellan)/models/corobot1.urdf.xacro'"
+	/>
+	<node
+		name="robot_state_publisher"
+		pkg="robot_state_publisher"
+		type="state_publisher"
+		respawn="true"
+	/>
+
 	<!-- provide transform from /map->/odom -->
-    <node name="robomagellan_localization" type="robomagellan_localization.py" respawn="true"/>
+	<node
+		name="robomagellan_localization"
+		pkg="robomagellan"
+		type="robomagellan_localization.py"
+		respawn="true"
+	/>
 
 
     <!--
@@ -16,13 +30,35 @@
      -->
 
     <!-- wheel encoder odometry -->
-    <node name="wheel_encoders" pkg="robomagellan" type="wheel_encoders.py" respawn="true" /> 
+    <node
+	name="wheel_encoders"
+	pkg="robomagellan"
+	type="wheel_encoders.py"
+	respawn="true"
+    /> 
+
     <!-- imu odometry -->
-    <node name="imu" pkg="robomagellan" type="ImuPublisher.py" respawn="true" />
+    <node
+	name="imu"
+	pkg="robomagellan"
+	type="ImuPublisher.py"
+	respawn="true"
+    />
+
     <!-- gps odometry -->
-    <node name="gps" pkg="robomagellan" type="gpsLocation.py" respawn="true" /> 
+    <node
+	name="gps"
+	pkg="robomagellan"
+	type="gpsLocation.py"
+	respawn="false"
+    /> 
+
     <!-- fuse odometry from the above sources into a single robot pose -->
-    <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
+    <node
+	pkg="robot_pose_ekf"
+	type="robot_pose_ekf"
+	name="robot_pose_ekf">
+
       <param name="output_frame" value="odom"/>
       <param name="freq" value="30.0"/>
       <param name="sensor_timeout" value="1.0"/>  
@@ -56,9 +92,11 @@
     <!-- sets the goals for the navigation stack to follow -->
     <node name="strategy" pkg="robomagellan" type="strategy.py" args="$(find robomagellan)/worlds/simple-course.waypoints"/> 
     <!-- publishes the location of a cone -->
-    <node name="cone_tracker" pkg="robomagellan" type="cone_tracker.py" respawn="true" /> 
+<!--
+    <node name="cone_tracker" pkg="robomagellan" type="cone_tracker.py" respawn="false" /> 
+ -->
     <!-- publishes when we hit something (hopefully a cone!) -->
-	<node name="collision" pkg="robomagellan" type="collision_detector.py" respawn="true" /> 
+	<node name="collision" pkg="robomagellan" type="collision_detector.py" respawn="false" /> 
 	<!-- TODO add capture_cone node when we have it -->
 	<!-- TODO add cmd_vel_mux node when we have it -->
 
@@ -67,12 +105,6 @@
          debugging
          (GUI tools for monitoring, disable during actual run) 
     -->
-
-	<node name="rxconsole" pkg="rxtools" type="rxconsole" />
-<!--
-	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find robomagellan)/worlds/robomagellan.vcg" />
- -->
-	<node name="rviz" pkg="rviz" type="rviz" />
 
 </launch>
 
