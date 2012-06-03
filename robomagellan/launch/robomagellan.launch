@@ -5,7 +5,7 @@
      -->
 
     <!-- provide static transforms for the robot -->
-	<param name="robot_description" textfile="$(find robomagellan)/models/corobot1.urdf" />
+	<param name="robot_description" textfile="$(find robomagellan)/models/corobot1.urdf.xacro" />
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" respawn="true" />
 	<!-- provide transform from /map->/odom -->
     <node name="robomagellan_localization" type="robomagellan_localization.py" respawn="true"/>
