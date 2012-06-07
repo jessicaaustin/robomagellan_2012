@@ -18,6 +18,7 @@
           roslaunch robomagellan robomagellan.launch simulation:=true worldname:=loyola-park
      -->
     <arg name="worldname" default="bills-house" />
+    <param name="/use_sim_time" value="$(arg simulation)"/>
 
 
     <!-- tf -->
@@ -47,5 +48,5 @@
         file="$(find robomagellan)/config/base_controller-stage.xml"> 
         <arg name="worldname" value="$(arg worldname)"/>
     </include>
-    
+
 </launch>

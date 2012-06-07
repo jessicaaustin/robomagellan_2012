@@ -2,9 +2,12 @@
     <!-- value will be provided by parent launch file -->
     <arg name="worldname" />
 
-    <param name="/use_sim_time" value="true"/>
     <node pkg="stage" type="stageros" name="stageros" args="$(find robomagellan)/worlds/$(arg worldname).world" respawn="false" >
         <param name="base_watchdog_timeout" value="0.2"/>
     </node>
+
+    <!-- start up visualization tools -->
+    <node name="rxconsole" pkg="rxtools" type="rxconsole" respawn="false" />
+    <node name="rviz" pkg="rviz" type="rviz" />
 
 </launch>
