@@ -1,8 +1,24 @@
 <launch>
 
-    <arg name="simulation" default="false"/>
-    <!-- if not in autonomous mode, then will run in teleop mode -->
+    <!-- if not in autonomous mode, then will run in teleop ("remote control") mode -->
     <arg name="autonomous" default="true"/>
+
+    <arg name="simulation" default="false"/>
+    <!-- 
+        used to describe which set of maps to use. this value is only used if running in
+        simulation mode, since in the real competition we will not have a provided map.
+
+        available values:
+          bills-house (indoor, bill's living room)
+          loyola-park (outdoor, Loyola Park, Chicago IL)
+          willow-full (indoor, willow garage)
+          moraine-valley (outdoor, the site of the competition
+
+        override by providing the new value on the command-line, e.g.
+          roslaunch robomagellan robomagellan.launch simulation:=true worldname:=loyola-park
+     -->
+    <arg name="worldname" default="bills-house" />
+
 
     <!-- tf -->
     <include file="$(find robomagellan)/config/transformations.xml"/> 
@@ -11,7 +27,10 @@
     <include file="$(find robomagellan)/config/odometry.xml"/> 
 
     <!-- sensing -->
-    <include file="$(find robomagellan)/config/sensors.xml"/> 
+    <include unless="$(arg simulation)"
+        file="$(find robomagellan)/config/sensors.xml"/> 
+    <include if="$(arg simulation)"
+        file="$(find robomagellan)/config/sensors-sim.xml"/> 
 
     <!-- navigation -->
     <include if="$(arg autonomous)"
@@ -24,4 +43,3 @@
         file="$(find robomagellan)/config/base_controller-stage.xml"/> 
     
 </launch>
-

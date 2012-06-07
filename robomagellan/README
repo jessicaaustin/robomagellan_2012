@@ -21,7 +21,8 @@ chmod +x nodes/*.py
 TO RUN (SIMULATION)
 
 rosmake
-roslaunch robomagellan robomagellan-sim-loyola-park.launch
+# see robomagellan.launch for a set of possible WORLDNAME values
+roslaunch robomagellan robomagellan.launch simulation:=true worldname:=WORLDNAME
 
 TO RUN (PRODUCTION)
 

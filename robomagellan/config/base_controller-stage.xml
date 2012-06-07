@@ -1,7 +1,7 @@
 <launch>
 
     <param name="/use_sim_time" value="true"/>
-    <node pkg="stage" type="stageros" name="stageros" args="$(find robomagellan)/worlds/loyola-park.world" respawn="false" >
+    <node pkg="stage" type="stageros" name="stageros" args="$(find robomagellan)/worlds/$(arg worldname).world" respawn="false" >
         <param name="base_watchdog_timeout" value="0.2"/>
     </node>
 
