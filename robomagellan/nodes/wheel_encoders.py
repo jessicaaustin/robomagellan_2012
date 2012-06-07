@@ -62,11 +62,7 @@ class PhidgetEncoders:
         rospy.loginfo('        count: %d' % (self.encoder.getEncoderCount()))
         rospy.loginfo('        input count: %d' % (self.encoder.getInputCount()))
 
-        print 'Encoder device: %s' % (self.encoder.getDeviceName())
-        print '        serial: %d' % (self.encoder.getSerialNum())
-        print '        version: %d' % (self.encoder.getDeviceVersion())
-        print '        count: %d' % (self.encoder.getEncoderCount())
-        print '        input count: %d' % (self.encoder.getInputCount())
+
         self.encoderPublisher = rospy.Publisher('wheel_odom', Odometry)
 
         print "Done initializing"
@@ -180,6 +176,16 @@ class PhidgetEncoders:
 
     def encoderAttached(self, e):
 	rospy.loginfo('encoderAttached() called')
+
+	self.encoder.setPosition(
+		self.leftEncoder,
+		0
+		)
+	self.encoder.setPosition(
+		self.rightEncoder,
+		0
+		)
+
         return
     
     def encoderDetached(self, e):
@@ -192,6 +198,13 @@ class PhidgetEncoders:
     
     def encoderInputChanged(self, e):
 	rospy.loginfo('encoderInputChanged() called')
+	rospy.loginfo("left position: %d" % (self.encoder.getPosition(
+		self.leftEncoder
+		)))
+	rospy.loginfo("right position: %d" % (self.encoder.getPosition(
+		self.rightEncoder
+		)))
+
         return
     
 if __name__ == "__main__":
