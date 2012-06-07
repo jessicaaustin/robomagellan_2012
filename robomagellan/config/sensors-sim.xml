@@ -1,4 +1,6 @@
 <launch>
+    <!-- value will be provided by parent launch file -->
+    <arg name="worldname" />
 
     <!-- stage will publish laser scans -->
 

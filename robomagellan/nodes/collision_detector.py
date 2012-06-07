@@ -58,11 +58,13 @@ if __name__ == '__main__':
 
     if len(sys.argv) >= 2 and os.path.exists(sys.argv[1]) and os.path.isfile(sys.argv[1]):
         # running in simulation mode
+        rospy.loginfo("Running collision_detector in simulation mode")
         waypoints_file = sys.argv[1]
         collision_detector = CollisionDetectorSim(waypoints_file)
         rospy.Subscriber('odom', Odometry, collision_detector.setup_odom_callback())
     else:
         # running in normal mode
+        rospy.loginfo("Running collision_detector in production mode")
         collision_detector = CollisionDetector()
 
     pub_collision = rospy.Publisher('collision', BoolStamped)

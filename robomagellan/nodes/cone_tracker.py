@@ -40,6 +40,10 @@ import operator
 
 import settings
 
+import os
+import sys
+
+
 class ConeTracker():
     def __init__(self, camera_index, min_thresh, max_thresh, smoothness):
         # initialize camera feed
@@ -159,11 +163,33 @@ class ConeTracker():
         return image_threshed
 
 
+# Simulates a camera node, using the input waypoint file to determine when
+# a cone might been tracked in the camera frame.
+# TODO implement
+class ConeTrackerSim():
+    def __init__(self, waypoints_file):
+        return
+
+    def find_blob(self):
+        return None
+
+
+
 if __name__ == '__main__':
     rospy.init_node('cone_tracker')
     rospy.sleep(3)  # let rxconsole boot up
     rospy.loginfo("Initializing cone_tracker node")
-    cone_tracker = ConeTracker(settings.MY_CAMERA, settings.MIN_THRESH, settings.MAX_THRESH, settings.SMOOTHNESS)
+
+    if len(sys.argv) >= 2 and os.path.exists(sys.argv[1]) and os.path.isfile(sys.argv[1]):
+        # running in simulation mode
+        rospy.loginfo("Running cone_tracker in simulation mode")
+        waypoints_file = sys.argv[1]
+        cone_tracker = ConeTrackerSim(waypoints_file)
+    else:
+        # running in normal mode
+        rospy.loginfo("Running cone_tracker in production mode")
+        cone_tracker = ConeTracker(settings.MY_CAMERA, settings.MIN_THRESH, settings.MAX_THRESH, settings.SMOOTHNESS)
+
     pub_cone_coord = rospy.Publisher('cone_coord', PointStamped)
     pub_cone_marker = rospy.Publisher('cone_marker', Marker)
 

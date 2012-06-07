@@ -24,13 +24,17 @@
     <include file="$(find robomagellan)/config/transformations.xml"/> 
 
     <!-- odometry -->
-    <include file="$(find robomagellan)/config/odometry.xml"/> 
+    <!-- odom is provided by stage in case of simulation -->
+    <include unless="$(arg simulation)"
+        file="$(find robomagellan)/config/odometry.xml"/> 
 
     <!-- sensing -->
     <include unless="$(arg simulation)"
         file="$(find robomagellan)/config/sensors.xml"/> 
     <include if="$(arg simulation)"
-        file="$(find robomagellan)/config/sensors-sim.xml"/> 
+        file="$(find robomagellan)/config/sensors-sim.xml">
+        <arg name="worldname" value="$(arg worldname)"/>
+    </include> 
 
     <!-- navigation -->
     <include if="$(arg autonomous)"
@@ -40,6 +44,8 @@
     <include unless="$(arg simulation)"
         file="$(find robomagellan)/config/base_controller.xml"/> 
     <include if="$(arg simulation)"
-        file="$(find robomagellan)/config/base_controller-stage.xml"/> 
+        file="$(find robomagellan)/config/base_controller-stage.xml"> 
+        <arg name="worldname" value="$(arg worldname)"/>
+    </include>
     
 </launch>
