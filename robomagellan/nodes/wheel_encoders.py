@@ -18,13 +18,14 @@ class PhidgetEncoders:
 
         print "Initializing PhidgetEncoders"
 
-        self.leftEncoder = 0
-        self.rightEncoder = 1
+        self.leftEncoder = 0 # forward is negative
+        self.rightEncoder = 1 # forward is positive
 
         self.previousXPosition = 0
         self.previousYPosition = 0
 
         self.encoder = Encoder()
+        self.odometryMessage = Odometry()
 
         self.encoder.setOnAttachHandler(self.encoderAttached)
         self.encoder.setOnDetachHandler(self.encoderDetached)
@@ -75,42 +76,21 @@ class PhidgetEncoders:
            position in the base_link frame and then publish an Odometry
            message to the odom topic.
         """
-	rospy.loginfo('encoderPositionChange() called')
-
-
-        source = e.device
-        rospy.loginfo("Serial %i: Encoder %i Change: %i Time: %i Position: %i" % (
-            source.getSerialNum(),
+        rospy.logdebug('Encoder %i Change: %i Time: %i' % (
             e.index,
             e.positionChange,
-            e.time,
-            encoder.getPosition(e.index)
+            e.time
             )
             )
-        print "Serial %i: Encoder %i Change: %i Time: %i Position: %i" % (
-            source.getSerialNum(),
-            e.index,
-            e.positionChange,
-            e.time,
-            encoder.getPosition(e.index)
-            )
 
-        return
+        self.odometryMessage.header.stamp = rospy.Time.now()
+        if e.index == self.leftEncoder:
+                leftEncoderValue = e.positionChange
+                rightEncoderValue = self.encoder.getPosition(self.rightEncoder)
+        else:
+                rightEncoderValue = e.positionChange
+                leftEncoderValue = self.encoder.getPosition(self.leftEncoder)
 
-
-
-        #
-        # we need from the encoder:
-        #
-        # which wheel encoder changed
-        # what is the new value for that encoder
-        # at what time was the encoder sampled
-        #
-        # we must:
-        #
-        # initialize the previous encoder value and timestamp for each
-        #  encoder
-        #
         # calculate the difference between the current and previous
         #  encoder and time values
         #
@@ -158,7 +138,6 @@ class PhidgetEncoders:
 
         # update the odometry state
     
-        encoder_odometry = Odometry()
 
         encoder_odometry.header.stamp = current_time
         encoder_odometry.pose.pose   = Pose(Point(self._pos2d.x, self._pos2d.y, 0.), Quaternion(*odom_quat))
@@ -175,35 +154,43 @@ class PhidgetEncoders:
         return
 
     def encoderAttached(self, e):
-	rospy.loginfo('encoderAttached() called')
+        rospy.loginfo('encoderAttached() called')
 
-	self.encoder.setPosition(
-		self.leftEncoder,
-		0
-		)
-	self.encoder.setPosition(
-		self.rightEncoder,
-		0
-		)
+        self.encoder.setPosition(
+                self.leftEncoder,
+                0
+                )
+        self.encoder.setPosition(
+                self.rightEncoder,
+                0
+                )
+        self.encoder.setEnabled(
+                self.leftEncoder,
+                True
+                )
+        self.encoder.setEnabled(
+                self.rightEncoder,
+                True
+                )
 
         return
     
     def encoderDetached(self, e):
-	rospy.loginfo('encoderDetached() called')
+        rospy.loginfo('encoderDetached() called')
         return
     
     def encoderError(self, e):
-	rospy.loginfo('encoderError() called')
+        rospy.loginfo('encoderError() called')
         return
     
     def encoderInputChanged(self, e):
-	rospy.loginfo('encoderInputChanged() called')
-	rospy.loginfo("left position: %d" % (self.encoder.getPosition(
-		self.leftEncoder
-		)))
-	rospy.loginfo("right position: %d" % (self.encoder.getPosition(
-		self.rightEncoder
-		)))
+        rospy.loginfo('encoderInputChanged() called')
+        rospy.loginfo("left position: %d" % (self.encoder.getPosition(
+                self.leftEncoder
+                )))
+        rospy.loginfo("right position: %d" % (self.encoder.getPosition(
+                self.rightEncoder
+                )))
 
         return
     
@@ -216,7 +203,6 @@ if __name__ == "__main__":
 
     encoder = PhidgetEncoders()
 
-    print "spin()"
     while not rospy.is_shutdown():
         rospy.spin()
 
