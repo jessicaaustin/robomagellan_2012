@@ -9,7 +9,7 @@ cone_tracker
    plastic traffic cones." 
 - publishes to a topic (cone_coord) the coords of the cone
 - also publishes a marker on cone_marker topic
-- does NOT take in any information from other robot sensors--aggregating all available info about the cone position will be done elsewhere
+- does NOT attempt to control the robot based on cone location--see cone_capture.py for that
 
 How it works:
 - uses opencv framework
