@@ -74,7 +74,7 @@ class PhidgetEncoders:
         """Called each time the encoder reports a change to its position.
            This method will convert the encoder values to an updated
            position in the base_link frame and then publish an Odometry
-           message to the odom topic.
+           message to the wheel_odom topic.
         """
         rospy.logdebug('Encoder %i Change: %i Time: %i' % (
             e.index,
@@ -84,72 +84,35 @@ class PhidgetEncoders:
             )
 
         self.odometryMessage.header.stamp = rospy.Time.now()
+        deltaTSeconds = e.time * UNITS_PER_SECOND
         if e.index == self.leftEncoder:
-                leftEncoderValue = e.positionChange
+                leftEncoderValue = -1 * e.positionChange
                 rightEncoderValue = self.encoder.getPosition(self.rightEncoder)
         else:
                 rightEncoderValue = e.positionChange
-                leftEncoderValue = self.encoder.getPosition(self.leftEncoder)
+                leftEncoderValue = -1 * self.encoder.getPosition(self.leftEncoder)
 
-        # calculate the difference between the current and previous
-        #  encoder and time values
+        #
+        # determine how far each wheel has traveled
+        #
+        leftWheelDistance = leftEncoderValue * LEFT_METERS_PER_PULSE
+        rightWheelDistance = rightEncoderValue * RIGHT_METERS_PER_PULSE
+        averagedDistance = (leftWheelDistance + rightWheelDistance) / 2.0
+        angleOfTravel = (leftWheelDistance - rightWheelDistance) / METERS_BETWEEN_WHEELS
+
+
+        #
+        # determine the current Pose and Twist
         #
 
-        if count_delta >= maximal_count / 2:
-          return count_delta - maximal_count + 1
-        elif count_delta <= -maximal_count / 2:
-          return count_delta + maximal_count + 1
-        return count_delta
+        #
+        # stick them into self.odometryMessage
+        #
 
-        # The distance and angle calculation sent by the robot seems to
-        # be really bad. Re-calculate the values using the raw enconder
-        # counts.
-        if self._last_encoder_counts:
-          count_delta_left = self._normalize_encoder_count(
-              self.encoder_counts_left - self._last_encoder_counts[0], 0xffff)
-          count_delta_right = self._normalize_encoder_count(
-              self.encoder_counts_right - self._last_encoder_counts[1], 0xffff)
-          distance_left = count_delta_left * self.ROOMBA_PULSES_TO_M
-          distance_right = count_delta_right * self.ROOMBA_PULSES_TO_M
-          self.distance = (distance_left + distance_right) / 2.0
-          self.angle = (distance_right - distance_left) / robot_types.ROBOT_TYPES['roomba'].wheel_separation
-        else:
-          self.distance = 0
-          self.angle = 0
-        self._last_encoder_counts = (self.encoder_counts_left, self.encoder_counts_right)
-
-
-        # based on otl_roomba by OTL <t.ogura@gmail.com>
-
-        current_time = sensor_state.header.stamp
-        dt = (current_time - last_time).to_sec()
-
-        x = cos(angle) * d
-        y = -sin(angle) * d
-
-        last_angle = self._pos2d.theta
-        self._pos2d.x += cos(last_angle)*x - sin(last_angle)*y
-        self._pos2d.y += sin(last_angle)*x + cos(last_angle)*y
-        self._pos2d.theta += angle
-
-        # Turtlebot quaternion from yaw. simplified version of tf.transformations.quaternion_about_axis
-        # odom_quat = (0., 0., sin(self._pos2d.theta/2.), cos(self._pos2d.theta/2.))
-
-
-        # update the odometry state
-    
-
-        encoder_odometry.header.stamp = current_time
-        encoder_odometry.pose.pose   = Pose(Point(self._pos2d.x, self._pos2d.y, 0.), Quaternion(*odom_quat))
-        encoder_odometry.twist.twist = Twist(Vector3(d/dt, 0, 0), Vector3(0, 0, angle/dt))
-        if sensor_state.requested_right_velocity == 0 and \
-               sensor_state.requested_left_velocity == 0 and \
-               sensor_state.distance == 0:
-            encoder_odometry.pose.covariance = ODOM_POSE_COVARIANCE2
-            encoder_odometry.twist.covariance = ODOM_TWIST_COVARIANCE2
-        else:
-            encoder_odometry.pose.covariance = ODOM_POSE_COVARIANCE
-            encoder_odometry.twist.covariance = ODOM_TWIST_COVARIANCE
+        #
+        # publish to wheel_odom
+        #
+        self.encoderPublisher(self.odometryMessage)
 
         return
 
