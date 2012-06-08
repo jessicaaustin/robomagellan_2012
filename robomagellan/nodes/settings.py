@@ -2,6 +2,8 @@
 #
 # all parameters are in SI units (meters, m/s, etc)
 #
+# TODO: the "right way" to do this is via a ROS parameter server
+#       http://www.ros.org/wiki/rospy/Overview/Parameter%20Server
 
 #
 # color tracker constants
@@ -32,3 +34,8 @@ UTM_ZONE=34
 LAT_OFFSET = 0.0056
 LNG_OFFSET = -0.2683
 
+
+#
+# collision detector
+#
+COLLISION_DISTANCE=0.2
