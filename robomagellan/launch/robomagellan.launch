@@ -20,6 +20,9 @@
     <arg name="worldname" default="bills-house" />
     <param name="/use_sim_time" value="$(arg simulation)"/>
 
+    <!-- the list of waypoints to capture -->
+    <arg name="waypoints_file" default="$(find robomagellan)/worlds/$(arg worldname).waypoints"/>
+
 
     <!-- tf -->
     <include file="$(find robomagellan)/config/transformations.xml"/> 
@@ -39,7 +42,10 @@
 
     <!-- navigation -->
     <include if="$(arg autonomous)"
-        file="$(find robomagellan)/config/navigation-autonomous.xml"/>
+        file="$(find robomagellan)/config/navigation-autonomous.xml">
+        <arg name="waypoints_file" value="$(arg waypoints_file)"/>
+    </include>
+
     <include unless="$(arg autonomous)"
         file="$(find robomagellan)/config/navigation-teleop.xml"/> 
     <include unless="$(arg simulation)"

@@ -1,4 +1,5 @@
 <launch>
+    <arg name="waypoints_file"/>
 
     <!--
          navigation
@@ -13,9 +14,7 @@
     -->
     <node name="map_server" pkg="map_server" type="map_server" args="$(find robomagellan)/worlds/empty-map.yaml" respawn="false" />
     <!-- sets the goals for the navigation stack to follow -->
-<!--
-    <node name="strategy" pkg="robomagellan" type="strategy.py" args="$(find robomagellan)/worlds/simple-course.waypoints"/> 
--->    
+    <node name="strategy" pkg="robomagellan" type="strategy.py" args="$(arg waypoints_file)"/> 
     <!-- TODO add capture_cone node when we have it -->
     <!-- TODO add cmd_vel_mux node when we have it -->
 
