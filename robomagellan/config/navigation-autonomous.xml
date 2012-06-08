@@ -16,7 +16,16 @@
     <!-- sets the goals for the navigation stack to follow -->
     <node name="strategy" pkg="robomagellan" type="strategy.py" args="$(arg waypoints_file)"/> 
     <!-- TODO add capture_cone node when we have it -->
-    <!-- TODO add cmd_vel_mux node when we have it -->
+    <!-- 
+        allows us to switch between using move_base and the cone_capture nodes to move the robot base.
+        the strategy node will handle switching the mux from one input to another, depending on how close
+        we are to the next cone waypoint.
+        
+        can manually switch with the following commands:
+            rosservice call mux_cmd_vel/select cmd_vel_move_base
+            rosservice call mux_cmd_vel/select cmd_vel_capture_cone
+     -->
+    <node name="cmd_vel_mux" pkg="topic_tools" type="mux" args="cmd_vel cmd_vel_move_base cmd_vel_capture_cone mux:=mux_cmd_vel"/>
 
 </launch>
 
