@@ -12,9 +12,6 @@ listens to:
 publishes to:
  /move_base/goal
 
-TODO:
- - handle cone waypoints (maybe use move_slow_and_clear? maybe implement our own RecoveryBehavior using cone_tracker?)
-
 """
 
 import roslib; roslib.load_manifest('robomagellan')

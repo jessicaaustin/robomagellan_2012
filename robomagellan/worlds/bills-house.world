@@ -5,7 +5,7 @@
 include "cone.inc"
 include "waypoint.inc"
 # TODO replace with definiton of coroware explorer
-include "pr2.inc"
+include "rover1.inc"
 
 define floorplan model
 (
@@ -48,6 +48,6 @@ floorplan
 )
 
 # throw in a robot
-pr2( pose [ -50.000 50.000 0 0.000 ] name "pr2" color "blue")
+rover1( pose [ -50.000 50.000 0 0.000 ] name "rover1" color "blue")
 # place the waypoints
 waypoint( pose [ -49.0 51.0 0 0 ] name "waypoint0" )

@@ -5,18 +5,32 @@
          navigation
     -->
 
-    <!-- load in move_base from the navigation stack. given a goal, this implements a local and global planner -->
-    <include file="$(find robomagellan)/config/move_base.xml"/> 
     <!-- publishes an empty map. 
          some sort of map is required for move_base, even if there is no information in it.
          due to the nature of the competition, we have no prior information about the map, so that is why the map is empty.
          see also nodes/robomagellan_localization.py for an explanation for how we are doing localization
     -->
     <node name="map_server" pkg="map_server" type="map_server" args="$(find robomagellan)/worlds/empty-map.yaml" respawn="false" />
+    <!-- load in move_base from the navigation stack. given a goal, this implements a local and global planner -->
+    <include file="$(find robomagellan)/config/move_base.xml"/> 
+
+    <!-- sends commands to move the base, based on the location of the cone -->
+    <node name="cone_capture" pkg="robomagellan" type="cone_capture.py">
+        <remap from="cmd_vel" to="cmd_vel_capture_cone"/>
+    </node>
+
     <!-- sets the goals for the navigation stack to follow -->
     <node name="strategy" pkg="robomagellan" type="strategy.py" args="$(arg waypoints_file)"/> 
-    <!-- TODO add capture_cone node when we have it -->
-    <!-- TODO add cmd_vel_mux node when we have it -->
+    <!-- 
+        allows us to switch between using move_base and the cone_capture nodes to move the robot base.
+        the strategy node will handle switching the mux from one input to another, depending on how close
+        we are to the next cone waypoint.
+        
+        can manually switch with the following commands:
+            rosservice call mux_cmd_vel/select cmd_vel_move_base
+            rosservice call mux_cmd_vel/select cmd_vel_capture_cone
+     -->
+    <node name="cmd_vel_mux" pkg="topic_tools" type="mux" args="cmd_vel cmd_vel_move_base cmd_vel_capture_cone mux:=mux_cmd_vel"/>
 
 </launch>
 

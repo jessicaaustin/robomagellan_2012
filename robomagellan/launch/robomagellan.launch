@@ -45,9 +45,9 @@
         file="$(find robomagellan)/config/navigation-autonomous.xml">
         <arg name="waypoints_file" value="$(arg waypoints_file)"/>
     </include>
-
     <include unless="$(arg autonomous)"
         file="$(find robomagellan)/config/navigation-teleop.xml"/> 
+
     <include unless="$(arg simulation)"
         file="$(find robomagellan)/config/base_controller.xml"/> 
     <include if="$(arg simulation)"
