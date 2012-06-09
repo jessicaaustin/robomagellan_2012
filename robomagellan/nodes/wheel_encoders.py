@@ -27,6 +27,12 @@ class PhidgetEncoders:
         self.pulsesPerRevolution = 1024
         self.wheelsConstant = 2 * pi * self.driveWheelRadius / self.wheelSeparation
         self.pulsesConstant = (pi / self.pulsesPerRevolution) * self.driveWheelRadius
+        self.defaultCovariance = [1000.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                  0.0, 1000.0, 0.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 1000.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 1000.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 1000.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 0.0, 1000.0]
 
         self.previousX = 0
         self.previousY = 0
@@ -36,6 +42,8 @@ class PhidgetEncoders:
         self.odometryMessage = Odometry()
         self.odometryMessage.header.frame_id = 'base_footprint'
         self.odometryMessage.pose.pose.position.z = 0
+        self.odometryMessage.pose.covariance = self.defaultCovariance
+        self.odometryMessage.twist.covariance = self.defaultCovariance
 
         self.encoder.setOnAttachHandler(self.encoderAttached)
         self.encoder.setOnDetachHandler(self.encoderDetached)
@@ -129,7 +137,7 @@ class PhidgetEncoders:
         #
         # publish to wheel_odom
         #
-        self.encoderPublisher(self.odometryMessage)
+        self.encoderPublisher.publish(self.odometryMessage)
 
         #
         # update the records
