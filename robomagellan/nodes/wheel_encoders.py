@@ -25,7 +25,7 @@ class PhidgetEncoders:
         self.driveWheelRadius = 0.055
         self.wheelSeparation = 0.26
         self.pulsesPerRevolution = 1024
-        self.wheelsConstant = 2 * pi * self.diveWheelRadius / self.wheelSeparation
+        self.wheelsConstant = 2 * pi * self.driveWheelRadius / self.wheelSeparation
         self.pulsesConstant = (pi / self.pulsesPerRevolution) * self.driveWheelRadius
 
         self.previousX = 0
