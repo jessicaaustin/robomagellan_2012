@@ -34,14 +34,17 @@ from geometry_msgs.msg import PointStamped
 from geometry_msgs.msg import Point
 from rospy.exceptions import ROSInitException
 from visualization_msgs.msg import Marker
+import tf
 
 import cv
 import operator
 
 import settings
+from waypoint_reader import WaypointFileReader
 
 import os
 import sys
+import math
 
 
 class ConeTracker():
@@ -165,12 +168,51 @@ class ConeTracker():
 
 # Simulates a camera node, using the input waypoint file to determine when
 # a cone might been tracked in the camera frame.
-# TODO implement
+#
+# how it works:
+#  get waypoints from waypoints file, which are in /map frame
+#  iterate over all the points
+#    use tf.TransformerROS.transformPoint to convert each point into the /camera_lens_optical frame
+#    if the distance is small enough, return the point
+# 
 class ConeTrackerSim():
     def __init__(self, waypoints_file):
-        return
+        self.transformListener = tf.TransformListener()
+
+        waypoint_file_reader = WaypointFileReader()
+        waypoints = waypoint_file_reader.read_file(waypoints_file)
+        self.waypoints = []
+        for w in waypoints:
+            if w.type == 'C':
+                point = PointStamped()
+                point.header.frame_id = "map"
+                point.point.x = w.coordinate.x
+                point.point.y = w.coordinate.y
+                point.point.z = 0.22  # cones are 18" tall, halfway up is 9" = .22m
+                self.waypoints.append(point)
+
+        if len(self.waypoints) == 0:
+            rospy.logerr("ConeTrackerSim initialized with zero waypoints! Nothing will be published...")
+            return
+
+        # wait for the required frames to start being published
+        try:
+            self.transformListener.waitForTransform("camera_lens_optical", "map", rospy.Time(), rospy.Duration(10))
+        except tf.Exception:
+            rospy.logerr("Timeout waiting for required frames! Nothing will be published...")
+            return
+
+        rospy.loginfo("ConeTrackerSim initialized with waypoints: %s" % self.waypoints)
+
 
     def find_blob(self):
+        for waypoint in self.waypoints:
+            waypoint.header.stamp = self.transformListener.getLatestCommonTime("camera_lens_optical", "map")
+            point_in_camera_frame = self.transformListener.transformPoint("camera_lens_optical", waypoint)
+            x, y, z = point_in_camera_frame.point.x, point_in_camera_frame.point.y, point_in_camera_frame.point.z
+            if (z < 10 and math.fabs(x) < .45*z and math.fabs(y) < .35*z):
+                z = 1.0  # we assume the ball is 1 meter away (no depth perception yet!)
+                return Point(x, y, z)
         return None
 
 
@@ -193,6 +235,7 @@ if __name__ == '__main__':
     pub_cone_coord = rospy.Publisher('cone_coord', PointStamped)
     pub_cone_marker = rospy.Publisher('cone_marker', Marker)
 
+    rate = rospy.Rate(10.0)
     while not rospy.is_shutdown():
         cone_coord = cone_tracker.find_blob()
         if cone_coord:
@@ -215,4 +258,5 @@ if __name__ == '__main__':
             cone_marker.header.stamp = rospy.Time.now()
             cone_marker.pose.position = cone_coord
             pub_cone_marker.publish(cone_marker)
+        rate.sleep()
             
