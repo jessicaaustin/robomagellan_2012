@@ -3,7 +3,7 @@
     <!-- provide static transforms for the robot -->
 	<param
 		name="robot_description"
-		command="$(find xacro)/xacro.py '$(find robomagellan)/models/corobot1.urdf.xacro'"
+		command="$(find xacro)/xacro.py '$(find robomagellan)/models/nomad1.urdf.xacro'"
 	/>
 	<node
 		name="robot_state_publisher"
