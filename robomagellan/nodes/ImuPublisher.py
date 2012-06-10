@@ -24,6 +24,9 @@ if __name__ == '__main__':
     rospy.loginfo("Initializing ImuPublisher node")
 
     imu = IMU('/dev/ttyUSB0')
+    #
+    # see the rename in the import above
+    #
     imuPublisher = rospy.Publisher('imu_data', ImuMessage)
 
     imuMessage = ImuMessage()
@@ -33,6 +36,12 @@ if __name__ == '__main__':
     imuMessage.orientation.y = 0.0
     imuMessage.orientation.z = 0.0
     imuMessage.orientation.w = 0.0
+    imuMessage.orientation_covariance = [1.0, 0.0, 0.0,
+                             0.0, 1.0, 0.0,
+                             0.0, 0.0, 1.0]
+    imuMessage.angular_velocity_covariance = [1.0, 0.0, 0.0,
+                             0.0, 1.0, 0.0,
+                             0.0, 0.0, 1.0]
 
     while not rospy.is_shutdown():
         roll, pitch, yaw = imu.getOrientation()
