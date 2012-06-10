@@ -18,7 +18,7 @@ class PhidgetEncoders:
 
     def __init__(self):
 
-        print "Initializing PhidgetEncoders"
+        rospy.loginfo("Initializing PhidgetEncoders")
 
         self.leftEncoder = 0 # forward is negative
         self.rightEncoder = 1 # forward is positive
@@ -27,16 +27,18 @@ class PhidgetEncoders:
         self.pulsesPerRevolution = 1024
         self.wheelsConstant = 2 * pi * self.driveWheelRadius / self.wheelSeparation
         self.pulsesConstant = (pi / self.pulsesPerRevolution) * self.driveWheelRadius
-        self.defaultCovariance = [1000.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                  0.0, 1000.0, 0.0, 0.0, 0.0, 0.0,
-                                  0.0, 0.0, 1000.0, 0.0, 0.0, 0.0,
-                                  0.0, 0.0, 0.0, 1000.0, 0.0, 0.0,
-                                  0.0, 0.0, 0.0, 0.0, 1000.0, 0.0,
-                                  0.0, 0.0, 0.0, 0.0, 0.0, 1000.0]
+        self.defaultCovariance = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                  0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
 
         self.previousX = 0
         self.previousY = 0
         self.previousTheta = 0
+        self.previousLeftPosition = 0
+        self.previousRightPosition = 0
 
         self.encoder = Encoder()
         self.odometryMessage = Odometry()
@@ -44,6 +46,7 @@ class PhidgetEncoders:
         self.odometryMessage.pose.pose.position.z = 0
         self.odometryMessage.pose.covariance = self.defaultCovariance
         self.odometryMessage.twist.covariance = self.defaultCovariance
+        self.encoderPublisher = rospy.Publisher('wheel_odom', Odometry)
 
         self.encoder.setOnAttachHandler(self.encoderAttached)
         self.encoder.setOnDetachHandler(self.encoderDetached)
@@ -52,8 +55,7 @@ class PhidgetEncoders:
         self.encoder.setOnPositionChangeHandler(self.encoderPositionChange)
 
         try:
-            rospy.loginfo('openPhidget()')
-            print "openPhidget()"
+            rospy.logdebug('openPhidget()')
             self.encoder.openPhidget()
 
         except PhidgetException, e:
@@ -64,8 +66,7 @@ class PhidgetEncoders:
             raise
 
         try:
-            rospy.loginfo('waitForAttach()')
-            print "waitForAttach()"
+            rospy.logdebug('waitForAttach()')
             self.encoder.waitForAttach(10000)
 
         except PhidgetException, e:
@@ -75,28 +76,10 @@ class PhidgetEncoders:
     
             raise
 
-        rospy.loginfo('Encoder device: %s' % (self.encoder.getDeviceName()))
-        rospy.loginfo('        serial: %d' % (self.encoder.getSerialNum()))
-        rospy.loginfo('        version: %d' % (self.encoder.getDeviceVersion()))
-        rospy.loginfo('        count: %d' % (self.encoder.getEncoderCount()))
-        rospy.loginfo('        input count: %d' % (self.encoder.getInputCount()))
-
-        self.encoderPublisher = rospy.Publisher('wheel_odom', Odometry)
-
-        rospy.loginfo('wheel_encoders initialized')
-
         return
 
     def encoderPositionChange(self, e):
-        """Called each time the encoder reports a change to its position.
-           This method will convert the encoder values to an updated
-           position in the base_link frame and then publish an Odometry
-           message to the wheel_odom topic.
-
-           The math for this method came from:
-           http://en.wikipedia.org/wiki/Dead_reckoning#Differential_steer_drive_dead_reckoning
-
-        """
+        """Called each time the encoder reports a change to its position."""
         rospy.logdebug('Encoder %i Change: %i Time: %i' % (
             e.index,
             e.positionChange,
@@ -104,19 +87,23 @@ class PhidgetEncoders:
             )
             )
 
+        return
+
+    def updateOdometry(self):
+        """This method will convert the encoder values to an updated
+           position in the base_link frame and then publish an Odometry
+           message to the wheel_odom topic.
+
+           The math for this method came from:
+           http://en.wikipedia.org/wiki/Dead_reckoning#Differential_steer_drive_dead_reckoning
+
+        """
+
         self.odometryMessage.header.stamp = rospy.Time.now()
-        #
-        # this function is called each time any encoder reports
-        # a change in position. the next section gets the current
-        # position change of the "other" encoder, so it will always have
-        # both encoder positions at generally the same time.
-        #
-        if e.index == self.leftEncoder:
-            leftPulses = -1 * e.positionChange
-            rightPulses = self.encoder.getPosition(self.rightEncoder)
-        else:
-            rightPulses = e.positionChange
-            leftPulses = -1 * self.encoder.getPosition(self.leftEncoder)
+        leftPulses = (-1 * self.encoder.getPosition(self.leftEncoder)) - self.previousLeftPosition
+        rightPulses = self.encoder.getPosition(self.rightEncoder) - self.previousRightPosition
+        self.previousLeftPosition += leftPulses
+        self.previousRightPosition += rightPulses
 
         deltaTheta = self.wheelsConstant * (leftPulses - rightPulses) / self.pulsesPerRevolution
         theta = self.previousTheta + deltaTheta
@@ -135,11 +122,6 @@ class PhidgetEncoders:
         self.odometryMessage.pose.pose.orientation.w = odometryQuaternion[3]
 
         #
-        # publish to wheel_odom
-        #
-        self.encoderPublisher.publish(self.odometryMessage)
-
-        #
         # update the records
         #
         self.previousX = self.previousX + deltaX
@@ -153,11 +135,11 @@ class PhidgetEncoders:
 
         self.encoder.setPosition(
                 self.leftEncoder,
-                0
+                self.previousLeftPosition,
                 )
         self.encoder.setPosition(
                 self.rightEncoder,
-                0
+                self.previousRightPosition,
                 )
         self.encoder.setEnabled(
                 self.leftEncoder,
@@ -167,6 +149,20 @@ class PhidgetEncoders:
                 self.rightEncoder,
                 True
                 )
+
+        rospy.loginfo('Encoder device: %s' % (self.encoder.getDeviceName()))
+        rospy.loginfo('        serial: %d' % (self.encoder.getSerialNum()))
+        rospy.loginfo('        version: %d' % (self.encoder.getDeviceVersion()))
+        rospy.loginfo('        count: %d' % (self.encoder.getEncoderCount()))
+        rospy.loginfo('        input count: %d' % (self.encoder.getInputCount()))
+
+
+        #
+        # initialize with the first Odometry message
+        #
+        self.odometryMessage.header.stamp = rospy.Time.now()
+        self.encoderPublisher.publish(self.odometryMessage)
+        rospy.loginfo('wheel_encoders initialized')
 
         return
     
@@ -190,14 +186,16 @@ class PhidgetEncoders:
         return
     
 if __name__ == "__main__":
-    print "Starting wheel_encoders"
     rospy.init_node('wheel_encoders', log_level = rospy.DEBUG)
-    print "init_node() called"
-
-    rospy.loginfo('Starting wheel_encoders node')
+    rospy.sleep(3.0)
+    rospy.loginfo("Initializing wheel_encoders.py")
 
     encoder = PhidgetEncoders()
 
+    consistentFrequency = rospy.Rate(1)
+    rospy.loginfo('Entering updateOdometry() loop')
     while not rospy.is_shutdown():
-        rospy.spin()
+        encoder.updateOdometry()
+        encoder.encoderPublisher.publish(encoder.odometryMessage)
+        consistentFrequency.sleep()
 
