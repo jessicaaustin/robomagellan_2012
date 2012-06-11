@@ -4,8 +4,7 @@
 
 include "cone.inc"
 include "waypoint.inc"
-# TODO replace with definiton of coroware explorer
-include "rover1.inc"
+include "../models/nomad1.inc"
 
 define floorplan model
 (

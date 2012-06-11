@@ -1,5 +1,5 @@
 
-include "rover1.inc"
+include "../models/nomad1.inc"
 
 define floorplan model
 (
