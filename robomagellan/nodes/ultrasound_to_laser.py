@@ -24,26 +24,50 @@ import math
 
 class RangeToLaserConverter():
     def __init__(self):
-        return
+        self.resetRanges()
 
     def setup_range_callback(self, publisher):
         def range_callback(data):
-            # for now we'll only check a single scanner
-            if (data.header.frame_id == "ultrasonic_1"):
-                self.publish_laser_data(data, publisher)
+            self.ranges[data.header.frame_id] = data.range
+            # once we have data from the entire "array", we should publish it
+            if (self.hasAllRanges()):
+                self.publish_laser_data(publisher)
         return range_callback
                     
-    def publish_laser_data(self, range_data, publisher):
+    def publish_laser_data(self, publisher):
         scan = LaserScan()
         scan.header.stamp = rospy.Time.now()
-        scan.header.frame_id = range_data.header.frame_id
-        scan.angle_min = -1 * math.pi / 180
-        scan.angle_max = 1 * math.pi / 180
+        scan.header.frame_id = "base_laser_link"
+        scan.angle_min = -30 * math.pi / 180
+        scan.angle_max = 30 * math.pi / 180
         scan.angle_increment = 1 * math.pi / 180 
         scan.range_min = 0.03 
         scan.range_max = 3.00
-        scan.ranges = [range_data.range]
+        scan.ranges = []
+        # read the ranges from left to right
+        for i in range(0,15):
+            scan.ranges[i] = self.ranges["ultrasonic_3"]
+        for i in range(15,30):
+            scan.ranges[i] = self.ranges["ultrasonic_1"]
+        for i in range(30,45):
+            scan.ranges[i] = self.ranges["ultrasonic_2"]
+        for i in range(45,60):
+            scan.ranges[i] = self.ranges["ultrasonic_4"]
         publisher.publish(scan)
+        # clear out the scans
+        self.resetRanges()
+
+    def resetRanges(self):
+        self.ranges = { "ultrasonic_1": None,
+                        "ultrasonic_2": None,
+                        "ultrasonic_3": None,
+                        "ultrasonic_4": None } 
+
+    def hasAllRanges(self):
+        return self.ranges["ultrasonic_1"] and \
+                self.ranges["ultrasonic_2"] and \
+                self.ranges["ultrasonic_3"] and \
+                self.ranges["ultrasonic_4"]
 
 
 if __name__ == '__main__':

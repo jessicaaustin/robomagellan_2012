@@ -17,6 +17,7 @@
     />
 
     <!-- gps odometry -->
+    <!-- NOTE: when adding in gps node, be sure to change vo_used=true below -->
 <!--
     <node
         name="gps"

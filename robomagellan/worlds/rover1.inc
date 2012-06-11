@@ -13,10 +13,10 @@ define ping laser
 
 define rover1 position
 (
-  size [0.65 0.65 0.25]
+  size [0.30 0.20 0.35]
   origin [-0.05 0 0 0]
   gui_nose 1
   drive "diff"
-  ping(pose [ 0.275 0.000 0 0.000 ])
+  ping(pose [ 0.090 0.000 0.185 0.000 ])
 )
 
