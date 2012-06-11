@@ -17,6 +17,6 @@ define rover1 position
   origin [-0.05 0 0 0]
   gui_nose 1
   drive "diff"
-  ping(pose [ 0.090 0.000 0.185 0.000 ])
+  ping(pose [ 0.090 0.000 0.000 0.000 ])
 )
 
