@@ -26,11 +26,16 @@ from geometry_msgs.msg import Twist
 from geometry_msgs.msg import PointStamped
 from robomagellan.msg import BoolStamped
 
+import tf
+
+import settings
+
 class ConeCapturer():
     def __init__(self, publisher):
         self.cone_coord = None
-        self.collision = False
+        self.collided = False
         self.publisher = publisher
+        self.transformListener = tf.TransformListener()
         return
 
     def setup_cone_coord_callback(self):
@@ -40,12 +45,31 @@ class ConeCapturer():
                     
     def setup_collision_callback(self):
         def collision_callback(data):
-            self.collision = data
+            self.collided = data.value
         return collision_callback
 
-    # TODO implement
     def capture_cone(self):
+        """
+            moves the robot forward at a constant velocity, 
+            with yaw commands proportional to the error in the 
+            y-direction
+        """
+        if self.collided:
+            # we're done, time to return the action service
+            rospy.loginfo("cone captured!")
+            cmd_vel = Twist()
+            self.publisher.publish(cmd_vel)
+            return
+
+        # TODO check time difference here as well
+        if self.cone_coord == None:
+            rospy.logwarn("Attempting to capture cone but no cone_coord available!")
+            return 
+            
+        self.transformListener.transformPoint("base_link", self.cone_coord)
         cmd_vel = Twist()
+        cmd_vel.linear.x = settings.SPEED_TO_CAPTURE
+        cmd_vel.angular.z = self.cone_coord.point.y
         self.publisher.publish(cmd_vel)
 
 

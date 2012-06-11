@@ -39,3 +39,9 @@ LNG_OFFSET = -0.2683
 # collision detector
 #
 COLLISION_DISTANCE=0.2
+
+
+#
+# cone capturer
+#
+SPEED_TO_CAPTURE = 0.3
