@@ -46,6 +46,11 @@ class PhidgetEncoders:
         self.odometryMessage.pose.pose.position.z = 0
         self.odometryMessage.pose.covariance = self.defaultCovariance
         self.odometryMessage.twist.covariance = self.defaultCovariance
+        #
+        # robot_pose_ekf subscribes (via remapping) to wheel_odom,
+        # to get 2D position and orientation data. the z, roll and pitch
+        # are ignored by robot_pose_ekf.
+        #
         self.encoderPublisher = rospy.Publisher('wheel_odom', Odometry)
 
         self.encoder.setOnAttachHandler(self.encoderAttached)
@@ -99,7 +104,9 @@ class PhidgetEncoders:
 
         """
 
-        self.odometryMessage.header.stamp = rospy.Time.now()
+        currentTime = rospy.Time.now()
+        deltaT = currentTime.to_sec() - self.odometryMessage.header.stamp.to_sec()
+        self.odometryMessage.header.stamp = currentTime
         leftPulses = (-1 * self.encoder.getPosition(self.leftEncoder)) - self.previousLeftPosition
         rightPulses = self.encoder.getPosition(self.rightEncoder) - self.previousRightPosition
         self.previousLeftPosition += leftPulses
@@ -120,6 +127,14 @@ class PhidgetEncoders:
         self.odometryMessage.pose.pose.orientation.y = odometryQuaternion[1]
         self.odometryMessage.pose.pose.orientation.z = odometryQuaternion[2]
         self.odometryMessage.pose.pose.orientation.w = odometryQuaternion[3]
+
+        #
+        # linear velocity in meters per second, angular velocity
+        # in radians per second
+        #
+        self.odometryMessage.twist.twist.linear.x = deltaX / deltaT
+        self.odometryMessage.twist.twist.linear.y = deltaY / deltaT
+        self.odometryMessage.twist.twist.angular.z = deltaTheta / deltaT
 
         #
         # update the records
@@ -192,7 +207,10 @@ if __name__ == "__main__":
 
     encoder = PhidgetEncoders()
 
-    consistentFrequency = rospy.Rate(1)
+    #
+    # robot_pose_ekf uses a default update frequency of 30 Hz
+    #
+    consistentFrequency = rospy.Rate(30)
     rospy.loginfo('Entering updateOdometry() loop')
     while not rospy.is_shutdown():
         encoder.updateOdometry()

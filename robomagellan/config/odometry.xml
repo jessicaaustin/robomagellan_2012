@@ -44,6 +44,8 @@
       <!-- expects a topic publishing on "gps_odom" -->
       <remap from="vo" to="gps_odom" />
       <param name="vo_used" value="false"/>
+      <param name="debug" value="true"/>
+      <param name="self_diagnose" value="false"/>
     </node>
 
 </launch>
