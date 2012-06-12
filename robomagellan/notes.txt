@@ -1,4 +1,2 @@
-test the changes to ultrasound_to_laser on actual robot
-update cone capture node to accept actionlib messages to capture the cone
-update strategy node to switch between cone_capture and move_base depending on how close the cone is
+TODOs in cone_capture.py
 

@@ -14,6 +14,7 @@
   <depend package="map_server"/>
   <depend package="stage"/>
   <depend package="fake_localization"/>
+  <depend package="actionlib"/>
   <depend package="actionlib_msgs"/>
   <depend package="geometry_msgs"/>
   <depend package="nav_msgs"/>
@@ -21,6 +22,7 @@
   <depend package="move_base_msgs"/>
   <depend package="sensor_msgs"/>
   <depend package="robot_state_publisher"/>
+  <depend package="topic_tools"/>
 
 </package>
 
