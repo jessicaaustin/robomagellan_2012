@@ -3,7 +3,7 @@
     <!-- read in data from the ultrasonic ranefinder array and publish as Range messages -->
     <node name="rangefinders" pkg="robomagellan" type="Rangefinder.py" respawn="true" /> 
     <!-- convert the Range messages to LaserScan messages for use by the move_base node -->
-    <node name="ultrasonic_to_range" pkg="robomagellan" type="ultrasound_to_laser.py" respawn="true" /> 
+    <node name="ultrasonic_to_laser" pkg="robomagellan" type="ultrasound_to_laser.py" respawn="true" /> 
 
     <!-- publishes the location of a cone -->
     <node name="cone_tracker" pkg="robomagellan" type="cone_tracker.py" respawn="false" /> 

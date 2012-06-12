@@ -3,6 +3,7 @@
 """
 
 ultrasound_to_laser
+ (AKA "the poor man's laser scanner")
  the move_base node currently only supports LaserScan and PointCloud message types
  this node converts our array of ultrasonic sensors (Range messages) to a LaserScan message
 
@@ -46,13 +47,14 @@ class RangeToLaserConverter():
         scan.ranges = []
         # read the ranges from left to right
         for i in range(0,15):
-            scan.ranges[i] = self.ranges["ultrasonic_3"]
-        for i in range(15,30):
-            scan.ranges[i] = self.ranges["ultrasonic_1"]
-        for i in range(30,45):
-            scan.ranges[i] = self.ranges["ultrasonic_2"]
-        for i in range(45,60):
-            scan.ranges[i] = self.ranges["ultrasonic_4"]
+            scan.ranges.append(self.ranges["ultrasonic_3"])
+        for i in range(15,37):
+            scan.ranges.append(self.ranges["ultrasonic_1"])
+        # TODO once ultrasonic_2 is fixed, add it back in here and fix ranges for 1 and 4
+#        for i in range(30,45):
+#            scan.ranges.append(self.ranges["ultrasonic_2"])
+        for i in range(37,60):
+            scan.ranges.append(self.ranges["ultrasonic_4"])
         publisher.publish(scan)
         # clear out the scans
         self.resetRanges()
@@ -63,9 +65,9 @@ class RangeToLaserConverter():
                         "ultrasonic_3": None,
                         "ultrasonic_4": None } 
 
+    # TODO once ultrasonic_2 is fixed, add it back in here
     def hasAllRanges(self):
         return self.ranges["ultrasonic_1"] and \
-                self.ranges["ultrasonic_2"] and \
                 self.ranges["ultrasonic_3"] and \
                 self.ranges["ultrasonic_4"]
 
