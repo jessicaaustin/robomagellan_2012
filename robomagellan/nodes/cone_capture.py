@@ -89,6 +89,10 @@ class ConeCapturer():
         # TODO proportional control will probably yield terrible results here...
         #      switch to PID control instead
         cmd_vel.angular.z = self.cone_coord.point.y
+        if cmd_vel.angular.z > 0.2:
+            cmd_vel.angular.z = 0.2
+        if cmd_vel.angular.z < -0.2:
+            cmd_vel.angular.z = -0.2
         self.publisher.publish(cmd_vel)
 
 
