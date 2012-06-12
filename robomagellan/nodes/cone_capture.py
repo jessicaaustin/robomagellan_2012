@@ -63,7 +63,7 @@ class ConeCapturer():
 
         # TODO check time difference here as well
         if self.cone_coord == None:
-            rospy.logwarn("Attempting to capture cone but no cone_coord available!")
+#            rospy.logwarn("Attempting to capture cone but no cone_coord available!")
             return 
             
         self.transformListener.transformPoint("base_link", self.cone_coord)
