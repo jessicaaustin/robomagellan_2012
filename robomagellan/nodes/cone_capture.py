@@ -60,10 +60,8 @@ class ConeCapturer():
         while not rospy.is_shutdown():
             if self.collided:
                 # we're done, time to return the action service
-                # TODO back up a little bit before returning, so that we clear the obstacle
                 rospy.loginfo("cone captured!")
-                cmd_vel = Twist()
-                self.publisher.publish(cmd_vel)
+                self.move_backwards_to_clear_obstacle()
                 self.server.set_succeeded()
                 return
             # TODO check time difference here as well, we don't want to use the
@@ -94,6 +92,27 @@ class ConeCapturer():
         if cmd_vel.angular.z < -0.2:
             cmd_vel.angular.z = -0.2
         self.publisher.publish(cmd_vel)
+
+    def move_backwards_to_clear_obstacle(self):
+        rospy.loginfo("moving backwards to clear cone")
+
+        # first, make sure we're stopped
+        for i in range(10):
+            cmd_vel = Twist()
+            self.publisher.publish(cmd_vel)
+            rospy.sleep(.1)
+
+        # now, move backwards
+        for i in range(20):
+            cmd_vel = Twist()
+            cmd_vel.linear.x = -1 * settings.SPEED_TO_CAPTURE
+            self.publisher.publish(cmd_vel)
+            rospy.sleep(.1)
+
+        # stop again before continuing
+        cmd_vel = Twist()
+        self.publisher.publish(cmd_vel)
+        
 
 
 if __name__ == '__main__':
