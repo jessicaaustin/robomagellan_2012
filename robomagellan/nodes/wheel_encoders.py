@@ -24,7 +24,7 @@ class PhidgetEncoders:
         self.rightEncoder = 1 # forward is positive
         self.driveWheelRadius = 0.055
         self.wheelSeparation = 0.26
-        self.pulsesPerRevolution = 1024
+        self.pulsesPerRevolution = 2400 # wheel revolution
         self.wheelsConstant = 2 * pi * self.driveWheelRadius / self.wheelSeparation
         self.pulsesConstant = (pi / self.pulsesPerRevolution) * self.driveWheelRadius
         self.defaultCovariance = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
