@@ -26,6 +26,9 @@ def encoderError( e):
 def encoderInputChanged( e):
     return
 
+def encoderPositionChange( e):
+    return
+
 def mcAttached( e):
     return
 
@@ -101,6 +104,17 @@ if motorControl.isAttached():
 else:
     print ("motor attach Failed")
 
-motorControl.setVelocity(int(sys.argv[1]), 50);
+encoder.setPosition(int(sys.argv[4]), 0)
+encoder.setEnabled(int(sys.argv[4]), True)
+motorControl.setVelocity(int(sys.argv[1]), int(sys.argv[2]))
+
+position = encoder.getPosition(int(sys.argv[4]))
+while position < int(sys.argv[3]):
+	position = encoder.getPosition(int(sys.argv[4])) * int(sys.argv[5])
+	print position
+
+motorControl.setVelocity(int(sys.argv[1]), 0)
+print encoder.getPosition(int(sys.argv[1]))
+
 
 sys.exit(0)
