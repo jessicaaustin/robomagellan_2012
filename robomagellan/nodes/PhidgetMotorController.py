@@ -17,7 +17,9 @@ class PhidgetMotorController:
     def __init__(self):
         self.leftWheels = 0
         self.rightWheels = 1
-        self.defaultSpeed = 100.0
+        self.defaultMotorSpeed = 100.0
+        self.motorMaxSpeed = 100
+        self.motorMinSpeed = 20
 
         self.motorControl = MotorControl()
 
@@ -61,12 +63,12 @@ class PhidgetMotorController:
         self.maxAcceleration = self.motorControl.getAccelerationMax(self.leftWheels)
         
     def setDefaultSpeed(self, defaultSpeed):
-        self.defaultSpeed = defaultSpeed
+        self.defaultMotorSpeed = defaultSpeed
 
         return
 
     def getDefaultSpeed(self):
-        return self.defaultSpeed
+        return self.defaultMotorSpeed
 
     def move(self, translationX, rotationZ):
         """Move the rover base
@@ -86,8 +88,8 @@ class PhidgetMotorController:
         return
     
     def rotate(self, rotationZ):
-        leftSpeed = -(self.defaultSpeed) * rotationZ
-        rightSpeed = self.defaultSpeed * rotationZ
+        leftSpeed = -(self.defaultMotorSpeed) * rotationZ
+        rightSpeed = self.defaultMotorSpeed * rotationZ
     
         self.motorControl.setVelocity(self.leftWheels, leftSpeed);
         self.motorControl.setVelocity(self.rightWheels, rightSpeed);
@@ -95,11 +97,18 @@ class PhidgetMotorController:
         return
     
     def translate(self, translationX):
-        leftSpeed =  self.defaultSpeed * translationX
-        rightSpeed = self.defaultSpeed * translationX
+
+        #
+        # these factors are derived from the motor speed and wheel radius
+        #
+        wheelSpeed = (translationX - 0.12) / 0.0054
+        if wheelSpeed > self.motorMaxSpeed:
+                wheelSpeed = self.motorMaxSpeed
+        elif wheelSpeed < self.motorMinSpeed:
+                wheelSpeed = self.motorMinSpeed
     
-        self.motorControl.setVelocity(self.leftWheels, leftSpeed);
-        self.motorControl.setVelocity(self.rightWheels, rightSpeed);
+        self.motorControl.setVelocity(self.leftWheels, wheelSpeed);
+        self.motorControl.setVelocity(self.rightWheels, wheelSpeed);
     
         return
     
