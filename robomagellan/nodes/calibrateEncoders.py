@@ -10,6 +10,7 @@ to verify/calibrate the encoder
 
 
 import sys
+import time
 from Phidgets.Devices.Encoder import Encoder
 from Phidgets.Devices.MotorControl import MotorControl
 from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
@@ -46,6 +47,17 @@ def mcInputChanged( e):
 
 def mcVelocityChanged( e):
     return
+
+if len(sys.argv) < 5:
+	print "usage:", sys.argv[0], "motor velocity pulses encoder sign"
+	sys.exit(1)
+
+
+whichMotor = int(sys.argv[1])
+velocity = float(sys.argv[2])
+pulsesWanted = int(sys.argv[3])
+whichEncoder = int(sys.argv[4])
+encoderSign = int(sys.argv[5])
 
 encoder = Encoder()
 encoder.setOnAttachHandler(encoderAttached)
@@ -104,17 +116,27 @@ if motorControl.isAttached():
 else:
     print ("motor attach Failed")
 
-encoder.setPosition(int(sys.argv[4]), 0)
-encoder.setEnabled(int(sys.argv[4]), True)
-motorControl.setVelocity(int(sys.argv[1]), int(sys.argv[2]))
+encoder.setPosition(whichEncoder, 0)
+encoder.setEnabled(whichEncoder, True)
+averageAcceleration = (motorControl.getAccelerationMax(whichMotor) - motorControl.getAccelerationMin(whichMotor)) / 2.0
+print "averageAcceleration", averageAcceleration
+motorControl.setAcceleration(whichMotor, averageAcceleration)
 
-position = encoder.getPosition(int(sys.argv[4]))
-while position < int(sys.argv[3]):
-	position = encoder.getPosition(int(sys.argv[4])) * int(sys.argv[5])
-	print position
+position = encoder.getPosition(whichEncoder)
+startTime = time.clock()
+motorControl.setVelocity(whichMotor, velocity)
+while position < pulsesWanted:
+	position = encoder.getPosition(whichEncoder) * encoderSign
+	print "Position", position, "Current", motorControl.getCurrent(whichMotor), "\r",
 
-motorControl.setVelocity(int(sys.argv[1]), 0)
-print encoder.getPosition(int(sys.argv[1]))
+endTime = time.clock()
+motorControl.setVelocity(whichMotor, 0)
+print ""
+print "Position", encoder.getPosition(whichEncoder) * encoderSign
+print "Pulses per second", position / (endTime - startTime)
+print "Current", motorControl.getCurrent(whichMotor)
+time.sleep(5.0)
+print "Current", motorControl.getCurrent(whichMotor)
 
 
 sys.exit(0)
