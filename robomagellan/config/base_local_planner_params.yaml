@@ -16,16 +16,20 @@ TrajectoryPlannerROS:
   #The velocity the robot will command when trying to escape from a stuck situation
   escape_vel: -0.1
   
-  #For this example, we'll use a holonomic robot
-  # TODO will our robot be holonomic? probably not
-  holonomic_robot: true
+  # since our robot has three degrees of freedom: position in X,Y and orientation, 
+  # but we can only control two degrees of freedom our robot is non-holonomic
+  # http://en.wikipedia.org/wiki/Holonomic
+  holonomic_robot: false
 
   #Since we're using a holonomic robot, we'll set the set of y velocities it will sample
   y_vels: [-0.3, -0.1, 0.1, -0.3]
 
-  #Set the tolerance on achieving a goal
-  xy_goal_tolerance: 0.1
-  yaw_goal_tolerance: 0.05
+  # Set the tolerance on achieving a goal
+  # We set this rather high because we don't care about achieving intermediate waypoints
+  # exactly, and cone waypoints will be captured by the cone_capture node
+  xy_goal_tolerance: 1.0
+  # we don't care at all what the yaw is when reaching a goal
+  yaw_goal_tolerance: 3.14
 
   #We'll configure how long and with what granularity we'll forward simulate trajectories
   sim_time: 1.7
@@ -39,7 +43,8 @@ TrajectoryPlannerROS:
   occdist_scale: 0.01
   heading_lookahead: 0.325
 
-  #We'll use the Dynamic Window Approach to control instead of Trajectory Rollout for this example
+  # We're using Dynamic Window Approach to control instead of Trajectory Rollout 
+  # this should improve performance
   dwa: true
 
   #How far the robot must travel before oscillation flags are reset
