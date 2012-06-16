@@ -1,9 +1,8 @@
+
 TODOs in cone_capture.py
 
 tweak params in move_base so it isn't always freaking out about non-existent obstacles
     it seems like the local and global plan can get off from each other?
 
 add some more interesting waypoints to loyola-park sim (near the trees)
-
-fix: /robot_pose_ekf/odom should be /odom
 
