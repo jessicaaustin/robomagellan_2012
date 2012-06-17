@@ -1,7 +1,9 @@
 <launch>
 
-    <!-- read in data from the ultrasonic ranefinder array and publish as Range messages -->
+    <!-- read in data from the ultrasonic rangefinder array and publish as Range messages -->
     <node name="rangefinders" pkg="robomagellan" type="Rangefinder.py" respawn="true" /> 
+    <!-- read in data from the infrared rangefinder array and publish as Range messages -->
+    <node name="infrared" pkg="robomagellan" type="short_range_and_battery.py" respawn="true" /> 
     <!-- convert the Range messages to LaserScan messages for use by the move_base node -->
     <node name="ultrasonic_to_laser" pkg="robomagellan" type="ultrasound_to_laser.py" respawn="true" /> 
 

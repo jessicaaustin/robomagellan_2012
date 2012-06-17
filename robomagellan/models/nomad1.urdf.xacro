@@ -113,6 +113,22 @@
         </visual>
     </link>
 
+    <joint name="base_link_to_infrared_aft" type="fixed">
+        <parent link="base_link"/>
+        <child link="infrared_aft"/>
+
+        <origin xyz="-0.23 0.0 0.034" rpy="0.0 0.0 3.1415"/>
+    </joint>
+
+    <link name="infrared_aft">
+        <visual>
+            <geometry>
+                <box size="0.01 0.032 0.013" />
+            </geometry>
+            <material name="yellow"/>
+        </visual>
+    </link>
+
     <!-- the theoretical center of our ultrasonic array -->
     <joint name="base_link_to_base_laser_link" type="fixed">
         <parent link="base_link"/>
