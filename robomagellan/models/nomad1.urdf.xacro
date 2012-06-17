@@ -104,7 +104,7 @@
         <origin xyz="0.047 0.0 0.005"/>
     </joint>
 
-	<link name="infrared_1">
+	<link name="infrared_forward">
 		<visual>
 			<geometry>
 				<box size="0.01 0.032 0.013" />
