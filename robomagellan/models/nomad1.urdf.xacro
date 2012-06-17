@@ -75,7 +75,7 @@
 		<parent link="base_link"/>
 		<child link="camera_lens"/>
 
-		<origin xyz="0.035 0.035 0.199" />
+		<origin xyz="0.100 0.044 0.083" />
 	</joint>
 
 	<link name="camera_lens">
