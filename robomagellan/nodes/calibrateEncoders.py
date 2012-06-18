@@ -79,9 +79,9 @@ except PhidgetException, e:
     raise
 
 if encoder.isAttached():
-    pass
+    print "encoder attached"
 else:
-    print ("encoder attach Failed")
+    print "encoder attach Failed"
 
 motorControl = MotorControl()
 motorControl.setOnAttachHandler(mcAttached)
@@ -112,9 +112,9 @@ except PhidgetException, e:
     raise
 
 if motorControl.isAttached():
-    pass
+    print "motor control attached"
 else:
-    print ("motor attach Failed")
+    print "motor attach Failed"
 
 encoder.setPosition(whichEncoder, 0)
 encoder.setEnabled(whichEncoder, True)
