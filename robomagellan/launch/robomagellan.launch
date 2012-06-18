@@ -31,6 +31,8 @@
     <!-- odom is provided by stage in case of simulation -->
     <include unless="$(arg simulation)"
         file="$(find robomagellan)/config/odometry.xml"/> 
+    <include if="$(arg simulation)"
+        file="$(find robomagellan)/config/odometry-sim.xml"/> 
 
     <!-- sensing -->
     <include unless="$(arg simulation)"

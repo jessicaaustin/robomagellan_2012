@@ -4,6 +4,7 @@
 
     <node pkg="stage" type="stageros" name="stageros" args="$(find robomagellan)/worlds/$(arg worldname).world" respawn="false" >
         <param name="base_watchdog_timeout" value="0.2"/>
+        <remap from="odom" to="wheel_odom_stage"/>
     </node>
 
     <!-- start up visualization tools -->

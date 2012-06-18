@@ -12,12 +12,4 @@
 		respawn="true"
 	/>
 
-	<!-- provide transform from /map->/odom -->
-	<node
-		name="robomagellan_localization"
-		pkg="robomagellan"
-		type="robomagellan_localization.py"
-		respawn="true"
-	/>
-
 </launch>

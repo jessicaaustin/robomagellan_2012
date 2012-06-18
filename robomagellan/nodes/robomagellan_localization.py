@@ -31,7 +31,7 @@
 #
 # 
 # subscribes to:
-#  /robot_pose_ekf/odom_combined
+#  /robot_pose_ekf/odom
 #
 # publishes to:
 # /odom
@@ -53,14 +53,13 @@ class RobomagellanLocalization():
         # we don't care about drifts in orientation,
         # so we'll just publish a constant for that
         self.unit_quaternion = (0.0, 0.0, 0.0, 1.0)
-        self.odom_combined = PoseWithCovarianceStamped()
-        self.last_time = rospy.Time.now()
-        self.last_x = 0
-        self.last_theta = 0
+        self.last_time = None
         rospy.loginfo("RobomagellanLocalization initialized")
 
     def publish_localization(self):
-        # publish the transformation from /map -> /odom
+        """
+            publish the transformation from /map -> /odom
+        """
         br = tf.TransformBroadcaster()
         p = self.current_position_offset
         br.sendTransform((p.x, p.y, p.z),
@@ -69,29 +68,50 @@ class RobomagellanLocalization():
                          "odom",
                          "map")
 
+    def publish_odometry(self, odom_combined):
+        """
+            use current pose, along with delta from last pose to publish 
+            the current Odometry on the /odom topic
+        """
+
+        if not self.last_time:
+            # set up initial times and pose
+            rospy.loginfo("Setting up initial position")
+            self.last_time, self.last_x, self.last_theta = self.current_pose(odom_combined)
+            return
+
         # publish to the /odom topic
         odom = Odometry()
         odom.header.stamp = rospy.Time.now()
         odom.header.frame_id = "/base_link"
-        odom.pose = self.odom_combined.pose
+        odom.pose = odom_combined.pose
 
-        current_time = self.odom_combined.header.stamp
-        dt = (current_time - self.last_time).to_sec()
-        x = self.odom_combined.pose.x
+        current_time, x, theta = self.current_pose(odom_combined)
+        dt = current_time - self.last_time
+        rospy.loginfo('dt=%s' % dt)
+        dt = dt.to_sec()
+        rospy.loginfo('dt_sec=%s' % dt)
         d_x = x - self.last_x
-        theta = tf.transformations.euler_from_quaternion(self.odom_combine.pose.orientation)[2]
         d_theta = theta - self.last_theta
         odom.twist.twist = Twist(Vector3(d_x/dt, 0, 0), Vector3(0, 0, d_theta/dt))
 
         self.odom_publisher.publish(odom)
 
-        self.last_time = current_time
-        self.last_x = x
-        self.last_theta = theta
+        self.last_time, self.last_x, self.last_theta = current_time, x, theta
+
+    def current_pose(self, odom_combined):
+        current_time = odom_combined.header.stamp
+        x = odom_combined.pose.pose.position.x
+        theta = self.yaw_from_quaternion(odom_combined.pose.pose.orientation)
+        return (current_time, x, theta)
+
+    def yaw_from_quaternion(self, q):
+        roll, pitch, yaw = tf.transformations.euler_from_quaternion((q.x, q.y, q.z, q.w))
+        return yaw
 
     def setup_odom_combined_callback(self):
         def odom_combined_callback(data):
-            self.odom_combined = data
+            self.publish_odometry(data)
         return odom_combined_callback
 
     def recalculate_drift(self):
@@ -106,7 +126,7 @@ if __name__ == '__main__':
 
     odom_publisher = rospy.Publisher('/odom', Odometry)
     localization = RobomagellanLocalization(odom_publisher)
-    rospy.Subscriber('/robot_pose_ekf/odom_combined', PoseWithCovarianceStamped, localization.setup_odom_combined_callback())
+    rospy.Subscriber('/robot_pose_ekf/odom', PoseWithCovarianceStamped, localization.setup_odom_combined_callback())
 
     rate = rospy.Rate(10.0)
     while not rospy.is_shutdown():
