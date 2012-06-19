@@ -36,12 +36,21 @@ if __name__ == '__main__':
     imuMessage.orientation.y = 0.0
     imuMessage.orientation.z = 0.0
     imuMessage.orientation.w = 0.0
-    imuMessage.orientation_covariance = [10.0, 0.0, 0.0,
-                             0.0, 10.0, 0.0,
-                             0.0, 0.0, 1.0]
-    imuMessage.angular_velocity_covariance = [99999.0, 0.0, 0.0,
-                             0.0, 99999.0, 0.0,
-                             0.0, 0.0, 99999.0]
+    imuMessage.orientation_covariance = [1000.0, 0.0, 0.0,
+                                         0.0, 1000.0, 0.0,
+                                         0.0, 0.0, 1000.0]
+    #
+    # angular velocity not available
+    #
+    imuMessage.angular_velocity_covariance = [-1, 0.0, 0.0,
+                                              0.0, 0.0, 0.0,
+                                              0.0, 0.0, 0.0]
+    #
+    # linear acceleration not available
+    #
+    imuMessage.linear_acceleration_covariance = [-1, 0.0, 0.0,
+                                                 0.0, 0.0, 0.0,
+                                                 0.0, 0.0, 0.0]
 
     while not rospy.is_shutdown():
         roll, pitch, yaw = imu.getOrientation()
