@@ -90,6 +90,15 @@ class PhidgetMotorController:
     def rotate(self, rotationZ):
         leftSpeed = -(self.defaultMotorSpeed) * rotationZ
         rightSpeed = self.defaultMotorSpeed * rotationZ
+
+        if leftSpeed > 100:
+            leftSpeed = 100
+        if leftSpeed < -100:
+            leftSpeed = -100
+        if rightSpeed > 100:
+            rightSpeed = 100
+        if rightSpeed < -100:
+            rightSpeed = -100
     
         self.motorControl.setVelocity(self.leftWheels, leftSpeed);
         self.motorControl.setVelocity(self.rightWheels, rightSpeed);
