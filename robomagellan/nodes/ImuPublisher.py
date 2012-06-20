@@ -54,14 +54,12 @@ if __name__ == '__main__':
 
     while not rospy.is_shutdown():
         roll, pitch, yaw = imu.getOrientation()
-        roll = roll / 180 * pi
-        pitch = pitch / 180 * pi
+#        roll = roll / 180 * pi
+#        pitch = pitch / 180 * pi
         yaw = yaw / 180 * pi
-        rospy.logdebug('orientation (radians) roll %f, pitch %f, yaw %f' % (roll, pitch, yaw))
 
         try:
-            # assumptions: IMU uses static reference frame, sxyz
-            q = tf.transformations.quaternion_from_euler(roll, pitch, yaw)
+            q = tf.transformations.quaternion_about_axis(yaw, (0, 0, 1))
             imuMessage.orientation.x = q[0]
             imuMessage.orientation.y = q[1]
             imuMessage.orientation.z = q[2]
