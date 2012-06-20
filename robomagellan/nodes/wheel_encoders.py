@@ -27,12 +27,12 @@ class PhidgetEncoders:
         self.pulsesPerRevolution = 2400 # wheel revolution
         self.wheelsConstant = 2 * pi * self.driveWheelRadius / self.wheelSeparation
         self.pulsesConstant = (pi / self.pulsesPerRevolution) * self.driveWheelRadius
-        self.defaultCovariance = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                  0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
-                                  0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
-                                  0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-                                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
-                                  0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+        self.defaultCovariance = [1000.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                  0.0, 1000.0, 0.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 1000.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 1000.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 1000.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 0.0, 1000.0]
 
         self.previousX = 0
         self.previousY = 0
@@ -43,6 +43,7 @@ class PhidgetEncoders:
         self.encoder = Encoder()
         self.odometryMessage = Odometry()
         self.odometryMessage.header.frame_id = 'base_footprint'
+        self.odometryMessage.child_frame_id = 'base_footprint'
         self.odometryMessage.pose.pose.position.z = 0
         self.odometryMessage.pose.covariance = self.defaultCovariance
         self.odometryMessage.twist.covariance = self.defaultCovariance
@@ -134,6 +135,9 @@ class PhidgetEncoders:
         #
         self.odometryMessage.twist.twist.linear.x = deltaX / deltaT
         self.odometryMessage.twist.twist.linear.y = deltaY / deltaT
+        self.odometryMessage.twist.twist.linear.z = 0.0
+        self.odometryMessage.twist.twist.angular.x = 0.0
+        self.odometryMessage.twist.twist.angular.y = 0.0
         self.odometryMessage.twist.twist.angular.z = deltaTheta / deltaT
 
         #
