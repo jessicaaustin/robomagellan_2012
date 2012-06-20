@@ -6,10 +6,9 @@ __author__ = 'Bill Mania <bill@manailabs.us>'
 __version__ = '1'
 
 import time
-import math
 from ctypes import *
 from Phidgets.Devices.MotorControl import MotorControl
-from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
+from Phidgets.PhidgetException import PhidgetException
 
 
 class PhidgetMotorController:
@@ -75,15 +74,17 @@ class PhidgetMotorController:
     
         rotationZ specifies the amount to first rotate the rover base
         and then translationX is the amount to translate the rover base.
-        the rotation argument is given in radians and the translation
-        argument is given in meters per second.
+        the rotation argument is interpreted as radians per second and the
+        translation argument is interprested as meters per second.
     
+        this method assumes that the publisher of the Twist message
+        will not request a speed which is greater than zero but less
+        than self.motorMinSpeed
         """
     
-        if (abs(rotationZ) > 0.1):
-            self.rotate(rotationZ)
-        else:
-            self.translate(translationX)
+        self.rotate(rotationZ)
+
+        self.translate(translationX)
     
         return
     
@@ -91,14 +92,15 @@ class PhidgetMotorController:
         leftSpeed = -(self.defaultMotorSpeed) * rotationZ
         rightSpeed = self.defaultMotorSpeed * rotationZ
 
-        if leftSpeed > 100:
-            leftSpeed = 100
-        if leftSpeed < -100:
-            leftSpeed = -100
-        if rightSpeed > 100:
-            rightSpeed = 100
-        if rightSpeed < -100:
-            rightSpeed = -100
+        if leftSpeed > self.motorMaxSpeed:
+            leftSpeed = self.motorMaxSpeed
+        elif leftSpeed < -(self.motorMaxSpeed):
+            leftSpeed = -(self.motorMaxSpeed)
+
+        if rightSpeed > self.motorMaxSpeed:
+            rightSpeed = self.motorMaxSpeed
+        elif rightSpeed < -(self.motorMaxSpeed):
+            rightSpeed = -(self.motorMaxSpeed)
     
         self.motorControl.setVelocity(self.leftWheels, leftSpeed);
         self.motorControl.setVelocity(self.rightWheels, rightSpeed);
@@ -108,13 +110,15 @@ class PhidgetMotorController:
     def translate(self, translationX):
 
         #
-        # these factors are derived from the motor speed and wheel radius
+        # these magic numbers are derived from the motor speed and
+        # wheel radius
         #
         wheelSpeed = (translationX - 0.12) / 0.0054
+
         if wheelSpeed > self.motorMaxSpeed:
-                wheelSpeed = self.motorMaxSpeed
-        elif wheelSpeed < self.motorMinSpeed:
-                wheelSpeed = self.motorMinSpeed
+            wheelSpeed = self.motorMaxSpeed
+        elif wheelSpeed < -(self.motorMaxSpeed):
+            wheelSpeed = -(self.motorMaxSpeed)
     
         self.motorControl.setVelocity(self.leftWheels, wheelSpeed);
         self.motorControl.setVelocity(self.rightWheels, wheelSpeed);
