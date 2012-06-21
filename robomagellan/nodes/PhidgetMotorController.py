@@ -5,6 +5,7 @@
 __author__ = 'Bill Mania <bill@manailabs.us>'
 __version__ = '1'
 
+import rospy
 import time
 from ctypes import *
 from Phidgets.Devices.MotorControl import MotorControl
@@ -60,6 +61,10 @@ class PhidgetMotorController:
     
         self.minAcceleration = self.motorControl.getAccelerationMin(self.leftWheels)
         self.maxAcceleration = self.motorControl.getAccelerationMax(self.leftWheels)
+
+        rospy.loginfo('PhidgetMotorController initialized')
+
+        return
         
     def setDefaultSpeed(self, defaultSpeed):
         self.defaultMotorSpeed = defaultSpeed
@@ -93,8 +98,14 @@ class PhidgetMotorController:
         rightSpeed = self.defaultMotorSpeed * rotationZ
 
         if leftSpeed > self.motorMaxSpeed:
+            rospy.logwarn("rotation %f results in excess speed %f" % (
+                rotationZ,
+                leftSpeed))
             leftSpeed = self.motorMaxSpeed
         elif leftSpeed < -(self.motorMaxSpeed):
+            rospy.logwarn("rotation %f results in excess speed %f" % (
+                rotationZ,
+                leftSpeed))
             leftSpeed = -(self.motorMaxSpeed)
 
         if rightSpeed > self.motorMaxSpeed:
@@ -116,8 +127,14 @@ class PhidgetMotorController:
         wheelSpeed = (translationX - 0.12) / 0.0054
 
         if wheelSpeed > self.motorMaxSpeed:
+            rospy.logwarn("translation %f results in excess speed %f" % (
+                translationX,
+                wheelSpeed))
             wheelSpeed = self.motorMaxSpeed
         elif wheelSpeed < -(self.motorMaxSpeed):
+            rospy.logwarn("translation %f results in excess speed %f" % (
+                translationX,
+                wheelSpeed))
             wheelSpeed = -(self.motorMaxSpeed)
     
         self.motorControl.setVelocity(self.leftWheels, wheelSpeed);
