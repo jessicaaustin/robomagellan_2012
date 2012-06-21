@@ -86,12 +86,6 @@ class PhidgetEncoders:
 
     def encoderPositionChange(self, e):
         """Called each time the encoder reports a change to its position."""
-        rospy.logdebug('Encoder %i Change: %i Time: %i' % (
-            e.index,
-            e.positionChange,
-            e.time
-            )
-            )
 
         return
 
