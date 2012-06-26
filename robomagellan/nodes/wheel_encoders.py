@@ -12,6 +12,7 @@ from math import pi, cos, sin
 from Phidgets.Devices.Encoder import Encoder
 from Phidgets.PhidgetException import PhidgetException
 from nav_msgs.msg import Odometry
+from sensor_msgs.msg import Imu as ImuMessage
 from tf import transformations
 
 class PhidgetEncoders:
@@ -27,12 +28,12 @@ class PhidgetEncoders:
         self.pulsesPerRevolution = 2400 # wheel revolution
         self.wheelsConstant = 2 * pi * self.driveWheelRadius / self.wheelSeparation
         self.pulsesConstant = (pi / self.pulsesPerRevolution) * self.driveWheelRadius
-        self.defaultCovariance = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                  0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
-                                  0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
-                                  0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-                                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
-                                  0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+        self.defaultCovariance = [1000.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                  0.0, 1000.0, 0.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 1000.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 1000.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 1000.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 0.0, 1000.0]
 
         self.previousX = 0
         self.previousY = 0
@@ -43,9 +44,23 @@ class PhidgetEncoders:
         self.encoder = Encoder()
         self.odometryMessage = Odometry()
         self.odometryMessage.header.frame_id = 'base_footprint'
+        self.odometryMessage.child_frame_id = 'base_footprint'
         self.odometryMessage.pose.pose.position.z = 0
         self.odometryMessage.pose.covariance = self.defaultCovariance
         self.odometryMessage.twist.covariance = self.defaultCovariance
+
+        rospy.logdebug('Waiting on initial IMU message')
+        imuMessage = ImuMessage()
+        imuMessage = rospy.wait_for_message(
+            'imu_data',
+            ImuMessage,
+            timeout = None)
+        self.odometryMessage.pose.pose.orientation.x = imuMessage.orientation.x
+        self.odometryMessage.pose.pose.orientation.y = imuMessage.orientation.y
+        self.odometryMessage.pose.pose.orientation.z = imuMessage.orientation.z
+        self.odometryMessage.pose.pose.orientation.w = imuMessage.orientation.w
+        rospy.loginfo('Initial IMU message received')
+
         #
         # robot_pose_ekf subscribes (via remapping) to wheel_odom,
         # to get 2D position and orientation data. the z, roll and pitch
@@ -85,12 +100,6 @@ class PhidgetEncoders:
 
     def encoderPositionChange(self, e):
         """Called each time the encoder reports a change to its position."""
-        rospy.logdebug('Encoder %i Change: %i Time: %i' % (
-            e.index,
-            e.positionChange,
-            e.time
-            )
-            )
 
         return
 
@@ -134,6 +143,9 @@ class PhidgetEncoders:
         #
         self.odometryMessage.twist.twist.linear.x = deltaX / deltaT
         self.odometryMessage.twist.twist.linear.y = deltaY / deltaT
+        self.odometryMessage.twist.twist.linear.z = 0.0
+        self.odometryMessage.twist.twist.angular.x = 0.0
+        self.odometryMessage.twist.twist.angular.y = 0.0
         self.odometryMessage.twist.twist.angular.z = deltaTheta / deltaT
 
         #

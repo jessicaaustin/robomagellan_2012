@@ -49,7 +49,7 @@ floorplan
 # throw in a robot
 rover1( pose [ -140.000 104.000 0 0.000 ] name "rover1" color "blue")
 # place the waypoints
-waypoint( pose [ -139.0 104.0 0 0 ] name "waypoint0" )
+waypoint( pose [ -138.5 104.0 0 0 ] name "waypoint0" )
 cone( pose [ -130.0 115.0 0 0 ] name "waypoint1" )
 waypoint( pose [ -130.0 120.0 0 0 ] name "waypoint1" )
 cone( pose [ -125.0 125.0 0 0 ] name "waypoint3" )
