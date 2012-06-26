@@ -1,8 +1,6 @@
 
-update robomagellan_localization to take in /robot_pose_ekf_odom and publish Odometry
-on /odom topic (using this as example: http://www.ros.org/wiki/navigation/Tutorials/RobotSetup/Odom)
-related: update simulation stack to have stage input -> robot_pose_ekf, so that we can 
-  use robot_pose_ekf even in simulation
+test camera cone capture node on the robot
+  need to install opencv
 
 TODOs in cone_capture.py
 

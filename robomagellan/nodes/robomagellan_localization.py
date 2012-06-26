@@ -88,9 +88,7 @@ class RobomagellanLocalization():
 
         current_time, x, theta = self.current_pose(odom_combined)
         dt = current_time - self.last_time
-        rospy.loginfo('dt=%s' % dt)
         dt = dt.to_sec()
-        rospy.loginfo('dt_sec=%s' % dt)
         d_x = x - self.last_x
         d_theta = theta - self.last_theta
         odom.twist.twist = Twist(Vector3(d_x/dt, 0, 0), Vector3(0, 0, d_theta/dt))
