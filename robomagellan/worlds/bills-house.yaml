@@ -1,6 +1,6 @@
 image: bills-house.png
 # meters/pixel
-resolution: 1.0
+resolution: 0.10
 origin: [0.0, 0.0, 0.0]
 occupied_thresh: 0.65
 free_thresh: 0.196
