@@ -1,4 +1,6 @@
 
+modify simulation version of base_scan to send stuff nearer to the robot
+
 test camera cone capture node on the robot
   need to install opencv
 

@@ -2,7 +2,7 @@
 
     <!-- wheel encoder odometry provided by stage, this node just adds covariance to
          that odometry so robot_pose_ekf is happy -->
-    <node pkg="robomagellan" type="wheel_encoders_sim.py" name="wheel_encoders"/>
+    <node pkg="robomagellan" type="stage_augmentation.py" name="stage_augmentation"/>
 
     <!-- no IMU odometry in simulation mode -->
 

@@ -2,9 +2,14 @@
     <!-- value will be provided by parent launch file -->
     <arg name="worldname" />
 
+    <!-- 
+         see also odometry-sim.xml, which contains stage_augmentation.py, which takes the output of the stage node 
+         and makes it more realistic for the nomad1 rover.
+     -->
     <node pkg="stage" type="stageros" name="stageros" args="$(find robomagellan)/worlds/$(arg worldname).world" respawn="false" >
         <param name="base_watchdog_timeout" value="0.2"/>
         <remap from="odom" to="wheel_odom_stage"/>
+        <remap from="base_scan" to="base_scan_stage"/>
     </node>
 
     <!-- start up visualization tools -->
