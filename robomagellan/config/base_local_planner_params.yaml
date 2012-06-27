@@ -14,33 +14,36 @@ TrajectoryPlannerROS:
   min_in_place_rotational_vel: 1.0
 
   #The velocity the robot will command when trying to escape from a stuck situation
-  escape_vel: -0.1
+  escape_vel: -0.4
   
   # since our robot has three degrees of freedom: position in X,Y and orientation, 
   # but we can only control two degrees of freedom our robot is non-holonomic
   # http://en.wikipedia.org/wiki/Holonomic
   holonomic_robot: false
 
-  #Since we're using a holonomic robot, we'll set the set of y velocities it will sample
-  y_vels: [-0.3, -0.1, 0.1, -0.3]
-
   # Set the tolerance on achieving a goal
   # We set this rather high because we don't care about achieving intermediate waypoints
   # exactly, and cone waypoints will be captured by the cone_capture node
-  xy_goal_tolerance: 1.0
+  xy_goal_tolerance: 0.5
   # we don't care at all what the yaw is when reaching a goal
   yaw_goal_tolerance: 3.14
 
-  #We'll configure how long and with what granularity we'll forward simulate trajectories
+  # the amount of time to forward-simulate trajectories, in seconds
   sim_time: 1.7
+  # the step size to take between points in a given trajectory
   sim_granularity: 0.025
+  # the number of samples to use when exploring the x velocity space
   vx_samples: 3
+  # the number of samples to use when exploring the theta velocity space
   vtheta_samples: 20
 
-  #Parameters for scoring trajectories
+  # how much the controller should try to reach its local goal 
   goal_distance_bias: 0.8
+  # how much the controller should try to stay to the path it was given
   path_distance_bias: 0.6
+  # how much the controller should try to avoid obstacles
   occdist_scale: 0.01
+  # how far to look ahead when scoring different in-place rotation trajectories
   heading_lookahead: 0.325
 
   # We're using Dynamic Window Approach to control instead of Trajectory Rollout 
