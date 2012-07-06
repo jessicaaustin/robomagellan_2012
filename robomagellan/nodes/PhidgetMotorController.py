@@ -94,25 +94,17 @@ class PhidgetMotorController:
         return
     
     def rotate(self, rotationZ):
-        leftSpeed = -(self.defaultMotorSpeed) * rotationZ
-        rightSpeed = self.defaultMotorSpeed * rotationZ
+        #
+        # maximum rotation speed is 5.2 radians per second
+        #
+        if rotationZ > 5.2:
+            rotationZ = 5.2
+        elif rotationZ < -5.2:
+            rotationZ = -5.2
 
-        if leftSpeed > self.motorMaxSpeed:
-            rospy.logwarn("rotation %f results in excess speed %f" % (
-                rotationZ,
-                leftSpeed))
-            leftSpeed = self.motorMaxSpeed
-        elif leftSpeed < -(self.motorMaxSpeed):
-            rospy.logwarn("rotation %f results in excess speed %f" % (
-                rotationZ,
-                leftSpeed))
-            leftSpeed = -(self.motorMaxSpeed)
+        leftSpeed = -19.230 * rotationZ
+        rightSpeed = 19.230 * rotationZ
 
-        if rightSpeed > self.motorMaxSpeed:
-            rightSpeed = self.motorMaxSpeed
-        elif rightSpeed < -(self.motorMaxSpeed):
-            rightSpeed = -(self.motorMaxSpeed)
-    
         self.motorControl.setVelocity(self.leftWheels, leftSpeed);
         self.motorControl.setVelocity(self.rightWheels, rightSpeed);
     
@@ -122,7 +114,8 @@ class PhidgetMotorController:
 
         #
         # these magic numbers are derived from the motor speed and
-        # wheel radius
+        # wheel radius. they're based on a maximum translation
+        # speed of 0.66 meters per second.
         #
         wheelSpeed = (translationX - 0.12) / 0.0054
 
