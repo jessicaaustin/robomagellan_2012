@@ -80,11 +80,11 @@ class PhidgetMotorController:
         rotationZ specifies the amount to first rotate the rover base
         and then translationX is the amount to translate the rover base.
         the rotation argument is interpreted as radians per second and the
-        translation argument is interprested as meters per second.
+        translation argument is interpreted as meters per second.
     
         this method assumes that the publisher of the Twist message
         will not request a speed which is greater than zero but less
-        than self.motorMinSpeed
+        than self.motorMinSpeed, but this assumption has not been validated.
         """
     
         self.rotate(rotationZ)
