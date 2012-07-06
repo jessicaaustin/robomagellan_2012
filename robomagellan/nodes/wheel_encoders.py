@@ -49,17 +49,23 @@ class PhidgetEncoders:
         self.odometryMessage.pose.covariance = self.defaultCovariance
         self.odometryMessage.twist.covariance = self.defaultCovariance
 
-        rospy.logdebug('Waiting on initial IMU message')
+        #
+        # initialize this node's idea of the starting yaw orientation
+        # by waiting for a message from the IMU
+        #
         imuMessage = ImuMessage()
         imuMessage = rospy.wait_for_message(
             'imu_data',
             ImuMessage,
             timeout = None)
-        self.odometryMessage.pose.pose.orientation.x = imuMessage.orientation.x
-        self.odometryMessage.pose.pose.orientation.y = imuMessage.orientation.y
-        self.odometryMessage.pose.pose.orientation.z = imuMessage.orientation.z
-        self.odometryMessage.pose.pose.orientation.w = imuMessage.orientation.w
-        rospy.loginfo('Initial IMU message received')
+        euler = transformations.euler_from_quaternion(
+            imuMessage.orientation.x,
+            imuMessage.orientation.y,
+            imuMessage.orientation.z,
+            imuMessage.orientation.w
+            )
+        self.previousTheta = euler[2]
+        rospy.loginfo('Synchronized with IMU yaw')
 
         #
         # robot_pose_ekf subscribes (via remapping) to wheel_odom,
@@ -151,9 +157,9 @@ class PhidgetEncoders:
         #
         # update the records
         #
-        self.previousX = self.previousX + deltaX
-        self.previousY = self.previousY + deltaY
-        self.previousTheta = self.previousTheta + deltaTheta
+        self.previousX = self.odometryMessage.pose.pose.position.x
+        self.previousY = self.odometryMessage.pose.pose.position.y
+        self.previousTheta = theta
 
         return
 
