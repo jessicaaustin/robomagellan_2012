@@ -86,55 +86,39 @@ class PhidgetMotorController:
         will not request a speed which is greater than zero but less
         than self.motorMinSpeed, but this assumption has not been validated.
         """
-    
-        self.rotate(rotationZ)
 
-        self.translate(translationX)
-    
-        return
-    
-    def rotate(self, rotationZ):
-        #
-        # maximum rotation speed is 5.2 radians per second
-        #
-        if rotationZ > 5.2:
-            rotationZ = 5.2
-        elif rotationZ < -5.2:
-            rotationZ = -5.2
+        if (rotationZ == 0 and translationX == 0):
+            # FULL STOP
+            self.motorControl.setVelocity(self.leftWheels, 0);
+            self.motorControl.setVelocity(self.rightWheels, 0);
+            return
 
-        leftSpeed = 19.230 * rotationZ
+        leftSpeed = -19.230 * rotationZ
         rightSpeed = 19.230 * rotationZ
-
-        self.motorControl.setVelocity(self.leftWheels, leftSpeed);
-        self.motorControl.setVelocity(self.rightWheels, rightSpeed);
-    
-        return
-    
-    def translate(self, translationX):
-
+ 
         #
         # these magic numbers are derived from the motor speed and
         # wheel radius. they're based on a maximum translation
         # speed of 0.66 meters per second.
         #
-        wheelSpeed = (translationX - 0.12) / 0.0054
+        wheelSpeed = translationX / 0.0054
 
-        if wheelSpeed > self.motorMaxSpeed:
-            rospy.logwarn("translation %f results in excess speed %f" % (
-                translationX,
-                wheelSpeed))
-            wheelSpeed = self.motorMaxSpeed
-        elif wheelSpeed < -(self.motorMaxSpeed):
-            rospy.logwarn("translation %f results in excess speed %f" % (
-                translationX,
-                wheelSpeed))
-            wheelSpeed = -(self.motorMaxSpeed)
+        leftSpeed += wheelSpeed
+        rightSpeed += wheelSpeed
     
-        self.motorControl.setVelocity(self.leftWheels, wheelSpeed);
-        self.motorControl.setVelocity(self.rightWheels, wheelSpeed);
-    
-        return
-    
+        if leftSpeed > self.motorMaxSpeed:
+            leftSpeed = self.motorMaxSpeed
+        if rightSpeed > self.motorMaxSpeed:
+            rightSpeed = self.motorMaxSpeed
+        if leftSpeed < -self.motorMaxSpeed:
+            leftSpeed = -self.motorMaxSpeed
+        if rightSpeed < -self.motorMaxSpeed:
+            rightSpeed = self.motorMaxSpeed
+
+        self.motorControl.setVelocity(self.leftWheels, leftSpeed);
+        self.motorControl.setVelocity(self.rightWheels, rightSpeed);
+
+       
     def mcAttached(self, e):
         return
     
