@@ -52,11 +52,18 @@ if __name__ == '__main__':
                                                  0.0, 0.0, 0.0,
                                                  0.0, 0.0, 0.0]
 
+    yawOffset = None
     while not rospy.is_shutdown():
         roll, pitch, yaw = imu.getOrientation()
 #        roll = roll / 180 * pi
 #        pitch = pitch / 180 * pi
-        yaw = yaw / 180 * pi
+        yaw = -1 * yaw / 180 * pi
+
+        if not yawOffset:
+            yawOffset = yaw
+
+        # the robot starts off at yaw = 0, and rotates in deltas from this initial orientation
+        yaw -= yawOffset
 
         try:
             q = tf.transformations.quaternion_about_axis(yaw, (0, 0, 1))

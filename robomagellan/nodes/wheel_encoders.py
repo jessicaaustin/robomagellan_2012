@@ -127,10 +127,11 @@ class PhidgetEncoders:
         self.previousLeftPosition += leftPulses
         self.previousRightPosition += rightPulses
 
-        deltaTheta = self.wheelsConstant * (leftPulses - rightPulses) / self.pulsesPerRevolution
+        # TODO is wheelsConstant correct here? can we tweak it to get less drift in the theta direction?
+        deltaTheta = self.wheelsConstant * (rightPulses - leftPulses) / self.pulsesPerRevolution
         theta = self.previousTheta + deltaTheta
-        deltaX = cos(theta) * (leftPulses + rightPulses) * self.pulsesConstant
-        deltaY = sin(theta) * (leftPulses + rightPulses) * self.pulsesConstant
+        deltaX = -1 * sin(theta) * (leftPulses + rightPulses) * self.pulsesConstant
+        deltaY = cos(theta) * (leftPulses + rightPulses) * self.pulsesConstant
 
         #
         # determine the current Pose and Twist
