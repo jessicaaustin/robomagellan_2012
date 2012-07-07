@@ -1,8 +1,6 @@
 
 cone_capture:
   test camera cone capture node on the robot
-    need to install opencv
-  TODOs in cone_capture.py
 
 move_base:
     it seems like the local and global plan can get off from each other?
@@ -10,4 +8,6 @@ move_base:
 add some more interesting waypoints to loyola-park sim (near the trees)
 
 need a quick way of creating a waypoints file on competition day
+
+robot should avoid going out of the field
 
