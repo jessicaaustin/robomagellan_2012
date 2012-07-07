@@ -20,6 +20,8 @@ class PhidgetMotorController:
         self.defaultMotorSpeed = 100.0
         self.motorMaxSpeed = 100
         self.motorMinSpeed = 20
+        self.leftAdjustment = 0.945
+        self.rightAdjustment = 1.0
 
         self.motorControl = MotorControl()
 
@@ -105,7 +107,7 @@ class PhidgetMotorController:
 
         leftSpeed += wheelSpeed
         rightSpeed += wheelSpeed
-    
+
         if leftSpeed > self.motorMaxSpeed:
             leftSpeed = self.motorMaxSpeed
         if rightSpeed > self.motorMaxSpeed:
@@ -114,6 +116,10 @@ class PhidgetMotorController:
             leftSpeed = -self.motorMaxSpeed
         if rightSpeed < -self.motorMaxSpeed:
             rightSpeed = self.motorMaxSpeed
+
+        # adjust for difference in motor speeds
+        leftSpeed *= self.leftAdjustment
+        rightSpeed *= self.rightAdjustment
 
         self.motorControl.setVelocity(self.leftWheels, leftSpeed);
         self.motorControl.setVelocity(self.rightWheels, rightSpeed);
