@@ -58,12 +58,12 @@ class PhidgetEncoders:
             'imu_data',
             ImuMessage,
             timeout = None)
-        euler = transformations.euler_from_quaternion(
+        euler = transformations.euler_from_quaternion([
             imuMessage.orientation.x,
             imuMessage.orientation.y,
             imuMessage.orientation.z,
             imuMessage.orientation.w
-            )
+            ])
         self.previousTheta = euler[2]
         rospy.loginfo('Synchronized with IMU yaw')
 
