@@ -102,7 +102,7 @@ class PhidgetMotorController:
         elif rotationZ < -5.2:
             rotationZ = -5.2
 
-        leftSpeed = -19.230 * rotationZ
+        leftSpeed = 19.230 * rotationZ
         rightSpeed = 19.230 * rotationZ
 
         self.motorControl.setVelocity(self.leftWheels, leftSpeed);
