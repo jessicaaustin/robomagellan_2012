@@ -27,7 +27,9 @@ class PhidgetEncoders:
         self.wheelSeparation = 0.26
         self.pulsesPerRevolution = 2400 # wheel revolution
         self.wheelsConstant = 2 * pi * self.driveWheelRadius / self.wheelSeparation
-        self.pulsesConstant = (pi / self.pulsesPerRevolution) * self.driveWheelRadius
+        # the 0.915 number is a constant to correct for drift in x-dir (calculated on wood floors indoors)
+        # TODO is this number different outside?
+        self.pulsesConstant = (pi / self.pulsesPerRevolution) * self.driveWheelRadius * 0.915
         self.defaultCovariance = [1000.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                                   0.0, 1000.0, 0.0, 0.0, 0.0, 0.0,
                                   0.0, 0.0, 1000.0, 0.0, 0.0, 0.0,
