@@ -27,9 +27,11 @@ class PhidgetEncoders:
         self.wheelSeparation = 0.26
         self.pulsesPerRevolution = 2400 # wheel revolution
         self.wheelsConstant = 2 * pi * self.driveWheelRadius / self.wheelSeparation
-        # the 0.915 number is a constant to correct for drift in x-dir (calculated on wood floors indoors)
-        # TODO is this number different outside?
-        self.pulsesConstant = (pi / self.pulsesPerRevolution) * self.driveWheelRadius * 0.915
+        self.pulsesConstant = (pi / self.pulsesPerRevolution) * self.driveWheelRadius
+
+        #
+        # these covariance values are complete guesses
+        #
         self.defaultCovariance = [1000.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                                   0.0, 1000.0, 0.0, 0.0, 0.0, 0.0,
                                   0.0, 0.0, 1000.0, 0.0, 0.0, 0.0,
@@ -37,17 +39,36 @@ class PhidgetEncoders:
                                   0.0, 0.0, 0.0, 0.0, 1000.0, 0.0,
                                   0.0, 0.0, 0.0, 0.0, 0.0, 1000.0]
 
+        #
+        # the rover begins with the origins and axes of the odom and
+        # base_link frames aligned.
+        #
         self.previousX = 0
         self.previousY = 0
-        self.previousTheta = 0
         self.previousLeftPosition = 0
         self.previousRightPosition = 0
 
+        #
+        # the rover begins oriented along the positive X of both the
+        # odom and base_link frames.
+        #
+        self.previousTheta = 0
+
+        #
+        # publish the Odometry message to describe the current position
+        # and orientation of the origin of the base_link frame.
+        #
         self.encoder = Encoder()
         self.odometryMessage = Odometry()
-        self.odometryMessage.header.frame_id = 'base_footprint'
-        self.odometryMessage.child_frame_id = 'base_footprint'
+        self.odometryMessage.header.frame_id = 'base_link'
+        self.odometryMessage.child_frame_id = 'base_link'
+
+        #
+        # the rover is incapable of translating along the Z axis,
+        # so it will always be zero
+        #
         self.odometryMessage.pose.pose.position.z = 0
+
         self.odometryMessage.pose.covariance = self.defaultCovariance
         self.odometryMessage.twist.covariance = self.defaultCovariance
 
@@ -124,16 +145,28 @@ class PhidgetEncoders:
         currentTime = rospy.Time.now()
         deltaT = currentTime.to_sec() - self.odometryMessage.header.stamp.to_sec()
         self.odometryMessage.header.stamp = currentTime
+
+        #
+        # calculate the delta between the current encoder value for each wheel and
+        # the value from the previous reading.
+        #
         leftPulses = (-1 * self.encoder.getPosition(self.leftEncoder)) - self.previousLeftPosition
         rightPulses = self.encoder.getPosition(self.rightEncoder) - self.previousRightPosition
         self.previousLeftPosition += leftPulses
         self.previousRightPosition += rightPulses
 
-        # TODO is wheelsConstant correct here? can we tweak it to get less drift in the theta direction?
+        #
+        # subtract the leftPulses (current delta) from the rightPulses, in order
+        # to make a left turn have a positive deltaTheta.
+        #
         deltaTheta = self.wheelsConstant * (rightPulses - leftPulses) / self.pulsesPerRevolution
+
+        #
+        # this calculation of theta doesn't handle the overflow
+        #
         theta = self.previousTheta + deltaTheta
-        deltaX = -1 * sin(theta) * (leftPulses + rightPulses) * self.pulsesConstant
-        deltaY = cos(theta) * (leftPulses + rightPulses) * self.pulsesConstant
+        deltaX = cos(theta) * (leftPulses + rightPulses) * self.pulsesConstant
+        deltaY = sin(theta) * (leftPulses + rightPulses) * self.pulsesConstant
 
         #
         # determine the current Pose and Twist
