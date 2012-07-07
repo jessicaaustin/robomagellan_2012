@@ -21,7 +21,9 @@ SMOOTHNESS = 4
 # blue
 #MIN_THRESH, MAX_THRESH = ( 75.0, 80.0, 80.0, 0.0), (125.0, 230.0, 230.0, 0.0)
 # yellow tennis ball
-MIN_THRESH, MAX_THRESH = (37.5, 74.0, 80.0, 0.0), (50.5, 224.0, 230.0, 0.0)
+#MIN_THRESH, MAX_THRESH = (37.5, 74.0, 80.0, 0.0), (50.5, 224.0, 230.0, 0.0)
+# orange cone (indoors)
+MIN_THRESH, MAX_THRESH = (171.5, 106.0, 102.0, 0.0), (178.5, 248.0, 250.0, 0.0)
 # 6.92 pixels == 1 cm
 PIXELS_TO_CM = 6.92
 

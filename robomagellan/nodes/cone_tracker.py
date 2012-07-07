@@ -57,7 +57,7 @@ class ConeTracker():
             raise ROSInitException(err)
 
         # create display windows
-        cv.NamedWindow('camera', cv.CV_WINDOW_AUTOSIZE)
+#        cv.NamedWindow('camera', cv.CV_WINDOW_AUTOSIZE)
 #        cv.NamedWindow('threshed', cv.CV_WINDOW_AUTOSIZE)
 
         # store the image capture params
@@ -129,21 +129,21 @@ class ConeTracker():
         pos_y = int(sum(self.positions_y)/len(self.positions_y))
         object_position = (pos_x,pos_y)
 
-        cv.Circle(object_indicator, object_position, 8, (0,255,0), 2)
-
-        if blobContour:
-            # draw a line to the desiredPosition
-            desiredPosition = cv.GetSize(image)
-            desiredPosition = tuple(map(operator.mul, desiredPosition, (0.5, 0.5)))
-            desiredPosition = tuple(map(int, desiredPosition))
-            cv.Circle(object_indicator, desiredPosition, 4, (255,0,0), 2)
-            cv.Line(object_indicator, object_position, desiredPosition, (255,0,0), 3) 
-
-        # show the images
-        cv.Add(image, object_indicator, image)
-        cv.ShowImage('threshed', image_threshed)
-        cv.ShowImage('camera', image)
-        cv.WaitKey(1)
+#        cv.Circle(object_indicator, object_position, 8, (0,255,0), 2)
+#
+#        if blobContour:
+#            # draw a line to the desiredPosition
+#            desiredPosition = cv.GetSize(image)
+#            desiredPosition = tuple(map(operator.mul, desiredPosition, (0.5, 0.5)))
+#            desiredPosition = tuple(map(int, desiredPosition))
+#            cv.Circle(object_indicator, desiredPosition, 4, (255,0,0), 2)
+#            cv.Line(object_indicator, object_position, desiredPosition, (255,0,0), 3) 
+#
+#        # show the images
+#        cv.Add(image, object_indicator, image)
+#        cv.ShowImage('threshed', image_threshed)
+#        cv.ShowImage('camera', image)
+#        cv.WaitKey(1)
 
         if blobContour:
             z = 1.0  # we assume the ball is 1 meter away (no depth perception yet!)
