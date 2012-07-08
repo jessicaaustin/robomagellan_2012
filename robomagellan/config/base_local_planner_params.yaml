@@ -8,10 +8,10 @@ TrajectoryPlannerROS:
   acc_lim_y: 2.5
 
   #Set the velocity limits of the robot
-  max_vel_x: 1.0
-  min_vel_x: 0.4
-  max_rotational_vel: 1.5
-  min_in_place_rotational_vel: 1.0
+  max_vel_x: 1.5
+  min_vel_x: 0.33
+  max_rotational_vel: 3.0
+  min_in_place_rotational_vel: 1.5
 
   #The velocity the robot will command when trying to escape from a stuck situation
   escape_vel: -0.4
