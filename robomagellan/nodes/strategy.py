@@ -92,8 +92,7 @@ class Strategizer():
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = "/odom"
         goal.target_pose.pose.position = self.waypoints[self.current_waypoint_idx].coordinate
-        # we don't care about orientation currently, so we'll just send something reasonable
-        # TODO change config for move_base so that it actually doesn't care about goal orientation
+        # base_local_planner is configured to ignore goal yaw, so goal orientation doesn't actually matter
         goal.target_pose.pose.orientation = Quaternion(0.0, 0.0, 0.0, 1.0)
         self.move_base_client.send_goal(goal, self.receive_move_base_goal_done_callback)
 

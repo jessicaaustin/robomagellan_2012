@@ -26,10 +26,13 @@ TrajectoryPlannerROS:
   # exactly, and cone waypoints will be captured by the cone_capture node
   xy_goal_tolerance: 0.5
   # we don't care at all what the yaw is when reaching a goal
-  yaw_goal_tolerance: 3.14
+  yaw_goal_tolerance: 6.28
 
   # the amount of time to forward-simulate trajectories, in seconds
-  sim_time: 1.7
+  # higher sim_time generally implies smoother trajectories, but also
+  # requires a higher xy_goal_tolerance. since our xy_goal_tolerance is high,
+  # we can afford to have a high sim_time
+  sim_time: 2.5
   # the step size to take between points in a given trajectory
   sim_granularity: 0.025
   # the number of samples to use when exploring the x velocity space
@@ -38,11 +41,14 @@ TrajectoryPlannerROS:
   vtheta_samples: 20
 
   # how much the controller should try to reach its local goal 
-  goal_distance_bias: 0.8
+  # our goal_distance_bias >>> path_distance_bias because we don't have a good map,
+  # so our paths are generally crap
+  goal_distance_bias: 5.0
   # how much the controller should try to stay to the path it was given
   path_distance_bias: 0.6
   # how much the controller should try to avoid obstacles
-  occdist_scale: 0.01
+  # typical is 0.01, ours is higher because our sensor range is low
+  occdist_scale: 0.50
   # how far to look ahead when scoring different in-place rotation trajectories
   heading_lookahead: 0.325
 
