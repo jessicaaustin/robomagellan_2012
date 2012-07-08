@@ -47,8 +47,7 @@ TrajectoryPlannerROS:
   # how much the controller should try to stay to the path it was given
   path_distance_bias: 0.6
   # how much the controller should try to avoid obstacles
-  # typical is 0.01, ours is higher because our sensor range is low
-  occdist_scale: 0.50
+  occdist_scale: 0.05
   # how far to look ahead when scoring different in-place rotation trajectories
   heading_lookahead: 0.325
 
