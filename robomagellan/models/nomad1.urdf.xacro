@@ -75,7 +75,7 @@
         <parent link="base_link"/>
         <child link="imu"/>
 
-        <origin xyz="-0.18 -0.065 1.095" />
+        <origin xyz="-0.098 0.110 1.125" />
     </joint>
 
     <link name="imu">
