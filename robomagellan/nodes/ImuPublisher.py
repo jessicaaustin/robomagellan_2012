@@ -40,11 +40,14 @@ if __name__ == '__main__':
                                          0.0, 1000.0, 0.0,
                                          0.0, 0.0, 1000.0]
     #
-    # angular velocity not available
+    # angular velocity
     #
-    imuMessage.angular_velocity_covariance = [-1, 0.0, 0.0,
-                                              0.0, 0.0, 0.0,
-                                              0.0, 0.0, 0.0]
+    imuMessage.angular_velocity.x = 0.0
+    imuMessage.angular_velocity.y = 0.0
+    imuMessage.angular_velocity.z = 0.0
+    imuMessage.angular_velocity_covariance = [1000.0, 0.0, 0.0,
+                                              0.0, 1000.0, 0.0,
+                                              0.0, 0.0, 1000.0]
     #
     # linear acceleration not available
     #
@@ -53,8 +56,14 @@ if __name__ == '__main__':
                                                  0.0, 0.0, 0.0]
 
     yawOffset = None
+    previousTimestamp = rospy.get_time()
+    previousYaw = None
+
     while not rospy.is_shutdown():
+        currentTimestamp = rospy.get_time()
         roll, pitch, yaw = imu.getOrientation()
+        deltaTime = currentTimestamp - previousTimestamp
+
 #        roll = roll / 180 * pi
 #        pitch = pitch / 180 * pi
         yaw = -1 * yaw / 180 * pi
@@ -65,6 +74,12 @@ if __name__ == '__main__':
         # the robot starts off at yaw = 0, and rotates in deltas from this initial orientation
         yaw -= yawOffset
 
+        if previousYaw:
+            imuMessage.angular_velocity.z = (yaw - previousYaw) / deltaTime
+
+        previousYaw = yaw
+        previousTimestamp = currentTimestamp
+            
         try:
             q = tf.transformations.quaternion_about_axis(yaw, (0, 0, 1))
             imuMessage.orientation.x = q[0]
