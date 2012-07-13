@@ -162,13 +162,16 @@ class ConeCaptureNavigator(Navigator):
             self.rotate_towards_goal(goal)
 
         elif self.state == NavigationState.MOVE_TOWARDS_GOAL:
+            # Assumption here... the intermediate waypoints are laid out in such a way
+            # that by the time a cone waypoint is sent, we are close enough to the cone
+            # that we should be able to see it
             self.state = NavigationState.CAPTURE_CONE
 
         elif self.state == NavigationState.CAPTURE_CONE:
             if self.collided:
                 # we're done, time to return the action service
                 rospy.loginfo("cone captured!")
-                self.move_backwards_to_clear_obstacle()
+                self.move_backwards_to_clear_cone()
                 self.state = NavigationState.NONE
                 self.cone_coord = None
                 self.server.set_succeeded()
@@ -192,9 +195,6 @@ class ConeCaptureNavigator(Navigator):
             with yaw commands proportional to the error in the 
             y-direction
         """
-
-        # TODO proportional control will probably yield terrible results here...
-        #      switch to PID control instead
         z = self.cone_coord.point.y
         if z > 0.2:
             z = 0.2
@@ -202,7 +202,7 @@ class ConeCaptureNavigator(Navigator):
             z = -0.2
         self.publish_cmd_vel(settings.SPEED_TO_CAPTURE, z)
 
-    def move_backwards_to_clear_obstacle(self):
+    def move_backwards_to_clear_cone(self):
         rospy.loginfo("moving backwards to clear cone")
 
         # first, make sure we're stopped
