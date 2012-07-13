@@ -26,6 +26,7 @@ from geometry_msgs.msg import Twist
 from geometry_msgs.msg import PointStamped
 from robomagellan.msg import BoolStamped
 from robomagellan.msg import NavigationState
+from nav_msgs.msg import Odometry
 
 import tf
 import actionlib
@@ -35,12 +36,16 @@ from robomagellan.msg import CaptureWaypointFeedback
 
 import settings
 
+import math
+
 class Navigator():
     def __init__(self, publisher):
         self.publisher = publisher
         self.transformListener = tf.TransformListener()
         self.cone_coord = None
+        self.target_coord = None
         self.collided = False
+        self.odom = None
         self.state = NavigationState.NONE
         self.server = actionlib.SimpleActionServer('capture_cone', CaptureWaypointAction, self.execute, False)
         self.server.start()
@@ -55,9 +60,13 @@ class Navigator():
         rate = rospy.Rate(10.0)
         finished = False
         while not rospy.is_shutdown() and not finished:
-            # TODO check here if the goal has been pre-empted
-            finished = self.capture_waypoint(goal)
-            self.publish_feedback()
+            if self.server.is_preempt_requested():
+                rospy.loginfo('%s: Preempted' % self.__class__)
+                self.server.set_preempted()
+                finished = True
+            else:
+                finished = self.capture_waypoint(goal)
+                self.publish_feedback()
             rate.sleep()
 
     def setup_cone_coord_callback(self):
@@ -69,11 +78,16 @@ class Navigator():
             else:
                 self.cone_coord = None
         return cone_coord_callback
-                    
+
     def setup_collision_callback(self):
         def collision_callback(data):
             self.collided = data.value
         return collision_callback
+
+    def setup_odom_callback(self):
+        def odom_callback(data):
+            self.odom = data
+        return odom_callback
 
     def publish_feedback(self):
         feedback = CaptureWaypointFeedback()
@@ -95,6 +109,41 @@ class Navigator():
         else:
             return ""
        
+    def publish_cmd_vel(self, x, z):
+        cmd_vel = Twist()
+        cmd_vel.linear.x = x
+        cmd_vel.angular.z = z
+        self.publisher.publish(cmd_vel)
+
+    def rotate_towards_goal(self, goal):
+        if self.target_coord == None:
+            # set up our target the first time through
+            goal_coord = PointStamped()
+            goal_coord.header.frame_id = "/map"
+            goal_coord.header.stamp = self.transformListener.getLatestCommonTime("/odom", "/map")
+            goal_coord.point = goal.waypoint.coordinate
+            self.target_coord = self.transformListener.transformPoint("/odom", goal_coord)
+
+        # current pose
+        x = self.odom.pose.pose.position.x
+        y = self.odom.pose.pose.position.y
+        q = self.odom.pose.pose.orientation
+        # desired pose
+        xd = self.target_coord.point.x
+        yd = self.target_coord.point.y
+        td = math.atan2(yd-y, xd-x)
+        # difference between these two poses
+        theta = tf.transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])[2]
+        terr = td - theta
+
+        if (math.fabs(terr) < settings.THETA_TOLERANCE):
+            # we've reached the desired orientation, time to move towards our goal
+            self.target_coord = None
+            self.state = NavigationState.MOVE_TOWARDS_GOAL
+        else:
+            # need to keep turning to reach our desired orientation
+            turnrate = settings.A2*terr
+            self.publish_cmd_vel(0.0, turnrate)
 
 
 class ConeCaptureNavigator(Navigator):
@@ -110,8 +159,7 @@ class ConeCaptureNavigator(Navigator):
             self.state = NavigationState.ROTATE_INTO_POSITION
 
         elif self.state == NavigationState.ROTATE_INTO_POSITION:
-            self.rotate_towards_goal()
-            self.state = NavigationState.MOVE_TOWARDS_GOAL
+            self.rotate_towards_goal(goal)
 
         elif self.state == NavigationState.MOVE_TOWARDS_GOAL:
             self.state = NavigationState.CAPTURE_CONE
@@ -139,9 +187,6 @@ class ConeCaptureNavigator(Navigator):
         # haven't reached our goal yet...
         return False
 
-    def rotate_towards_goal(self):
-        return
-
     def move_towards_cone(self):
         """
             moves the robot forward at a constant velocity, 
@@ -149,17 +194,14 @@ class ConeCaptureNavigator(Navigator):
             y-direction
         """
 
-        self.transformListener.transformPoint("base_link", self.cone_coord)
-        cmd_vel = Twist()
-        cmd_vel.linear.x = settings.SPEED_TO_CAPTURE
         # TODO proportional control will probably yield terrible results here...
         #      switch to PID control instead
-        cmd_vel.angular.z = self.cone_coord.point.y
-        if cmd_vel.angular.z > 0.2:
-            cmd_vel.angular.z = 0.2
-        if cmd_vel.angular.z < -0.2:
-            cmd_vel.angular.z = -0.2
-        self.publisher.publish(cmd_vel)
+        z = self.cone_coord.point.y
+        if z > 0.2:
+            z = 0.2
+        if z < -0.2:
+            z = -0.2
+        self.publish_cmd_vel(settings.SPEED_TO_CAPTURE, z)
 
     def move_backwards_to_clear_obstacle(self):
         rospy.loginfo("moving backwards to clear cone")
@@ -182,6 +224,7 @@ class ConeCaptureNavigator(Navigator):
         self.publisher.publish(cmd_vel)
 
     def rotate_in_place_to_find_cone(self):
+        # TODO implement
         return
 
 
@@ -194,5 +237,6 @@ if __name__ == '__main__':
     capturer = ConeCaptureNavigator(publisher)
     rospy.Subscriber('cone_coord', PointStamped, capturer.setup_cone_coord_callback())
     rospy.Subscriber('collision', BoolStamped, capturer.setup_collision_callback())
+    rospy.Subscriber('odom', Odometry, capturer.setup_odom_callback())
             
     rospy.spin()
