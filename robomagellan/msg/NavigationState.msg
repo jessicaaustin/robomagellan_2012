@@ -6,3 +6,4 @@ uint8 MOVE_TOWARDS_GOAL       = 2     # Moving in a straight path towards the go
 uint8 CAPTURE_CONE            = 3     # Using the cone_coord data to capture the cone
 uint8 AVOID_OBSTACLE          = 4     # Navigating around an obstacle
 uint8 ROTATE_TO_FIND_PATH     = 5     # Can't find a clear path to goal, rotate in place
+string text     # a human-friendly version of the state

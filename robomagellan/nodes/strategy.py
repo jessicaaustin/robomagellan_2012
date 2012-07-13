@@ -34,8 +34,8 @@ from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 from move_base_msgs.msg import MoveBaseAction
 from move_base_msgs.msg import MoveBaseGoal
-from robomagellan.msg import CaptureConeAction
-from robomagellan.msg import CaptureConeGoal
+from robomagellan.msg import CaptureWaypointAction
+from robomagellan.msg import CaptureWaypointGoal
 from actionlib_msgs.msg import GoalStatus
 from topic_tools.srv import MuxSelect
 
@@ -64,7 +64,7 @@ class Strategizer():
         self.move_base_client = SimpleActionClient('move_base', MoveBaseAction)
         self.move_base_client.wait_for_server()
         rospy.loginfo("move_base action client loaded")
-        self.capture_cone_client = SimpleActionClient('capture_cone', CaptureConeAction)
+        self.capture_cone_client = SimpleActionClient('capture_cone', CaptureWaypointAction)
         self.capture_cone_client.wait_for_server()
         rospy.loginfo("capture_cone action client loaded")
         rospy.wait_for_service('mux_cmd_vel/select')
@@ -126,7 +126,7 @@ class Strategizer():
         # send the goal to capture_cone node
         waypoint_to_capture = self.waypoints[self.current_waypoint_idx]
         rospy.loginfo("Attempting to capture cone at:\n %s" % waypoint_to_capture)
-        goal = CaptureConeGoal()
+        goal = CaptureWaypointGoal()
         goal.waypoint = waypoint_to_capture
         self.capture_cone_client.send_goal(goal, self.receive_capture_cone_done_callback)
 

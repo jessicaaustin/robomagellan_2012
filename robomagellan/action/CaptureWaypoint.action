@@ -2,4 +2,3 @@ robomagellan/Waypoint waypoint
 ---
 ---
 robomagellan/NavigationState status
-string message

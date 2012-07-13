@@ -30,8 +30,8 @@ from robomagellan.msg import NavigationState
 import tf
 import actionlib
 
-from robomagellan.msg import CaptureConeAction
-from robomagellan.msg import CaptureConeFeedback
+from robomagellan.msg import CaptureWaypointAction
+from robomagellan.msg import CaptureWaypointFeedback
 
 import settings
 
@@ -42,7 +42,7 @@ class Navigator():
         self.cone_coord = None
         self.collided = False
         self.state = NavigationState.NONE
-        self.server = actionlib.SimpleActionServer('capture_cone', CaptureConeAction, self.execute, False)
+        self.server = actionlib.SimpleActionServer('capture_cone', CaptureWaypointAction, self.execute, False)
         self.server.start()
 
     def execute(self, goal):
@@ -76,9 +76,9 @@ class Navigator():
         return collision_callback
 
     def publish_feedback(self):
-        feedback = CaptureConeFeedback()
+        feedback = CaptureWaypointFeedback()
         feedback.status.state = self.state
-        feedback.message = self.status_message()
+        feedback.status.text = self.status_message()
         self.server.publish_feedback(feedback)
 
     def status_message(self):
