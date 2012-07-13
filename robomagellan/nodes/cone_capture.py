@@ -73,7 +73,7 @@ class Navigator():
         def cone_coord_callback(data):
             # only save this data if we are moving towards a cone 
             # we do this to avoid outdated cone data
-            if self.state == NavigationState.CAPTURE_CONE:
+            if self.state == NavigationState.CAPTURE_CONE or self.state == NavigationState.ROTATE_TO_FIND_PATH:
                 self.cone_coord = data
             else:
                 self.cone_coord = None
@@ -182,7 +182,6 @@ class ConeCaptureNavigator(Navigator):
 
         elif self.state == NavigationState.ROTATE_TO_FIND_PATH:
             self.rotate_in_place_to_find_cone()
-            # TODO abort if we can't find the cone after some amount of time
 
         # haven't reached our goal yet...
         return False
@@ -224,8 +223,13 @@ class ConeCaptureNavigator(Navigator):
         self.publisher.publish(cmd_vel)
 
     def rotate_in_place_to_find_cone(self):
-        # TODO implement
-        return
+        if self.cone_coord != None:
+            # we found the cone!
+            self.state = NavigationState.CAPTURE_CONE
+        else:
+            # rotate in place until the cone comes into view
+            # TODO abort if we can't find the cone after some amount of time
+            self.publish_cmd_vel(0.0, settings.SPEED_TO_ROTATE)
 
 
 if __name__ == '__main__':
