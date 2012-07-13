@@ -112,18 +112,35 @@ class Navigator():
        
     def publish_cmd_vel(self, x, z):
         cmd_vel = Twist()
-        cmd_vel.linear.x = x
-        cmd_vel.angular.z = z
+        cmd_vel.linear.x = self.bounded_speed(x)
+        cmd_vel.angular.z = self.bounded_turnrate(z)
         self.publisher.publish(cmd_vel)
+
+    def bounded_turnrate(self, turnrate):
+        if (turnrate > settings.MAX_TURNRATE):
+            return settings.MAX_TURNRATE
+        if (turnrate < -1 * settings.MAX_TURNRATE):
+            return -1 * settings.MAX_TURNRATE
+        return turnrate
+
+    def bounded_speed(self, speed):
+        if (speed > settings.MAX_VELOCITY):
+            return settings.MAX_VELOCITY
+        if (speed < -1 * settings.MAX_VELOCITY):
+            return -1 * settings.MAX_VELOCITY
+        return speed
+
+    def target_coord_in_odom_frame(self, goal):
+        goal_coord = PointStamped()
+        goal_coord.header.frame_id = "/map"
+        goal_coord.header.stamp = self.transformListener.getLatestCommonTime("/odom", "/map")
+        goal_coord.point = goal.waypoint.coordinate
+        return self.transformListener.transformPoint("/odom", goal_coord)
 
     def rotate_towards_goal(self, goal):
         if self.target_coord == None:
             # set up our target the first time through
-            goal_coord = PointStamped()
-            goal_coord.header.frame_id = "/map"
-            goal_coord.header.stamp = self.transformListener.getLatestCommonTime("/odom", "/map")
-            goal_coord.point = goal.waypoint.coordinate
-            self.target_coord = self.transformListener.transformPoint("/odom", goal_coord)
+            self.target_coord = self.target_coord_in_odom_frame(goal)
 
         # current pose
         x = self.odom.pose.pose.position.x
@@ -145,6 +162,106 @@ class Navigator():
             # need to keep turning to reach our desired orientation
             turnrate = settings.A2*terr
             self.publish_cmd_vel(0.0, turnrate)
+
+
+class WaypointNavigator(Navigator):
+    def __init__(self, publisher):
+        Navigator.__init__(self, publisher)
+
+    def responds_to_waypoint(self, waypoint):
+        return waypoint.type == 'P'
+
+    def capture_waypoint(self, goal):
+
+        if self.state == NavigationState.NONE:
+            self.state = NavigationState.ROTATE_INTO_POSITION
+
+        elif self.state == NavigationState.ROTATE_INTO_POSITION:
+            self.rotate_towards_goal(goal)
+
+        elif self.state == NavigationState.MOVE_TOWARDS_GOAL:
+            if self.collided:
+                self.state == NavigationState.AVOID_OBSTACLE
+            else:
+                return self.move_towards_waypoint(goal)
+
+        elif self.state == NavigationState.ROTATE_TO_FIND_PATH:
+            self.state = NavigationState.MOVE_TOWARDS_GOAL
+
+        elif self.state == NavigationState.AVOID_OBSTACLE:
+            # TODO implement 
+            # until then... full stop
+            self.publish_cmd_vel(0.0, 0.0)
+
+        # haven't reached our goal yet...
+        return False
+
+    def move_towards_waypoint(self, goal):
+        """
+            moves the robot towards the goal, with linear-x and
+            angular-z twist commands proportional to the error in
+            the linear and y-direction, respectively.
+        """
+
+        # current pose
+        x = self.odom.pose.pose.position.x
+        y = self.odom.pose.pose.position.y
+
+        if self.target_coord == None:
+            # set up our target the first time through
+            self.target_coord = self.target_coord_in_odom_frame(goal)
+            self.xinit = x
+            self.yinit = y
+
+        # desired pose
+        xd = self.target_coord.point.x
+        yd = self.target_coord.point.y
+
+        # xerr = error in the linear direction
+        xerr = math.sqrt( (x-xd)*(x-xd) + (y-yd)*(y-yd) )
+
+        # yerr = error in the longitudinal direction
+        #
+        # perpendicular distance from line connecting initial pos and desired pos
+        #
+        # if the line going from initial point to desired point is defined as
+        #   Ax + By + C = 0
+        # or in another form (where m is the slope of the line)
+        #   y - yd = m(x - xd)
+        # then the distance is from point (m,n) to the line is (http://tinyurl.com/43s7mur)
+        #   (Am + Bn + C)/sqrt(A*A+B*B)
+        # where
+        #   A = -m
+        #   B = 1
+        #   C = m*xd - yd
+        #
+        slope = (yd - self.yinit)/(xd - self.xinit)
+        A = -slope
+        B = 1
+        C = slope * xd - yd
+        yerr = (A*x + B*y + C)/(math.sqrt(A*A+B*B))
+
+        if (math.fabs(xerr) < settings.WAYPOINT_THRESHOLD and 
+            math.fabs(yerr) < settings.WAYPOINT_THRESHOLD):
+            # we've reached our waypoint! time to return success
+            self.state = NavigationState.NONE
+            self.target_coord = None
+            self.server.set_succeeded()
+            return True
+
+        else:
+            # need to continue to move towards waypoint
+
+            speed = settings.LAMBDA * xerr
+
+            turnrate = settings.A1*yerr
+            if (xd > x):
+                # need to do this because of how we defined theta
+                turnrate *= -1 
+
+            self.publish_cmd_vel(speed, turnrate)
+            return False
+
 
 
 class ConeCaptureNavigator(Navigator):
@@ -208,20 +325,17 @@ class ConeCaptureNavigator(Navigator):
 
         # first, make sure we're stopped
         for i in range(10):
-            cmd_vel = Twist()
-            self.publisher.publish(cmd_vel)
+            self.publish_cmd_vel(0.0, 0.0)
             rospy.sleep(.1)
 
         # now, move backwards
         for i in range(20):
-            cmd_vel = Twist()
-            cmd_vel.linear.x = -1 * settings.SPEED_TO_CAPTURE
-            self.publisher.publish(cmd_vel)
+            linear_x = -1 * settings.SPEED_TO_CAPTURE
+            self.publish_cmd_vel(linear_x, 0.0)
             rospy.sleep(.1)
 
         # stop again before continuing
-        cmd_vel = Twist()
-        self.publisher.publish(cmd_vel)
+        self.publish_cmd_vel(0.0, 0.0)
 
     def rotate_in_place_to_find_cone(self):
         if self.cone_coord != None:
@@ -239,9 +353,16 @@ if __name__ == '__main__':
     rospy.loginfo("Initializing cone_capture node")
 
     publisher = rospy.Publisher('cmd_vel', Twist)
-    capturer = ConeCaptureNavigator(publisher)
-    rospy.Subscriber('cone_coord', PointStamped, capturer.setup_cone_coord_callback())
-    rospy.Subscriber('collision', BoolStamped, capturer.setup_collision_callback())
-    rospy.Subscriber('odom', Odometry, capturer.setup_odom_callback())
+
+    # create a navigator for capturing cone waypoints
+    cone_navigator = ConeCaptureNavigator(publisher)
+    rospy.Subscriber('cone_coord', PointStamped, cone_navigator.setup_cone_coord_callback())
+    rospy.Subscriber('collision', BoolStamped, cone_navigator.setup_collision_callback())
+    rospy.Subscriber('odom', Odometry, cone_navigator.setup_odom_callback())
+            
+    # create a navigator for capturing intermediate waypoints
+#    waypoint_navigator = WaypointNavigator(publisher)
+#    rospy.Subscriber('collision', BoolStamped, waypoint_navigator.setup_collision_callback())
+#    rospy.Subscriber('odom', Odometry, waypoint_navigator.setup_odom_callback())
             
     rospy.spin()

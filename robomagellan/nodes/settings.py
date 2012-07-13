@@ -55,6 +55,8 @@ SPEED_TO_ROTATE = 0.5
 #
 # how close we need to get to desired yaw before moving on
 THETA_TOLERANCE=.05 
+# how close we need to get to desired goal before considering it reached
+WAYPOINT_THRESHOLD=0.2
 # feedback proportional to longitudinal (in x dir) velocity
 LAMBDA=.2
 # feedback proportional to lateral (in y dir) error
@@ -63,5 +65,7 @@ A1=1
 A2=.65
 # maximum speed for rotation
 MAX_TURNRATE=1.5
+# maximum speed in linear direction
+MAX_VELOCITY=5.0
 
 

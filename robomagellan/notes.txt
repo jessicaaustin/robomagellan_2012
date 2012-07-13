@@ -1,27 +1,20 @@
 
+
+navigation:
+  add WaypointCaptureNavigator implementation
+  add obstacle avoidance
+
 cone_capture:
   test camera cone capture node on the robot
   get good numbers for the HSV
    inside, outside, cloudy, sunny, in the shade, partially obscured
-  if we are supposed to capture a cone and we can't see it, do we perform certain behaviors?
-   e.g. rotate in a circle, back up, etc
 
 experiment with covariances on wheel_odom and imu_data,
   how does robot_pose_ekf use this data?
-
-odometry calibration
-  write a node that moves straight forward, in a circle, etc and check the odometry
-
-write a simpler version of move_base
-
-is it the goal angular tolerance that is causing weird trajectories?
-
-move_base:
-    it seems like the local and global plan can get off from each other?
 
 add some more interesting waypoints to loyola-park sim (near the trees)
 
 need a quick way of creating a waypoints file on competition day
 
-robot should avoid going out of the field
+robot should avoid going out of the field -- add restriction to our navigation system
 
