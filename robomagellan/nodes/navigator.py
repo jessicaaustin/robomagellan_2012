@@ -2,21 +2,7 @@
 
 """
 
-cone_capture
-  based on the location of a cone published by the cone_tracker node,
-  this node will send commands to the robot base on the /cmd_vel topic,
-  as it attempts to reach and physically contact the cone.
-
-implements actionlib for:
- /capture_cone
-
-listens to:
- /cone_coord
- /collision
- /odom
-
-publishes to:
- /cmd_vel
+ConeCaptureNavigator and WaypointNavigator, which both inherit from Navigator.
 
 """
 
@@ -25,9 +11,7 @@ import rospy
 
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import PointStamped
-from robomagellan.msg import BoolStamped
 from robomagellan.msg import NavigationState
-from nav_msgs.msg import Odometry
 
 import tf
 import actionlib
@@ -40,7 +24,7 @@ import settings
 import math
 
 class Navigator():
-    def __init__(self, publisher):
+    def __init__(self, server_name, publisher):
         self.publisher = publisher
         self.transformListener = tf.TransformListener()
         self.cone_coord = None
@@ -48,12 +32,13 @@ class Navigator():
         self.collided = False
         self.odom = None
         self.state = NavigationState.NONE
-        self.server = actionlib.SimpleActionServer('capture_cone', CaptureWaypointAction, self.execute, False)
+        self.server = actionlib.SimpleActionServer(server_name, CaptureWaypointAction, self.execute, False)
         self.server.start()
 
     def execute(self, goal):
         if not self.responds_to_waypoint(goal.waypoint):
-            rospy.loginfo("%s does not respond to waypoint of type %s" % (self.__class__, goal.waypoint.type))
+            rospy.logerr("%s does not respond to waypoint of type %s" % (self.__class__, goal.waypoint.type))
+            self.server.set_aborted()
             return
 
         rospy.loginfo("%s Received goal: %s" % (self.__class__, goal))
@@ -165,13 +150,19 @@ class Navigator():
 
 
 class WaypointNavigator(Navigator):
-    def __init__(self, publisher):
-        Navigator.__init__(self, publisher)
+    def __init__(self, server_name, publisher):
+        Navigator.__init__(self, server_name, publisher)
 
     def responds_to_waypoint(self, waypoint):
-        return waypoint.type == 'P'
+        # Waypoint navigator can move towards cones as well, 
+        # until we get in range of camera sensors
+        return True
 
     def capture_waypoint(self, goal):
+
+        if self.odom is None:
+            rospy.logwarn("Waiting for initial robot odometry!")
+            return False
 
         if self.state == NavigationState.NONE:
             self.state = NavigationState.ROTATE_INTO_POSITION
@@ -181,6 +172,7 @@ class WaypointNavigator(Navigator):
 
         elif self.state == NavigationState.MOVE_TOWARDS_GOAL:
             if self.collided:
+                rospy.logwarn("Oops, we hit something!")
                 self.state == NavigationState.AVOID_OBSTACLE
             else:
                 return self.move_towards_waypoint(goal)
@@ -240,6 +232,9 @@ class WaypointNavigator(Navigator):
         B = 1
         C = slope * xd - yd
         yerr = (A*x + B*y + C)/(math.sqrt(A*A+B*B))
+        # need to do this because of how we defined theta
+        if (xd > x):
+            yerr *= -1 
 
         if (math.fabs(xerr) < settings.WAYPOINT_THRESHOLD and 
             math.fabs(yerr) < settings.WAYPOINT_THRESHOLD):
@@ -253,11 +248,7 @@ class WaypointNavigator(Navigator):
             # need to continue to move towards waypoint
 
             speed = settings.LAMBDA * xerr
-
             turnrate = settings.A1*yerr
-            if (xd > x):
-                # need to do this because of how we defined theta
-                turnrate *= -1 
 
             self.publish_cmd_vel(speed, turnrate)
             return False
@@ -265,13 +256,17 @@ class WaypointNavigator(Navigator):
 
 
 class ConeCaptureNavigator(Navigator):
-    def __init__(self, publisher):
-        Navigator.__init__(self, publisher)
+    def __init__(self, server_name, publisher):
+        Navigator.__init__(self, server_name, publisher)
 
     def responds_to_waypoint(self, waypoint):
         return waypoint.type == 'C'
 
     def capture_waypoint(self, goal):
+
+        if self.odom is None:
+            rospy.logwarn("Waiting for initial robot odometry!")
+            return False
 
         if self.state == NavigationState.NONE:
             self.state = NavigationState.ROTATE_INTO_POSITION
@@ -346,23 +341,3 @@ class ConeCaptureNavigator(Navigator):
             # TODO abort if we can't find the cone after some amount of time
             self.publish_cmd_vel(0.0, settings.SPEED_TO_ROTATE)
 
-
-if __name__ == '__main__':
-    rospy.init_node('cone_capture')
-    rospy.sleep(3)  # let rxconsole boot up
-    rospy.loginfo("Initializing cone_capture node")
-
-    publisher = rospy.Publisher('cmd_vel', Twist)
-
-    # create a navigator for capturing cone waypoints
-    cone_navigator = ConeCaptureNavigator(publisher)
-    rospy.Subscriber('cone_coord', PointStamped, cone_navigator.setup_cone_coord_callback())
-    rospy.Subscriber('collision', BoolStamped, cone_navigator.setup_collision_callback())
-    rospy.Subscriber('odom', Odometry, cone_navigator.setup_odom_callback())
-            
-    # create a navigator for capturing intermediate waypoints
-#    waypoint_navigator = WaypointNavigator(publisher)
-#    rospy.Subscriber('collision', BoolStamped, waypoint_navigator.setup_collision_callback())
-#    rospy.Subscriber('odom', Odometry, waypoint_navigator.setup_odom_callback())
-            
-    rospy.spin()
