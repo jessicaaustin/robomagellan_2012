@@ -33,15 +33,42 @@ from robomagellan.msg import CaptureConeAction
 
 import settings
 
-class ConeCapturer():
+class Navigator():
     def __init__(self, publisher):
-        self.cone_coord = None
-        self.collided = False
         self.publisher = publisher
         self.transformListener = tf.TransformListener()
+        self.cone_coord = None
+        self.collided = False
+        self.state = None
         self.server = actionlib.SimpleActionServer('capture_cone', CaptureConeAction, self.execute, False)
         self.server.start()
-        return
+
+    def execute(self, goal):
+        if not self.responds_to_waypoint(goal.waypoint):
+            rospy.loginfo("%s does not respond to waypoint of type %s" % (self.__class__, goal.waypoint.type))
+            return
+
+        rospy.loginfo("%s Received goal: %s" % (self.__class__, goal))
+
+        rate = rospy.Rate(10.0)
+        finished = False
+        while not rospy.is_shutdown() and not finished:
+            # TODO check here if the goal has been pre-empted
+            finished = self.capture_waypoint(goal)
+            rate.sleep()
+
+    #
+    # Navigation states:
+    #
+
+    # Initially, rotate the robot to face towards the goal
+    STATE_ROTATE_INTO_POSITION=1
+    # Moving in a straight path towards the goal
+    STATE_MOVE_TOWARDS_GOAL=2
+    # Navigating around an obstacle
+    STATE_AVOID_OBSTACLE=3
+    # Can't find a clear path to goal, rotate in place
+    STATE_ROTATE_TO_FIND_PATH=4
 
     def setup_cone_coord_callback(self):
         def cone_coord_callback(data):
@@ -53,26 +80,51 @@ class ConeCapturer():
             self.collided = data.value
         return collision_callback
 
-    def execute(self, goal):
-        rospy.loginfo("Received goal: %s" % goal)
 
-        rate = rospy.Rate(10.0)
-        while not rospy.is_shutdown():
+
+class ConeCaptureNavigator(Navigator):
+    def __init__(self, publisher):
+        Navigator.__init__(self, publisher)
+
+    def responds_to_waypoint(self, waypoint):
+        return waypoint.type == 'C'
+
+    def capture_waypoint(self, goal):
+        rospy.loginfo("state = %s" % self.state)
+
+        if self.state == None:
+            self.state = Navigator.STATE_ROTATE_INTO_POSITION
+
+        elif self.state == Navigator.STATE_ROTATE_INTO_POSITION:
+            self.rotate_towards_goal()
+            self.state = Navigator.STATE_MOVE_TOWARDS_GOAL
+
+        elif self.state == Navigator.STATE_MOVE_TOWARDS_GOAL:
+            # TODO check how old our cone_coord data is, and remove if it is outdated
+    
             if self.collided:
                 # we're done, time to return the action service
                 rospy.loginfo("cone captured!")
                 self.move_backwards_to_clear_obstacle()
+                self.state = None
                 self.server.set_succeeded()
-                return
-            # TODO check time difference here as well, we don't want to use the
-            #      cone_coord data if it is very old
+                return True
             elif self.cone_coord == None:
                 rospy.logwarn("Attempting to capture cone but no cone_coord available!")
-                # TODO abort if we can't find the cone after some amount of time
+                self.state = Navigator.STATE_ROTATE_TO_FIND_PATH
             else:
                 self.move_towards_cone()
+            # TODO add check for obstacles...
 
-            rate.sleep()
+        elif self.state == Navigator.STATE_ROTATE_TO_FIND_PATH:
+            self.rotate_in_place_to_find_cone()
+            # TODO abort if we can't find the cone after some amount of time
+
+        # haven't reached our goal yet...
+        return False
+
+    def rotate_towards_goal(self):
+        return
 
     def move_towards_cone(self):
         """
@@ -112,7 +164,9 @@ class ConeCapturer():
         # stop again before continuing
         cmd_vel = Twist()
         self.publisher.publish(cmd_vel)
-        
+
+    def rotate_in_place_to_find_cone(self):
+        return
 
 
 if __name__ == '__main__':
@@ -121,7 +175,7 @@ if __name__ == '__main__':
     rospy.loginfo("Initializing cone_capture node")
 
     publisher = rospy.Publisher('cmd_vel', Twist)
-    capturer = ConeCapturer(publisher)
+    capturer = ConeCaptureNavigator(publisher)
     rospy.Subscriber('cone_coord', PointStamped, capturer.setup_cone_coord_callback())
     rospy.Subscriber('collision', BoolStamped, capturer.setup_collision_callback())
             
