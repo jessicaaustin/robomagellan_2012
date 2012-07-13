@@ -13,6 +13,7 @@ implements actionlib for:
 listens to:
  /cone_coord
  /collision
+ /odom
 
 publishes to:
  /cmd_vel
