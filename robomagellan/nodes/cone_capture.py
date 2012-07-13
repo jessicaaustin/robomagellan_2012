@@ -25,11 +25,13 @@ import rospy
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import PointStamped
 from robomagellan.msg import BoolStamped
+from robomagellan.msg import NavigationState
 
 import tf
 import actionlib
 
 from robomagellan.msg import CaptureConeAction
+from robomagellan.msg import CaptureConeFeedback
 
 import settings
 
@@ -39,7 +41,7 @@ class Navigator():
         self.transformListener = tf.TransformListener()
         self.cone_coord = None
         self.collided = False
-        self.state = None
+        self.state = NavigationState.NONE
         self.server = actionlib.SimpleActionServer('capture_cone', CaptureConeAction, self.execute, False)
         self.server.start()
 
@@ -55,24 +57,17 @@ class Navigator():
         while not rospy.is_shutdown() and not finished:
             # TODO check here if the goal has been pre-empted
             finished = self.capture_waypoint(goal)
+            self.publish_feedback()
             rate.sleep()
-
-    #
-    # Navigation states:
-    #
-
-    # Initially, rotate the robot to face towards the goal
-    STATE_ROTATE_INTO_POSITION=1
-    # Moving in a straight path towards the goal
-    STATE_MOVE_TOWARDS_GOAL=2
-    # Navigating around an obstacle
-    STATE_AVOID_OBSTACLE=3
-    # Can't find a clear path to goal, rotate in place
-    STATE_ROTATE_TO_FIND_PATH=4
 
     def setup_cone_coord_callback(self):
         def cone_coord_callback(data):
-            self.cone_coord = data
+            # only save this data if we are moving towards a cone 
+            # we do this to avoid outdated cone data
+            if self.state == NavigationState.CAPTURE_CONE:
+                self.cone_coord = data
+            else:
+                self.cone_coord = None
         return cone_coord_callback
                     
     def setup_collision_callback(self):
@@ -80,6 +75,26 @@ class Navigator():
             self.collided = data.value
         return collision_callback
 
+    def publish_feedback(self):
+        feedback = CaptureConeFeedback()
+        feedback.status.state = self.state
+        feedback.message = self.status_message()
+        self.server.publish_feedback(feedback)
+
+    def status_message(self):
+        if self.state == NavigationState.ROTATE_INTO_POSITION:
+            return "ROTATE_INTO_POSITION"
+        elif self.state == NavigationState.MOVE_TOWARDS_GOAL:
+            return "MOVE_TOWARDS_GOAL"
+        elif self.state == NavigationState.CAPTURE_CONE:
+            return "CAPTURE_CONE"
+        elif self.state == NavigationState.ROTATE_TO_FIND_PATH:
+            return "ROTATE_TO_FIND_PATH"
+        elif self.state == NavigationState.AVOID_OBSTACLE:
+            return "AVOID_OBSTACLE"
+        else:
+            return ""
+       
 
 
 class ConeCaptureNavigator(Navigator):
@@ -90,33 +105,34 @@ class ConeCaptureNavigator(Navigator):
         return waypoint.type == 'C'
 
     def capture_waypoint(self, goal):
-        rospy.loginfo("state = %s" % self.state)
 
-        if self.state == None:
-            self.state = Navigator.STATE_ROTATE_INTO_POSITION
+        if self.state == NavigationState.NONE:
+            self.state = NavigationState.ROTATE_INTO_POSITION
 
-        elif self.state == Navigator.STATE_ROTATE_INTO_POSITION:
+        elif self.state == NavigationState.ROTATE_INTO_POSITION:
             self.rotate_towards_goal()
-            self.state = Navigator.STATE_MOVE_TOWARDS_GOAL
+            self.state = NavigationState.MOVE_TOWARDS_GOAL
 
-        elif self.state == Navigator.STATE_MOVE_TOWARDS_GOAL:
-            # TODO check how old our cone_coord data is, and remove if it is outdated
-    
+        elif self.state == NavigationState.MOVE_TOWARDS_GOAL:
+            self.state = NavigationState.CAPTURE_CONE
+
+        elif self.state == NavigationState.CAPTURE_CONE:
             if self.collided:
                 # we're done, time to return the action service
                 rospy.loginfo("cone captured!")
                 self.move_backwards_to_clear_obstacle()
-                self.state = None
+                self.state = NavigationState.NONE
+                self.cone_coord = None
                 self.server.set_succeeded()
                 return True
             elif self.cone_coord == None:
                 rospy.logwarn("Attempting to capture cone but no cone_coord available!")
-                self.state = Navigator.STATE_ROTATE_TO_FIND_PATH
+                self.state = NavigationState.ROTATE_TO_FIND_PATH
             else:
                 self.move_towards_cone()
             # TODO add check for obstacles...
 
-        elif self.state == Navigator.STATE_ROTATE_TO_FIND_PATH:
+        elif self.state == NavigationState.ROTATE_TO_FIND_PATH:
             self.rotate_in_place_to_find_cone()
             # TODO abort if we can't find the cone after some amount of time
 

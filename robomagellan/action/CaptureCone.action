@@ -1,4 +1,5 @@
 robomagellan/Waypoint waypoint
 ---
 ---
-geometry_msgs/PoseStamped base_position
+robomagellan/NavigationState status
+string message
