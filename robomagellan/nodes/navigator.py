@@ -52,6 +52,9 @@ class Navigator():
         while not rospy.is_shutdown() and not finished:
             if self.server.is_preempt_requested():
                 rospy.loginfo('%s: Preempted' % self.__class__)
+                self.state = NavigationState.NONE
+                self.cone_coord = None
+                self.target_coord = None
                 self.server.set_preempted()
                 finished = True
             else:
@@ -169,6 +172,11 @@ class Navigator():
         # difference between these two poses
         theta = tf.transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])[2]
         terr = td - theta
+
+        if (math.fabs(terr) > math.pi):
+            # rotate in the other direction for efficiency 
+            terr -= math.pi
+            terr *= -1
 
         if (math.fabs(terr) < settings.THETA_TOLERANCE):
             # we've reached the desired orientation, time to move towards our goal
@@ -318,6 +326,7 @@ class ConeCaptureNavigator(Navigator):
                 self.move_backwards_to_clear_cone()
                 self.state = NavigationState.NONE
                 self.cone_coord = None
+                self.target_coord = None
                 self.server.set_succeeded()
                 return True
             elif self.cone_coord == None:

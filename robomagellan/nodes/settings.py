@@ -56,7 +56,7 @@ SPEED_TO_ROTATE = 0.5
 # how close we need to get to desired yaw before moving on
 THETA_TOLERANCE=.05 
 # how close we need to get to desired goal before considering it reached
-WAYPOINT_THRESHOLD=0.2
+WAYPOINT_THRESHOLD=0.3
 # feedback proportional to longitudinal (in x dir) velocity
 LAMBDA=.2
 # feedback proportional to lateral (in y dir) error
