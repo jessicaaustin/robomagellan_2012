@@ -58,10 +58,10 @@ getOrientation()
             inputMessageBuffer = inputMessageBuffer + characterRead
             characterRead = self.serialPort.read(1)
 
-        firstSplit = inputMessageBuffer.split(':')
-        values = firstSplit[1].split(',')
-
         try:
+            firstSplit = inputMessageBuffer.split(':')
+            values = firstSplit[1].split(',')
+
             roll = float(values[0])
             pitch = float(values[1])
             yaw = float(values[2])
@@ -69,7 +69,7 @@ getOrientation()
         except:
             return (0.0, 0.0, 0.0, 'Exception')
 
-        return (roll, pitch, yaw)
+        return (roll, pitch, yaw, None)
 
 if __name__== '__main__':
 
