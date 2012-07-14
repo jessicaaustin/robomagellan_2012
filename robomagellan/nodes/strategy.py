@@ -155,7 +155,7 @@ class Strategizer():
             waypoint = self.waypoints[i]
             waypoint_marker = Marker()
             waypoint_marker.id = i
-            waypoint_marker.header.frame_id = "/odom"
+            waypoint_marker.header.frame_id = "/map"
             waypoint_marker.header.stamp = rospy.Time.now()
             if (waypoint.type == 'P'):
                 waypoint_marker.type = 5  # Line List
@@ -180,6 +180,26 @@ class Strategizer():
                 waypoint_marker.scale.z = 0.5
                 waypoint_marker.pose.position = waypoint.coordinate
             marker_array.markers.append(waypoint_marker)
+
+        current_waypoint_marker = Marker()
+        current_waypoint_marker.id = 999
+        current_waypoint_marker.header.frame_id = "/map"
+        current_waypoint_marker.header.stamp = rospy.Time.now()
+        current_waypoint_marker.type = 2  # Sphere
+        current_waypoint_marker.text = 'current_waypoint'
+        current_waypoint_marker.color.r = 255.0
+        current_waypoint_marker.color.g = 0.0
+        current_waypoint_marker.color.b = 0.0
+        current_waypoint_marker.color.a = 1.0
+        current_waypoint_marker.scale.x = 0.3
+        current_waypoint_marker.scale.y = 0.3
+        current_waypoint_marker.scale.z = 0.3
+        current_waypoint = self.waypoints[self.current_waypoint_idx]
+        current_waypoint_marker.pose.position.x = current_waypoint.coordinate.x
+        current_waypoint_marker.pose.position.y = current_waypoint.coordinate.y
+        current_waypoint_marker.pose.position.z = 1.0
+        marker_array.markers.append(current_waypoint_marker)
+ 
         pub_waypoint_markers.publish(marker_array)
 
 
