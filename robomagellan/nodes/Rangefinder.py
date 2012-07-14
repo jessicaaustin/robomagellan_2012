@@ -12,10 +12,12 @@ class Rangefinder():
 
         rospy.loginfo('Initializing Rangefinder')
 
+        self.serialPort = '/dev/ttyACM0'
+
         while True:
             try:
                 self.rangefinderDevice = serial.Serial(
-                    port = '/dev/ttyACM0',
+                    port = self.serialPort,
                     baudrate = 9600,
                     timeout = 1
                     )
@@ -25,11 +27,11 @@ class Rangefinder():
                 break
     
             except serial.SerialException as e:
-                rospy.logwarn('Unable to open /dev/ttyACM0')
+                rospy.logwarn('Unable to open %s' % (self.serialPort))
                 rospy.sleep(15.0)
 
             except serial.SerialTimeoutException as e:
-                rospy.logwarn('Timeout waiting to open /dev/ttyACM0')
+                rospy.logwarn('Timeout waiting to open %' % (self.serialPort))
                 rospy.sleep(15.0)
 
         self.rangeMessage = Range()
@@ -60,12 +62,14 @@ class Rangefinder():
 
     def processRangefinderMessages(self):
         while not rospy.is_shutdown():
-            rangefinderUnit, distance = self.readNextMessage()
-#            rospy.logdebug('Read distance %s from unit %s' % (distance, rangefinderUnit))
-            self.rangeMessage.header.stamp = rospy.Time.now()
-            self.rangeMessage.header.frame_id = 'ultrasonic_%s' % (rangefinderUnit)
-            self.rangeMessage.range = float(distance)
-            self.publisher.publish(self.rangeMessage)
+            try:
+	            rangefinderUnit, distance = self.readNextMessage()
+	            self.rangeMessage.header.stamp = rospy.Time.now()
+	            self.rangeMessage.header.frame_id = 'ultrasonic_%s' % (rangefinderUnit)
+	            self.rangeMessage.range = float(distance)
+	            self.publisher.publish(self.rangeMessage)
+            except:
+                pass
 
         return
 
