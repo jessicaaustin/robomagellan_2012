@@ -4,15 +4,15 @@
 
 strategy
 - determines where to move the robot next
-- use move_base to move the robot towards point waypoints, and the cone_capture
-  node to move the robot towards cone waypoints
+- switches between the navigator_capture_waypoint and navigator_capture_cone navigators
+  depending on the type of waypoint we are currently trying to reach
 
 listens to:
  /cone_coord
 
 publishes to:
- /move_base/goal
  /capture_cone/goal
+ /capture_waypoint/goal
  /mux_cmd_vel/select
 
 """
@@ -29,13 +29,10 @@ from waypoint_reader import WaypointFileReader
 
 from geometry_msgs.msg import Point
 from geometry_msgs.msg import PointStamped
-from geometry_msgs.msg import Quaternion
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
-from move_base_msgs.msg import MoveBaseAction
-from move_base_msgs.msg import MoveBaseGoal
-from robomagellan.msg import CaptureConeAction
-from robomagellan.msg import CaptureConeGoal
+from robomagellan.msg import CaptureWaypointAction
+from robomagellan.msg import CaptureWaypointGoal
 from actionlib_msgs.msg import GoalStatus
 from topic_tools.srv import MuxSelect
 
@@ -47,7 +44,7 @@ import sys
 class Strategizer():
     def __init__(self, waypoints_file):
         rospy.loginfo("Initializing Strategizer")
-        self.cone_capture_mode = None
+        self.cone_capture_mode = False
         self.transformListener = tf.TransformListener()
         self.load_waypoints()
         self.setup_goal_actions()
@@ -61,19 +58,19 @@ class Strategizer():
 
     def setup_goal_actions(self):
         rospy.loginfo("Waiting for required services...")
-        self.move_base_client = SimpleActionClient('move_base', MoveBaseAction)
-        self.move_base_client.wait_for_server()
-        rospy.loginfo("move_base action client loaded")
-        self.capture_cone_client = SimpleActionClient('capture_cone', CaptureConeAction)
+        self.capture_cone_client = SimpleActionClient('capture_cone', CaptureWaypointAction)
         self.capture_cone_client.wait_for_server()
         rospy.loginfo("capture_cone action client loaded")
+        self.capture_waypoint_client = SimpleActionClient('capture_waypoint', CaptureWaypointAction)
+        self.capture_waypoint_client.wait_for_server()
+        rospy.loginfo("capture_waypoint action client loaded")
         rospy.wait_for_service('mux_cmd_vel/select')
         rospy.loginfo("mux_cmd_vel client loaded")
 
         # send the first goal
         rospy.loginfo("Strategizer sending initial goal")
         self.current_waypoint_idx = 0
-        self.send_next_move_base_goal()
+        self.send_next_capture_waypoint_goal()
 
     # monitor the cone_coord topic, and if we are attempting a cone waypoint
     # and it is sufficiently close, switch to cone capture mode
@@ -87,37 +84,35 @@ class Strategizer():
                 self.switch_to_cone_capture_mode()
         return cone_coord_callback
 
-    def send_next_move_base_goal(self):
-        rospy.loginfo("Moving towards next goal:\n %s" % self.waypoints[self.current_waypoint_idx])
-        goal = MoveBaseGoal()
-        goal.target_pose.header.frame_id = "/odom"
-        goal.target_pose.pose.position = self.waypoints[self.current_waypoint_idx].coordinate
-        # base_local_planner is configured to ignore goal yaw, so goal orientation doesn't actually matter
-        goal.target_pose.pose.orientation = Quaternion(0.0, 0.0, 0.0, 1.0)
-        self.move_base_client.send_goal(goal, self.receive_move_base_goal_done_callback)
+    def send_next_capture_waypoint_goal(self):
+        waypoint_to_capture = self.waypoints[self.current_waypoint_idx]
+        rospy.loginfo("Moving towards next goal:\n %s" % waypoint_to_capture)
+        goal = CaptureWaypointGoal()
+        goal.waypoint = waypoint_to_capture
+        self.capture_waypoint_client.send_goal(goal, self.recieve_capture_waypoint_done_callback)
 
-    def receive_move_base_goal_done_callback(self, status, result):
-        rospy.loginfo("move_base returned with status: %s" % status)
+    def recieve_capture_waypoint_done_callback(self, status, result):
+        rospy.loginfo("capture_waypoint returned with status: %s" % status)
         if status == GoalStatus.PREEMPTED:
             # we cancelled the goal, so capture_cone should be taking care of things... do nothing
             return
 
         if status != GoalStatus.SUCCEEDED:
-            rospy.logerr("move_base failed to achieve goal! result = %s" % result)
+            rospy.logerr("capture_waypoint failed to achieve goal! result = %s" % result)
             rospy.loginfo("skipping this waypoint...")
 
         self.current_waypoint_idx = self.current_waypoint_idx + 1
         if self.current_waypoint_idx == len(self.waypoints):
             rospy.loginfo("All waypoints reached! Finished strategizing.")
         else:
-            self.send_next_move_base_goal()
+            self.send_next_capture_waypoint_goal()
 
     def switch_to_cone_capture_mode(self):
         rospy.loginfo("Switching to cone capture mode!")
 
-        # cancel the move_base goal
-        self.move_base_client.cancel_goal()
-        rospy.loginfo("move_base goal cancelled")
+        # cancel the capture_waypoint goal
+        self.capture_waypoint_client.cancel_goal()
+        rospy.loginfo("capture_waypoint goal cancelled")
 
         # switch to cone_capture node for publishing to /cmd_vel
         self.cone_capture_mode = True
@@ -126,7 +121,7 @@ class Strategizer():
         # send the goal to capture_cone node
         waypoint_to_capture = self.waypoints[self.current_waypoint_idx]
         rospy.loginfo("Attempting to capture cone at:\n %s" % waypoint_to_capture)
-        goal = CaptureConeGoal()
+        goal = CaptureWaypointGoal()
         goal.waypoint = waypoint_to_capture
         self.capture_cone_client.send_goal(goal, self.receive_capture_cone_done_callback)
 
@@ -139,10 +134,10 @@ class Strategizer():
         if self.current_waypoint_idx == len(self.waypoints):
             rospy.loginfo("All waypoints reached! Finished strategizing.")
         else:
-            # switch back to move_base for next waypoint
-            self.switch_cmd_vel("cmd_vel_move_base")
+            # switch back to capture_waypoint for next waypoint
+            self.switch_cmd_vel("cmd_vel_capture_waypoint")
             self.cone_capture_mode = False
-            self.send_next_move_base_goal()
+            self.send_next_capture_waypoint_goal()
 
     def switch_cmd_vel(self, topic):
         rospy.loginfo("switching cmd_vel_mux to %s" % topic)
@@ -160,7 +155,7 @@ class Strategizer():
             waypoint = self.waypoints[i]
             waypoint_marker = Marker()
             waypoint_marker.id = i
-            waypoint_marker.header.frame_id = "/odom"
+            waypoint_marker.header.frame_id = "/map"
             waypoint_marker.header.stamp = rospy.Time.now()
             if (waypoint.type == 'P'):
                 waypoint_marker.type = 5  # Line List
@@ -185,6 +180,26 @@ class Strategizer():
                 waypoint_marker.scale.z = 0.5
                 waypoint_marker.pose.position = waypoint.coordinate
             marker_array.markers.append(waypoint_marker)
+
+        current_waypoint_marker = Marker()
+        current_waypoint_marker.id = 999
+        current_waypoint_marker.header.frame_id = "/map"
+        current_waypoint_marker.header.stamp = rospy.Time.now()
+        current_waypoint_marker.type = 2  # Sphere
+        current_waypoint_marker.text = 'current_waypoint'
+        current_waypoint_marker.color.r = 255.0
+        current_waypoint_marker.color.g = 0.0
+        current_waypoint_marker.color.b = 0.0
+        current_waypoint_marker.color.a = 1.0
+        current_waypoint_marker.scale.x = 0.3
+        current_waypoint_marker.scale.y = 0.3
+        current_waypoint_marker.scale.z = 0.3
+        current_waypoint = self.waypoints[self.current_waypoint_idx]
+        current_waypoint_marker.pose.position.x = current_waypoint.coordinate.x
+        current_waypoint_marker.pose.position.y = current_waypoint.coordinate.y
+        current_waypoint_marker.pose.position.z = 1.0
+        marker_array.markers.append(current_waypoint_marker)
+ 
         pub_waypoint_markers.publish(marker_array)
 
 

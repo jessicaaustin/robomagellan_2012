@@ -14,6 +14,6 @@
 
     <!-- start up visualization tools -->
     <node name="rxconsole" pkg="rxtools" type="rxconsole" respawn="false" />
-    <node name="rviz" pkg="rviz" type="rviz" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robomagellan)/config/robomagellan.vcg" />
 
 </launch>
