@@ -324,6 +324,9 @@ class ConeCaptureNavigator(Navigator):
             self.state = NavigationState.CAPTURE_CONE
 
         elif self.state == NavigationState.CAPTURE_CONE:
+
+            self.flush_outdated_cone_coord_data()
+
             if self.collided:
                 # we're done, time to return the action service
                 rospy.loginfo("cone captured!")
@@ -375,6 +378,16 @@ class ConeCaptureNavigator(Navigator):
 
         # stop again before continuing
         self.publish_cmd_vel(0.0, 0.0)
+
+    def flush_outdated_cone_coord_data(self):
+        if self.cone_coord is None:
+            return
+        
+        now = rospy.Time.now().to_sec()
+        latency = now - self.cone_coord.header.stamp.to_sec()
+        rospy.logwarn("latency=%f" % latency)
+        if latency > 0.5:
+            self.cone_coord = None
 
     def rotate_in_place_to_find_cone(self):
         if self.cone_coord != None:
