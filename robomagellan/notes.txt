@@ -2,7 +2,6 @@
 
 navigation:
   add obstacle avoidance
-  visualize base_scan and cmd_vel in rviz
 
 cone_capture:
   test camera cone capture node on the robot

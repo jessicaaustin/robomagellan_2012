@@ -20,9 +20,18 @@ class WaypointFileReader():
         waypoints = []
         file = open(filename)
         line = file.readline()
+
+        # first line is offset from origin
+        args = line.split()
+        x_offset = float(args[0])
+        y_offset = float(args[1])
+        
+        line = file.readline()
         while len(line) > 0:
             args = line.split()
-            waypoints.append(Waypoint(args[0], Point(float(args[1]), float(args[2]), 0.0)))
+            x = float(args[1]) - x_offset
+            y = float(args[2]) - y_offset
+            waypoints.append(Waypoint(args[0], Point(x, y, 0.0)))
             line = file.readline() 
         rospy.loginfo('Waypoints: \n%s' % waypoints)
         return waypoints
