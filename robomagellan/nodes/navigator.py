@@ -189,7 +189,7 @@ class Navigator():
                 turnrate = settings.MIN_TURNRATE
             elif (turnrate < 0 and math.fabs(turnrate) < settings.MIN_TURNRATE):
                 turnrate = -1 * settings.MIN_TURNRATE
-            self.publish_cmd_vel(0.1, turnrate)
+            self.publish_cmd_vel(0.0, turnrate)
 
 
 class WaypointNavigator(Navigator):
@@ -383,5 +383,5 @@ class ConeCaptureNavigator(Navigator):
         else:
             # rotate in place until the cone comes into view
             # TODO abort if we can't find the cone after some amount of time
-            self.publish_cmd_vel(0.1, settings.MIN_TURNRATE)
+            self.publish_cmd_vel(0.0, settings.MIN_TURNRATE)
 

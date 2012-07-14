@@ -56,9 +56,9 @@ THETA_TOLERANCE=.10
 # how close we need to get to desired goal before considering it reached
 WAYPOINT_THRESHOLD=0.3
 # feedback proportional to longitudinal (in x dir) velocity
-LAMBDA=.2
+LAMBDA=0.35
 # feedback proportional to lateral (in y dir) error
-A1=1
+A1=0.7
 # feedback proportional to angular (theta) error
 A2=2.0
 # maximum speed for rotation
