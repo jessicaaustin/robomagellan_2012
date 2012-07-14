@@ -152,6 +152,7 @@ class PhidgetEncoders:
         #
         leftPulses = (-1 * self.encoder.getPosition(self.leftEncoder)) - self.previousLeftPosition
         rightPulses = self.encoder.getPosition(self.rightEncoder) - self.previousRightPosition
+
         self.previousLeftPosition += leftPulses
         self.previousRightPosition += rightPulses
 
@@ -245,13 +246,6 @@ class PhidgetEncoders:
     
     def encoderInputChanged(self, e):
         rospy.loginfo('encoderInputChanged() called')
-        rospy.loginfo("left position: %d" % (self.encoder.getPosition(
-                self.leftEncoder
-                )))
-        rospy.loginfo("right position: %d" % (self.encoder.getPosition(
-                self.rightEncoder
-                )))
-
         return
     
 if __name__ == "__main__":
