@@ -4,6 +4,9 @@
     <xacro:property name="mainLength" value="0.295" />
     <xacro:property name="mainWidth" value="0.220" />
     <xacro:property name="mainHeight" value="0.184" />
+    <xacro:property name="axleHeight" value="0.049" />
+    <xacro:property name="imuHeight" value="1.165" />
+    <xacro:property name="ultrasonicHeight" value="0.230" />
 
     <material name="blue">
         <color rgba="0 0 1 1"/>
@@ -24,7 +27,7 @@
         <parent link="base_footprint"/>
         <child link="base_link"/>
 
-        <origin xyz="0.093 0.0 0.055" />
+        <origin xyz="0.093 0.0 ${axleHeight}" />
     </joint>
 
     <link name="base_link">
@@ -75,7 +78,7 @@
         <parent link="base_link"/>
         <child link="imu"/>
 
-        <origin xyz="-0.098 0.110 1.125" />
+        <origin xyz="-0.098 0.110 ${imuHeight-axleHeight}" />
     </joint>
 
     <link name="imu">
@@ -151,7 +154,7 @@
         <parent link="base_link"/>
         <child link="base_laser_link"/>
 
-        <origin xyz="0.090 0.0 0.185" rpy="0.0 0.0 0.0"/>
+        <origin xyz="0.090 0.0 ${ultrasonicHeight-axleHeight}" rpy="0.0 0.0 0.0"/>
     </joint>
 
     <link name="base_laser_link">
@@ -167,7 +170,7 @@
         <parent link="base_link"/>
         <child link="ultrasonic_1"/>
 
-        <origin xyz="0.090 -0.038 0.185" rpy="0.0 0.0 0.0"/>
+        <origin xyz="0.090 -0.038 ${ultrasonicHeight-axleHeight}" rpy="0.0 0.0 0.0"/>
     </joint>
 
     <link name="ultrasonic_1">
@@ -183,7 +186,7 @@
         <parent link="base_link"/>
         <child link="ultrasonic_2"/>
 
-        <origin xyz="0.090 0.041 0.185" rpy="0.0 0.0 0.0"/>
+        <origin xyz="0.090 0.041 ${ultrasonicHeight-axleHeight}" rpy="0.0 0.0 0.0"/>
     </joint>
 
     <link name="ultrasonic_2">
@@ -199,7 +202,7 @@
         <parent link="base_link"/>
         <child link="ultrasonic_3"/>
 
-        <origin xyz="0.090 -0.100 0.185" rpy="0.0 0.0 -0.052"/>
+        <origin xyz="0.090 -0.100 ${ultrasonicHeight-axleHeight}" rpy="0.0 0.0 -0.052"/>
     </joint>
 
     <link name="ultrasonic_3">
@@ -215,7 +218,7 @@
         <parent link="base_link"/>
         <child link="ultrasonic_4"/>
 
-        <origin xyz="0.090 0.105 0.185" rpy="0.0 0.0 0.035"/>
+        <origin xyz="0.090 0.105 ${ultrasonicHeight-axleHeight}" rpy="0.0 0.0 0.035"/>
     </joint>
 
     <link name="ultrasonic_4">
