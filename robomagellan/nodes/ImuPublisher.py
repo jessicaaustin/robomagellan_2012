@@ -61,7 +61,11 @@ if __name__ == '__main__':
 
     while not rospy.is_shutdown():
         currentTimestamp = rospy.get_time()
-        roll, pitch, yaw = imu.getOrientation()
+        roll, pitch, yaw, exception = imu.getOrientation()
+        if exception:
+            rospy.logwarn("Exception in getOrientation()")
+            continue
+
         deltaTime = currentTimestamp - previousTimestamp
 
 #        roll = roll / 180 * pi
