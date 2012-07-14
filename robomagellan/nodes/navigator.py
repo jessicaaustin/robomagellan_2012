@@ -109,6 +109,11 @@ class Navigator():
         self.cmd_vel_pub.publish(cmd_vel)
         self.publish_cmd_vel_path(cmd_vel)
 
+    def full_stop(self):
+        cmd_vel = Twist()
+        self.cmd_vel_pub.publish(cmd_vel)
+        self.publish_cmd_vel_path(cmd_vel)
+
     def publish_cmd_vel_path(self, cmd_vel):
         p = Path()
         p.header.frame_id = "/odom"
@@ -132,6 +137,8 @@ class Navigator():
         return
 
     def bounded_turnrate(self, turnrate):
+        if turnrate == 0.0:
+            return 0.0
         if (turnrate > settings.MAX_TURNRATE):
             return settings.MAX_TURNRATE
         if (turnrate < -1 * settings.MAX_TURNRATE):
@@ -139,6 +146,8 @@ class Navigator():
         return turnrate
 
     def bounded_speed(self, speed):
+        if speed == 0.0:
+            return 0.0
         if (speed > 0 and math.fabs(speed) > settings.MAX_VELOCITY):
             return settings.MAX_VELOCITY
         elif (speed < 0 and math.fabs(speed) > settings.MAX_VELOCITY):
@@ -226,7 +235,7 @@ class WaypointNavigator(Navigator):
         elif self.state == NavigationState.AVOID_OBSTACLE:
             # TODO implement 
             # until then... full stop
-            self.publish_cmd_vel(0.0, 0.0)
+            self.full_stop()
 
         # haven't reached our goal yet...
         return False
@@ -367,7 +376,7 @@ class ConeCaptureNavigator(Navigator):
 
         # first, make sure we're stopped
         for i in range(10):
-            self.publish_cmd_vel(0.0, 0.0)
+            self.full_stop()
             rospy.sleep(.1)
 
         # now, move backwards
@@ -377,7 +386,7 @@ class ConeCaptureNavigator(Navigator):
             rospy.sleep(.1)
 
         # stop again before continuing
-        self.publish_cmd_vel(0.0, 0.0)
+        self.full_stop()
 
     def flush_outdated_cone_coord_data(self):
         if self.cone_coord is None:
