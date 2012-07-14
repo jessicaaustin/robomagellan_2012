@@ -47,29 +47,28 @@ COLLISION_DISTANCE=0.2
 # cone capturer
 #
 MAX_DISTANCE_TO_CAPTURE = 2.0
-SPEED_TO_CAPTURE = 0.3
-SPEED_TO_ROTATE = 0.5
 
 #
 # PID Controller
 #
 # how close we need to get to desired yaw before moving on
-THETA_TOLERANCE=.05 
+THETA_TOLERANCE=.10
 # how close we need to get to desired goal before considering it reached
 WAYPOINT_THRESHOLD=0.3
 # feedback proportional to longitudinal (in x dir) velocity
-LAMBDA=.2
+LAMBDA=0.35
 # feedback proportional to lateral (in y dir) error
-A1=1
+A1=0.7
 # feedback proportional to angular (theta) error
-A2=.65
+A2=2.0
 # maximum speed for rotation
-MAX_TURNRATE=1.5
-# minimum speed for rotation
-MIN_TURNRATE=0.5
+MAX_TURNRATE=2.0
+# minimum speed for in-place rotation
+MIN_TURNRATE=1.2
 # maximum speed in linear direction
-MAX_VELOCITY=3.0
+# TODO is this correct?
+MAX_VELOCITY=0.5
 # minimum speed in linear direction
-MIN_VELOCITY=0.33
+MIN_VELOCITY=0.20
 
 
