@@ -385,7 +385,6 @@ class ConeCaptureNavigator(Navigator):
         
         now = rospy.Time.now().to_sec()
         latency = now - self.cone_coord.header.stamp.to_sec()
-        rospy.logwarn("latency=%f" % latency)
         if latency > 0.5:
             self.cone_coord = None
 
