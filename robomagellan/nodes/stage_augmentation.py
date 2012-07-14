@@ -8,6 +8,8 @@
 #  covariance, which is required by robot_pose_ekf.
 #  So this node takes in stage's /wheel_odom_stage, adds covariance, 
 #  and re-publishes on the /wheel_odom topic.
+#  In addition to this, this node also adds some "drift" to the wheel
+#  odometry, to simulate wheel slippage and less-than-ideal encoder readings.
 #
 # /base_scan
 #  Takes in stage's /base_scan_stage message and augments it to
@@ -22,9 +24,14 @@ import random
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 
+drift_x = 0
+drift_y = 0
+
 def setup_wheel_odom_stage_callback(wheel_odom_pub):
     def wheel_odom_stage_callback(data):
         wheel_odom = data
+
+        # add covariance, as required by robot_pose_ekf
         covariance = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                       0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
                       0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
@@ -33,6 +40,17 @@ def setup_wheel_odom_stage_callback(wheel_odom_pub):
                       0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
         wheel_odom.pose.covariance = covariance
         wheel_odom.twist.covariance = covariance
+
+        # add some drift, to increase accuracy of simulation
+        # these numbers might seem small, but keep in mind that the /wheel_odom
+        # is publishing at 10 Hz, so drift accumulates quickly
+        global drift_x
+        global drift_y
+        drift_x += random.uniform(-0.001, 0.005)
+        drift_y += random.uniform(-0.001, 0.005)
+        wheel_odom.pose.pose.position.x += drift_x
+        wheel_odom.pose.pose.position.y += drift_y
+
         wheel_odom_pub.publish(wheel_odom)
     return wheel_odom_stage_callback
 

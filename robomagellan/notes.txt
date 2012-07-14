@@ -1,7 +1,7 @@
 
-
 navigation:
   add obstacle avoidance
+  implement drift correction (robomagellan-localization)
 
 cone_capture:
   test camera cone capture node on the robot
@@ -11,9 +11,10 @@ cone_capture:
 experiment with covariances on wheel_odom and imu_data,
   how does robot_pose_ekf use this data?
 
-add some more interesting waypoints to loyola-park sim (near the trees)
+do some field testing
+  can update the loyola-park sim
 
-need a quick way of creating a waypoints file on competition day
-
-robot should avoid going out of the field -- add restriction to our navigation system
+outstanding tasks
+  need a quick way of creating a waypoints file on competition day
+  robot should avoid going out of the field -- add restriction to our navigation system
 

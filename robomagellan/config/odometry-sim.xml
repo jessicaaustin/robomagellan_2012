@@ -2,7 +2,9 @@
 
     <!-- wheel encoder odometry provided by stage, this node just adds covariance to
          that odometry so robot_pose_ekf is happy -->
-    <node pkg="robomagellan" type="stage_augmentation.py" name="stage_augmentation"/>
+    <node pkg="robomagellan" type="stage_augmentation.py" name="stage_augmentation">
+      <remap from="wheel_odom" to="odom"/>
+    </node>
 
     <!-- no IMU odometry in simulation mode -->
 
@@ -14,7 +16,7 @@
         type="robot_pose_ekf"
         name="robot_pose_ekf">
 
-      <param name="output_frame" value="odom"/>
+      <param name="output_frame" value="odom_robot_pose_ekf"/>
       <param name="freq" value="30.0"/>
       <param name="sensor_timeout" value="1.0"/>  
       <!-- expects a topic publishing on "wheel_odom" -->

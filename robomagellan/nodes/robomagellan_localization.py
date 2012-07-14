@@ -115,6 +115,8 @@ class RobomagellanLocalization():
     def recalculate_drift(self):
         # TODO somehow get info about the pose of the robot
         # at the exact moment that we hit the cone 
+        self.current_position_offset = Point(-0.50,-0.50,0.0)
+#        self.current_position_offset = Point(-0.00,-0.00,0.0)
         return
 
 if __name__ == '__main__':
@@ -129,5 +131,6 @@ if __name__ == '__main__':
     rate = rospy.Rate(10.0)
     while not rospy.is_shutdown():
         rate.sleep()
+        localization.recalculate_drift()
         localization.publish_localization()
             
