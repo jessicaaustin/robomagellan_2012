@@ -11,7 +11,10 @@ import rospy
 
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import PointStamped
+from geometry_msgs.msg import PoseStamped
 from robomagellan.msg import NavigationState
+
+from nav_msgs.msg import Path
 
 import tf
 import actionlib
@@ -24,8 +27,9 @@ import settings
 import math
 
 class Navigator():
-    def __init__(self, server_name, publisher):
-        self.publisher = publisher
+    def __init__(self, server_name):
+        self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist)
+        self.cmd_vel_path_pub = rospy.Publisher('navigator/local_plan', Path)
         self.transformListener = tf.TransformListener()
         self.cone_coord = None
         self.target_coord = None
@@ -99,7 +103,30 @@ class Navigator():
         cmd_vel = Twist()
         cmd_vel.linear.x = self.bounded_speed(x)
         cmd_vel.angular.z = self.bounded_turnrate(z)
-        self.publisher.publish(cmd_vel)
+        self.cmd_vel_pub.publish(cmd_vel)
+        self.publish_cmd_vel_path(cmd_vel)
+
+    def publish_cmd_vel_path(self, cmd_vel):
+        p = Path()
+        p.header.frame_id = "/odom"
+        p.header.stamp = rospy.Time.now()
+
+        a = PoseStamped()
+        a.pose.position.x = self.odom.pose.pose.position.x
+        a.pose.position.y = self.odom.pose.pose.position.y
+        p.poses.append(a)
+
+        b = PoseStamped()
+        q = self.odom.pose.pose.orientation
+        theta = tf.transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])[2]
+        theta += 2 * cmd_vel.angular.z
+        hyp = cmd_vel.linear.x + cmd_vel.angular.z
+        b.pose.position.x = a.pose.position.x + (5 * hyp * math.cos(theta))
+        b.pose.position.y = a.pose.position.y + (5 * hyp * math.sin(theta))
+        p.poses.append(b)
+
+        self.cmd_vel_path_pub.publish(p)
+        return
 
     def bounded_turnrate(self, turnrate):
         if (turnrate > settings.MAX_TURNRATE):
@@ -109,10 +136,14 @@ class Navigator():
         return turnrate
 
     def bounded_speed(self, speed):
-        if (speed > settings.MAX_VELOCITY):
+        if (speed > 0 and math.fabs(speed) > settings.MAX_VELOCITY):
             return settings.MAX_VELOCITY
-        if (speed < -1 * settings.MAX_VELOCITY):
+        elif (speed < 0 and math.fabs(speed) > settings.MAX_VELOCITY):
             return -1 * settings.MAX_VELOCITY
+        elif (speed > 0 and math.fabs(speed) < settings.MIN_VELOCITY):
+            return settings.MIN_VELOCITY
+        elif (speed < 0 and math.fabs(speed) < settings.MIN_VELOCITY):
+            return -1 * settings.MIN_VELOCITY
         return speed
 
     def target_coord_in_odom_frame(self, goal):
@@ -150,8 +181,8 @@ class Navigator():
 
 
 class WaypointNavigator(Navigator):
-    def __init__(self, server_name, publisher):
-        Navigator.__init__(self, server_name, publisher)
+    def __init__(self, server_name):
+        Navigator.__init__(self, server_name)
 
     def responds_to_waypoint(self, waypoint):
         # Waypoint navigator can move towards cones as well, 
@@ -256,8 +287,8 @@ class WaypointNavigator(Navigator):
 
 
 class ConeCaptureNavigator(Navigator):
-    def __init__(self, server_name, publisher):
-        Navigator.__init__(self, server_name, publisher)
+    def __init__(self, server_name):
+        Navigator.__init__(self, server_name)
 
     def responds_to_waypoint(self, waypoint):
         return waypoint.type == 'C'

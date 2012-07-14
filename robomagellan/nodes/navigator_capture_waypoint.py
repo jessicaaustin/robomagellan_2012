@@ -34,10 +34,8 @@ if __name__ == '__main__':
     rospy.sleep(3)  # let rxconsole boot up
     rospy.loginfo("Initializing navigator_capture_waypoint node")
 
-    publisher = rospy.Publisher('cmd_vel', Twist)
-
     # create a navigator for capturing intermediate waypoints
-    waypoint_navigator = WaypointNavigator('capture_waypoint', publisher)
+    waypoint_navigator = WaypointNavigator('capture_waypoint')
     rospy.Subscriber('collision', BoolStamped, waypoint_navigator.setup_collision_callback())
     rospy.Subscriber('odom', Odometry, waypoint_navigator.setup_odom_callback())
             

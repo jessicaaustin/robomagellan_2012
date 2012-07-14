@@ -36,10 +36,8 @@ if __name__ == '__main__':
     rospy.sleep(3)  # let rxconsole boot up
     rospy.loginfo("Initializing navigator_capture_cone node")
 
-    publisher = rospy.Publisher('cmd_vel', Twist)
-
     # create a navigator for capturing cone waypoints
-    cone_navigator = ConeCaptureNavigator('capture_cone', publisher)
+    cone_navigator = ConeCaptureNavigator('capture_cone')
     rospy.Subscriber('cone_coord', PointStamped, cone_navigator.setup_cone_coord_callback())
     rospy.Subscriber('collision', BoolStamped, cone_navigator.setup_collision_callback())
     rospy.Subscriber('odom', Odometry, cone_navigator.setup_odom_callback())

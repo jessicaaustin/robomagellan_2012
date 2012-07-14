@@ -65,7 +65,11 @@ A1=1
 A2=.65
 # maximum speed for rotation
 MAX_TURNRATE=1.5
+# minimum speed for rotation
+MIN_TURNRATE=0.5
 # maximum speed in linear direction
-MAX_VELOCITY=5.0
+MAX_VELOCITY=3.0
+# minimum speed in linear direction
+MIN_VELOCITY=0.33
 
 
