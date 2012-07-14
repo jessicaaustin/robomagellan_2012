@@ -1,9 +1,6 @@
 /* Ultrasound Sensor
  *------------------
  *
- * Reads values (00014-01199) from an ultrasound sensor (3m sensor)
- * and writes the values to the serialport.
- *
  * http://www.xlab.se | http://www.0j0.org
  * copyleft 2005 Mackie for XLAB | DojoDave for DojoCorp
  *
@@ -14,6 +11,9 @@ int pingTwo = 11;
 int pingThree = 12;
 int pingFour = 13;
 int timeoutValue = 512;
+
+int interPingDelay = 250; /* microseconds */
+int loopDelay = 0;     /* microseconds */
 
 void ping(int pingUnit, int pingPin) {
     int pinValue = 0;
@@ -56,7 +56,7 @@ void ping(int pingUnit, int pingPin) {
 	
     Serial.print(pingUnit);
     Serial.print(',');
-	Serial.println(oneWayTime * 0.0003432);
+	Serial.println(oneWayTime * 0.0003461); /* meters per microsecond */
 
     return;
 }
@@ -67,16 +67,16 @@ void setup() {
 
 void loop() {
     ping(1, pingOne);
-    delay(10);
+    delay(interPingDelay);
 
     ping(2, pingTwo);
-    delay(10);
+    delay(interPingDelay);
 
     ping(3, pingThree);
-    delay(10);
+    delay(interPingDelay);
 
     ping(4, pingFour);
-    delay(10);
+    delay(interPingDelay);
 
-    delay(1000);
+    delay(loopDelay);
 } 
