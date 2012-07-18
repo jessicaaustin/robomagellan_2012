@@ -64,7 +64,6 @@ class RangeToLaserConverter():
                         "ultrasonic_3": None,
                         "ultrasonic_4": None } 
 
-    # TODO once ultrasonic_2 is fixed, add it back in here
     def hasAllRanges(self):
         return self.ranges["ultrasonic_1"] and \
                 self.ranges["ultrasonic_2"] and \

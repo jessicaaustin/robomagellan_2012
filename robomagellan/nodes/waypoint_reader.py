@@ -14,7 +14,6 @@ class WaypointFileReader():
     def __init__(self):
         return
     
-    # TODO convert from GPS to course frame when reading from file
     def read_file(self, filename):
         rospy.loginfo('Reading waypoints from file %s' % filename)
         waypoints = []
