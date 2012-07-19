@@ -184,7 +184,7 @@ class Navigator():
 
 #        rospy.loginfo("(theta, td) = (%.4f, %.4f)" % (theta, td))
 
-        if (math.fabs(terr) > math.pi and math.fabs(terr) < 0.5 * math.pi):
+        if (math.fabs(terr) > math.pi):
             # rotate in the other direction for efficiency 
             # TODO verify this code makes sense
             terr -= math.pi
