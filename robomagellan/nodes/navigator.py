@@ -182,7 +182,7 @@ class Navigator():
         theta = tf.transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])[2]
         terr = td - theta
 
-        rospy.logwarn("(theta, td) = (%.4f, %.4f)" % (theta, td))
+#        rospy.loginfo("(theta, td) = (%.4f, %.4f)" % (theta, td))
 
         if (math.fabs(terr) > math.pi and math.fabs(terr) < 0.5 * math.pi):
             # rotate in the other direction for efficiency 
@@ -339,7 +339,7 @@ class WaypointNavigator(Navigator):
 
             # final rotational velocity
             turnrate = rot_vel_p + rot_vel_i + rot_vel_d
-            rospy.logwarn("(yerr||p,i,d||total)= %.4f || %.4f %.4f %.4f || %.4f" % (yerr, rot_vel_p, rot_vel_i, rot_vel_d, turnrate))
+#            rospy.loginfo("(yerr||p,i,d||total)= %.4f || %.4f %.4f %.4f || %.4f" % (yerr, rot_vel_p, rot_vel_i, rot_vel_d, turnrate))
 
             self.publish_cmd_vel(speed, turnrate)
             return False

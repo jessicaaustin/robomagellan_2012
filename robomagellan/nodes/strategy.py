@@ -40,10 +40,12 @@ import settings
 
 import os
 import sys
+import math
 
 class Strategizer():
     def __init__(self, waypoints_file):
         rospy.loginfo("Initializing Strategizer")
+        self.cone_coord = None
         self.cone_capture_mode = False
         self.transformListener = tf.TransformListener()
         self.load_waypoints()
@@ -76,13 +78,43 @@ class Strategizer():
     # and it is sufficiently close, switch to cone capture mode
     def setup_cone_coord_callback(self):
         def cone_coord_callback(data):
-            cone_coord = self.transformListener.transformPoint("base_link", data)
-            distance_to_cone = cone_coord.point.x
-            if not self.cone_capture_mode and \
-               self.waypoints[self.current_waypoint_idx].type == 'C' and \
-               distance_to_cone < settings.MAX_DISTANCE_TO_CAPTURE:
-                self.switch_to_cone_capture_mode()
+            self.cone_coord = data
         return cone_coord_callback
+
+    # check if next waypoint is a cone, and we are sufficiently close
+    # to switch to cone tracking mode
+    def check_for_cone(self):
+        self.flush_outdated_cone_coord_data()
+
+        # if there is no cone, or we're already looking for a cone, or
+        # the next waypoint is a cone... continue
+        if self.cone_coord is None or \
+           self.cone_capture_mode or \
+           self.waypoints[self.current_waypoint_idx].type != 'C':
+            return
+
+        # if we are sufficiently close, switch to cone capture mode
+        cone_waypoint = self.waypoints[self.current_waypoint_idx]
+        cone_coord_in_base_link_frame = self.waypoint_in_base_link_frame(cone_waypoint)
+        (x,y) = cone_coord_in_base_link_frame.point.x, cone_coord_in_base_link_frame.point.y
+        distance_to_cone = math.sqrt(x*x + y*y)
+        if distance_to_cone < settings.MAX_DISTANCE_TO_CAPTURE:
+            self.switch_to_cone_capture_mode()
+
+    def waypoint_in_base_link_frame(self, waypoint_msg):
+        waypoint = PointStamped()
+        waypoint.header.frame_id = "/map"
+        waypoint.header.stamp = self.transformListener.getLatestCommonTime("/base_link", "/map")
+        waypoint.point = waypoint_msg.coordinate
+        return self.transformListener.transformPoint("/base_link", waypoint)
+
+    def flush_outdated_cone_coord_data(self):
+        if self.cone_coord is None:
+            return
+        now = rospy.Time.now().to_sec()
+        latency = now - self.cone_coord.header.stamp.to_sec()
+        if latency > 0.5:
+            self.cone_coord = None
 
     def send_next_capture_waypoint_goal(self):
         waypoint_to_capture = self.waypoints[self.current_waypoint_idx]
@@ -221,5 +253,6 @@ if __name__ == '__main__':
     rate = rospy.Rate(10.0)
     while not rospy.is_shutdown():
         rate.sleep()
+        strategizer.check_for_cone()
         strategizer.publish_waypoint_markers()
             
