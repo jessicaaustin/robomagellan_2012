@@ -4,23 +4,5 @@ robomagellan_2012:
 
 /robomagellan
   ROS code
-
-
-SCHEDULE
-
-
-May 6:
-  get base_controller, dead_reckoning, odometry nodes running
-
-  strategy node can capture cone waypoints
-
-  get GPS node working, contributing to odometry node 
- 
-16 June:
-  loyola park demo
-
-21 July:
-  moraine valley community college demo
-
-Aug 4:
-  Competition
+/sketches
+  Arduiono sketches
