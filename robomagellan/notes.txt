@@ -1,10 +1,18 @@
 
+wheel encoders / imu
+   remove the offset for the left wheel rotating faster
+   need to maximize x-dir velocity (can we max out the top velocity, but decrease the acceleration, so we don't peel out?)
+   need better IMU/yaw data
 
 navigation:
   add obstacle avoidance
+  switch to cone capture mode always, if we are sufficiently close
 
 cone_capture:
-  test camera cone capture node on the robot
+  need to increase speed of cone capture in x-dir
+  be more agressive about correcting for left/right when capturing the cone
+  better tweaking of parameters on cone_tracker node? why couldn't it see the cone?
+  start storing the camera data in a ros bag
   get good numbers for the HSV
    inside, outside, cloudy, sunny, in the shade, partially obscured
 
