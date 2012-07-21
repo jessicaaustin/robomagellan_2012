@@ -418,7 +418,7 @@ class ConeCaptureNavigator(Navigator):
             rospy.sleep(.1)
 
         # now, move backwards
-        for i in range(20):
+        for i in range(30):
             linear_x = -1 * settings.MIN_VELOCITY
             self.publish_cmd_vel(linear_x, 0.0)
             rospy.sleep(.1)
