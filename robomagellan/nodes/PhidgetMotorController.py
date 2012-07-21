@@ -20,7 +20,7 @@ class PhidgetMotorController:
         self.defaultMotorSpeed = 100.0
         self.motorMaxSpeed = 100
         self.motorMinSpeed = 20
-        self.leftAdjustment = 0.945
+        self.leftAdjustment = 1.0
         self.rightAdjustment = 1.0
 
         self.motorControl = MotorControl()
