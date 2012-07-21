@@ -1,0 +1,41 @@
+<launch>
+
+    <!-- wheel encoder odometry -->
+    <node
+        name="wheel_encoders"
+        pkg="robomagellan"
+        type="wheel_encoders.py"
+        respawn="true"
+    /> 
+
+    <!-- fuse odometry from the above sources into a single robot pose -->
+    <node
+        pkg="robot_pose_ekf"
+        type="robot_pose_ekf"
+        name="robot_pose_ekf">
+
+      <param name="output_frame" value="odom"/>
+      <param name="freq" value="30.0"/>
+      <param name="sensor_timeout" value="1.0"/>  
+      <!-- expects a topic publishing on "wheel_odom" -->
+      <remap from="odom" to="wheel_odom" />
+      <param name="odom_used" value="true"/>
+      <!-- expects a topic publishing on "imu_data" -->
+      <param name="imu_used" value="false"/>
+      <!-- expects a topic publishing on "gps_odom" -->
+      <remap from="vo" to="gps_odom" />
+      <param name="vo_used" value="false"/>
+      <param name="debug" value="true"/>
+      <param name="self_diagnose" value="false"/>
+    </node>
+
+	<!-- provide transform from /map->/odom and publish the /odom topic -->
+	<node
+		name="robomagellan_localization"
+		pkg="robomagellan"
+		type="robomagellan_localization.py"
+		respawn="true"
+	/>
+
+</launch>
+
