@@ -24,6 +24,9 @@ SMOOTHNESS = 4
 #MIN_THRESH, MAX_THRESH = (37.5, 74.0, 80.0, 0.0), (50.5, 224.0, 230.0, 0.0)
 # orange cone (indoors)
 MIN_THRESH, MAX_THRESH = (171.5, 106.0, 102.0, 0.0), (178.5, 248.0, 250.0, 0.0)
+# red bin (backyard)
+#MIN_THRESH, MAX_THRESH = (160.0, 100.0, 100.0, 0.0), (170.0, 250.0, 250.0, 0.0)
+
 # 6.92 pixels == 1 cm
 PIXELS_TO_CM = 6.92
 
@@ -40,7 +43,7 @@ LNG_OFFSET = -0.2683
 #
 # collision detector
 #
-COLLISION_DISTANCE=0.2      # robot will FULL STOP at lower than this distance
+COLLISION_DISTANCE=0.3      # robot will FULL STOP at lower than this distance
 
 #
 # Navigation
@@ -77,5 +80,5 @@ KD_Y=0.00                     # feedback for derivative of lateral error
 KP_T=2.0    # feedback proportional to angular (theta) error
 
 # Capturing cone
-KP_CT=10    # feedback proproprtional to y-err 
+KP_CT=4    # feedback proproprtional to y-err 
 

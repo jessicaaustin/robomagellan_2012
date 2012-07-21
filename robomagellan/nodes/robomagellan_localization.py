@@ -127,7 +127,7 @@ class RobomagellanLocalization():
     def waypoint_in_base_link_frame(self, cone_captured_msg):
         waypoint = PointStamped()
         waypoint.header.frame_id = "/map"
-        waypoint.header.stamp = cone_captured_msg.header.stamp
+        waypoint.header.stamp = self.transformListener.getLatestCommonTime("base_link", "map")
         waypoint.point = cone_captured_msg.waypoint.coordinate
         return self.transformListener.transformPoint("/base_link", waypoint)
 
