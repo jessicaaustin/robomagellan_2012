@@ -56,8 +56,8 @@ MAX_DISTANCE_TO_CAPTURE = 2.0       # how close we should be to a cone before we
 
 MAX_TURNRATE=3.0        # maximum speed for rotation
 MIN_TURNRATE=2.0        # minimum speed for in-place rotation
-MAX_VELOCITY=0.5        # maximum speed in linear direction
-MIN_VELOCITY=0.20       # minimum speed in linear direction
+MAX_VELOCITY=0.55       # maximum speed in linear direction
+MIN_VELOCITY=0.30       # minimum speed in linear direction
 
 #
 # PID Controller
@@ -73,4 +73,6 @@ KD_Y=0.00                     # feedback for derivative of lateral error
 # Rotating in place: 
 KP_T=2.0    # feedback proportional to angular (theta) error
 
+# Capturing cone
+KP_CT=10    # feedback proproprtional to y-err 
 
