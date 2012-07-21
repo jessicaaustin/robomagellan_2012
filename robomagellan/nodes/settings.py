@@ -40,35 +40,37 @@ LNG_OFFSET = -0.2683
 #
 # collision detector
 #
-COLLISION_DISTANCE=0.2
-
+COLLISION_DISTANCE=0.2      # robot will FULL STOP at lower than this distance
 
 #
-# cone capturer
+# Navigation
 #
-MAX_DISTANCE_TO_CAPTURE = 2.0
+                # 15 degrees
+THETA_TOLERANCE=0.26                # how close we need to get to desired yaw before moving on
+WAYPOINT_THRESHOLD=0.3              # how close we need to get to desired goal before considering it reached
+MAX_DISTANCE_TO_CAPTURE = 2.0       # how close we should be to a cone before we attempt to capture it
+
+#
+# Rover contraints
+#
+
+MAX_TURNRATE=3.0        # maximum speed for rotation
+MIN_TURNRATE=2.0        # minimum speed for in-place rotation
+MAX_VELOCITY=0.5        # maximum speed in linear direction
+MIN_VELOCITY=0.20       # minimum speed in linear direction
 
 #
 # PID Controller
 #
-# how close we need to get to desired yaw before moving on
-THETA_TOLERANCE=.10
-# how close we need to get to desired goal before considering it reached
-WAYPOINT_THRESHOLD=0.3
-# feedback proportional to longitudinal (in x dir) velocity
-LAMBDA=0.35
-# feedback proportional to lateral (in y dir) error
-A1=0.7
-# feedback proportional to angular (theta) error
-A2=2.0
-# maximum speed for rotation
-MAX_TURNRATE=3.0
-# minimum speed for in-place rotation
-MIN_TURNRATE=2.0
-# maximum speed in linear direction
-# TODO is this correct?
-MAX_VELOCITY=0.5
-# minimum speed in linear direction
-MIN_VELOCITY=0.20
+
+# Moving in a straight path towards a goal:
+KP_X=0.35                     # feedback proportional to longitudinal (in x dir) velocity
+KP_Y=0.90                     # feedback proportional to lateral (in y dir) error
+KI_Y=0.00                     # feedback for integral of lateral error
+YERR_ACCUMULATED_MAX=1.57     # max amount of accumulated integral error (absolute value)
+KD_Y=0.00                     # feedback for derivative of lateral error
+
+# Rotating in place: 
+KP_T=2.0    # feedback proportional to angular (theta) error
 
 

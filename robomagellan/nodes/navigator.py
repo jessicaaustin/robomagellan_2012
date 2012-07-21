@@ -35,6 +35,8 @@ class Navigator():
         self.target_coord = None
         self.collided = False
         self.odom = None
+        self.yerr_accumulated = 0
+        self.yerr_previous = 0
         self.state = NavigationState.NONE
         self.server = actionlib.SimpleActionServer(server_name, CaptureWaypointAction, self.execute, False)
         self.server.start()
@@ -52,9 +54,7 @@ class Navigator():
         while not rospy.is_shutdown() and not finished:
             if self.server.is_preempt_requested():
                 rospy.loginfo('%s: Preempted' % self.__class__)
-                self.state = NavigationState.NONE
-                self.cone_coord = None
-                self.target_coord = None
+                self.reset_everything()
                 self.server.set_preempted()
                 finished = True
             else:
@@ -182,8 +182,11 @@ class Navigator():
         theta = tf.transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])[2]
         terr = td - theta
 
+#        rospy.loginfo("(theta, td) = (%.4f, %.4f)" % (theta, td))
+
         if (math.fabs(terr) > math.pi):
             # rotate in the other direction for efficiency 
+            # TODO verify this code makes sense
             terr -= math.pi
             terr *= -1
 
@@ -193,13 +196,20 @@ class Navigator():
             self.state = NavigationState.MOVE_TOWARDS_GOAL
         else:
             # need to keep turning to reach our desired orientation
-            turnrate = settings.A2*terr
+            turnrate = settings.KP_T*terr
             if (turnrate > 0 and math.fabs(turnrate) < settings.MIN_TURNRATE):
                 turnrate = settings.MIN_TURNRATE
             elif (turnrate < 0 and math.fabs(turnrate) < settings.MIN_TURNRATE):
                 turnrate = -1 * settings.MIN_TURNRATE
             self.publish_cmd_vel(0.0, turnrate)
 
+    def reset_everything(self):
+        self.state = NavigationState.NONE
+        self.cone_coord = None
+        self.target_coord = None
+        self.yerr_accumulated = 0
+        self.yerr_previous = 0
+    
 
 class WaypointNavigator(Navigator):
     def __init__(self, server_name):
@@ -291,16 +301,45 @@ class WaypointNavigator(Navigator):
         if (math.fabs(xerr) < settings.WAYPOINT_THRESHOLD and 
             math.fabs(yerr) < settings.WAYPOINT_THRESHOLD):
             # we've reached our waypoint! time to return success
-            self.state = NavigationState.NONE
-            self.target_coord = None
+            self.reset_everything()
             self.server.set_succeeded()
             return True
 
+        elif math.fabs(yerr) > settings.THETA_TOLERANCE:
+            # we've gone well off course... time to stop and rotate again
+            rospy.logwarn("We've veered off course! rotating back into position")
+            self.full_stop()
+            self.state = NavigationState.ROTATE_INTO_POSITION
+            return False
         else:
             # need to continue to move towards waypoint
 
-            speed = settings.LAMBDA * xerr
-            turnrate = settings.A1*yerr
+            # velocity in longitudinal direction
+            # (proportional control only)
+            speed = settings.KP_X * xerr
+
+            # rotational velocity is calculated using PID control
+
+            # proportional
+            rot_vel_p = settings.KP_Y * yerr
+
+            # integral
+            self.yerr_accumulated += yerr
+            # don't want integral error to grow without bounds
+            if math.fabs(self.yerr_accumulated) > settings.YERR_ACCUMULATED_MAX:
+                if self.yerr_accumulated > 0:
+                    self.yerr_accumulated = settings.YERR_ACCUMULATED_MAX
+                else:
+                    self.yerr_accumulated = -1 * settings.YERR_ACCUMULATED_MAX
+            rot_vel_i = settings.KI_Y * self.yerr_accumulated
+
+            # derivative
+            rot_vel_d = settings.KD_Y * (yerr - self.yerr_previous)
+            self.yerr_previous = yerr
+
+            # final rotational velocity
+            turnrate = rot_vel_p + rot_vel_i + rot_vel_d
+#            rospy.loginfo("(yerr||p,i,d||total)= %.4f || %.4f %.4f %.4f || %.4f" % (yerr, rot_vel_p, rot_vel_i, rot_vel_d, turnrate))
 
             self.publish_cmd_vel(speed, turnrate)
             return False
@@ -340,9 +379,7 @@ class ConeCaptureNavigator(Navigator):
                 # we're done, time to return the action service
                 rospy.loginfo("cone captured!")
                 self.move_backwards_to_clear_cone()
-                self.state = NavigationState.NONE
-                self.cone_coord = None
-                self.target_coord = None
+                self.reset_everything()
                 self.server.set_succeeded()
                 return True
             elif self.cone_coord == None:

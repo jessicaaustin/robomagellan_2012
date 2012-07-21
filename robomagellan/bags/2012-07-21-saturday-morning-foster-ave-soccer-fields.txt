@@ -1,0 +1,22 @@
+2012-07-21-08-15-06.bag
+ first run, had min turning velocity set too low, so it was stuck
+   also: need to maximize x-dir velocity (can we max out the top velocity, but decrease the acceleration, so we don't peel out?)
+
+2012-07-21-08-24-48.bag
+  thought it got close enough to the waypoint to capture it using waypoint-capture mode, but it was a cone waypoint! since odom was off, we were actually further south than the cone and did not see it with our cameras, so we never switched to cone capture mode. we ended up capturing using waypoint-capture mode, then we switched to the next waypoint (a cone waypoint), turned north and captured the original cone, thinking it was the next one
+
+2012-07-21-08-32-11.bag
+ never switched to cone capture mode, because it close enough to the cone waypoint but didn't get any feedback on /cone_coord topic
+ another problem: was sending /cmd_vel to move to the right to correct for small errors, and it actually was moving to the right, but our yaw data was so bad that it thought it was moving in a straight line
+ possible fixes:
+   switch to cone capture mode always, if we are sufficiently close
+   better tweaking of parameters on cone_tracker node? why couldn't it see the cone?
+   start storing the camera data in a ros bag
+   need better IMU/yaw data
+
+2012-07-21-08-35-38.bag
+ got to the cone but tried to capture it too soon. kept rotating around to find it. would get the cone with the camera, but then would lose it because when we moved forward we would just move to the left
+  two possible fixes:
+   remove the offset for the left wheel rotating faster
+   need to increase speed of cone capture in x-dir
+   be more agressive about correcting for left/right when capturing the cone
