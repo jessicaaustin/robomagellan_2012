@@ -62,9 +62,9 @@ A1=0.7
 # feedback proportional to angular (theta) error
 A2=2.0
 # maximum speed for rotation
-MAX_TURNRATE=2.0
+MAX_TURNRATE=3.0
 # minimum speed for in-place rotation
-MIN_TURNRATE=1.2
+MIN_TURNRATE=2.0
 # maximum speed in linear direction
 # TODO is this correct?
 MAX_VELOCITY=0.5
