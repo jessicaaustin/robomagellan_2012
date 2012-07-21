@@ -12,7 +12,6 @@ from math import pi, cos, sin
 from Phidgets.Devices.Encoder import Encoder
 from Phidgets.PhidgetException import PhidgetException
 from nav_msgs.msg import Odometry
-from sensor_msgs.msg import Imu as ImuMessage
 from tf import transformations
 
 class PhidgetEncoders:
@@ -71,24 +70,6 @@ class PhidgetEncoders:
 
         self.odometryMessage.pose.covariance = self.defaultCovariance
         self.odometryMessage.twist.covariance = self.defaultCovariance
-
-        #
-        # initialize this node's idea of the starting yaw orientation
-        # by waiting for a message from the IMU
-        #
-        imuMessage = ImuMessage()
-        imuMessage = rospy.wait_for_message(
-            'imu_data',
-            ImuMessage,
-            timeout = None)
-        euler = transformations.euler_from_quaternion([
-            imuMessage.orientation.x,
-            imuMessage.orientation.y,
-            imuMessage.orientation.z,
-            imuMessage.orientation.w
-            ])
-        self.previousTheta = euler[2]
-        rospy.loginfo('Synchronized with IMU yaw')
 
         #
         # robot_pose_ekf subscribes (via remapping) to wheel_odom,
