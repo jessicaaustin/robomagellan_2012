@@ -416,7 +416,7 @@ class ConeCaptureNavigator(Navigator):
             z = 0.2
         if z < -0.2:
             z = -0.2
-        rot_vel = settings.KP_CT * z
+        rot_vel = -1 * settings.KP_CT * z
         self.publish_cmd_vel(settings.MIN_VELOCITY, rot_vel)
 
     def move_backwards_to_clear_cone(self):
