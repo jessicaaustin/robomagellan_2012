@@ -4,6 +4,13 @@
 
 ConeCaptureNavigator and WaypointNavigator, which both inherit from Navigator.
 
+subscribes to:
+
+publishes to:
+ /cmd_vel
+ /navigator/local_plan  (for visualization)
+ /cone_captured
+
 """
 
 import roslib; roslib.load_manifest('robomagellan')
@@ -13,6 +20,7 @@ from geometry_msgs.msg import Twist
 from geometry_msgs.msg import PointStamped
 from geometry_msgs.msg import PoseStamped
 from robomagellan.msg import NavigationState
+from robomagellan.msg import ConeCaptured
 
 from nav_msgs.msg import Path
 
@@ -349,6 +357,7 @@ class WaypointNavigator(Navigator):
 class ConeCaptureNavigator(Navigator):
     def __init__(self, server_name):
         Navigator.__init__(self, server_name)
+        self.cone_captured_pub = rospy.Publisher('cone_captured', ConeCaptured)
 
     def responds_to_waypoint(self, waypoint):
         return waypoint.type == 'C'
@@ -378,6 +387,7 @@ class ConeCaptureNavigator(Navigator):
             if self.collided:
                 # we're done, time to return the action service
                 rospy.loginfo("cone captured!")
+                self.publish_cone_captured_msg(goal.waypoint)
                 self.move_backwards_to_clear_cone()
                 self.reset_everything()
                 self.server.set_succeeded()
@@ -443,4 +453,11 @@ class ConeCaptureNavigator(Navigator):
             # rotate in place until the cone comes into view
             # TODO abort if we can't find the cone after some amount of time
             self.publish_cmd_vel(0.0, settings.MIN_TURNRATE)
+
+    def publish_cone_captured_msg(self, waypoint):
+        cone_captured_msg = ConeCaptured()
+        cone_captured_msg.header.stamp = rospy.Time.now()
+        cone_captured_msg.header.frame_id = "/map"
+        cone_captured_msg.waypoint = waypoint
+        self.cone_captured_pub.publish(cone_captured_msg)
 

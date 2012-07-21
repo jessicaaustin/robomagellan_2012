@@ -75,8 +75,7 @@ class Strategizer():
         self.current_waypoint_idx = 0
         self.send_next_capture_waypoint_goal()
 
-    # monitor the cone_coord topic, and if we are attempting a cone waypoint
-    # and it is sufficiently close, switch to cone capture mode
+    # monitor the cone_coord topic
     def setup_cone_coord_callback(self):
         def cone_coord_callback(data):
             self.cone_coord = data
@@ -87,8 +86,8 @@ class Strategizer():
     def check_for_cone(self):
         self.flush_outdated_cone_coord_data()
 
-        # if we're already looking for a cone, or
-        # the next waypoint is not a cone... continue
+        # if we're already in cone-capture mode, or
+        # the current waypoint is not a cone... continue
         if self.cone_capture_mode or \
            self.waypoints[self.current_waypoint_idx].type != 'C':
             return

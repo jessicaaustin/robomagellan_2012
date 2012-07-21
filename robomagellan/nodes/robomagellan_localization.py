@@ -42,8 +42,10 @@ import rospy
 
 import tf
 
-from geometry_msgs.msg import Point, PoseWithCovarianceStamped, Twist, Vector3
+from geometry_msgs.msg import Point, PointStamped, PoseWithCovarianceStamped, Twist, Vector3
 from nav_msgs.msg import Odometry
+
+from robomagellan.msg import ConeCaptured
 
 class RobomagellanLocalization():
     def __init__(self, odom_publisher):
@@ -54,6 +56,7 @@ class RobomagellanLocalization():
         # so we'll just publish a constant for that
         self.unit_quaternion = (0.0, 0.0, 0.0, 1.0)
         self.last_time = None
+        self.transformListener = tf.TransformListener()
         rospy.loginfo("RobomagellanLocalization initialized")
 
     def publish_localization(self):
@@ -112,10 +115,22 @@ class RobomagellanLocalization():
             self.publish_odometry(data)
         return odom_combined_callback
 
-    def recalculate_drift(self):
-        # TODO somehow get info about the pose of the robot
-        # at the exact moment that we hit the cone 
-        return
+    def setup_cone_captured_callback(self):
+        def recalculate_drift(data):
+            rospy.loginfo("waypoint location: %s" % data.waypoint)
+            waypoint_offset = self.waypoint_in_base_link_frame(data)
+            # TODO how to correctly invert the transform?
+            self.current_position_offset = Point(-1 * waypoint_offset.point.x, -1 * waypoint_offset.point.y, 0.0)
+            rospy.loginfo("waypoint offset: %s" % self.current_position_offset)
+        return recalculate_drift
+
+    def waypoint_in_base_link_frame(self, cone_captured_msg):
+        waypoint = PointStamped()
+        waypoint.header.frame_id = "/map"
+        waypoint.header.stamp = cone_captured_msg.header.stamp
+        waypoint.point = cone_captured_msg.waypoint.coordinate
+        return self.transformListener.transformPoint("/base_link", waypoint)
+
 
 if __name__ == '__main__':
     rospy.init_node('robomagellan_localization')
@@ -125,6 +140,7 @@ if __name__ == '__main__':
     odom_publisher = rospy.Publisher('/odom', Odometry)
     localization = RobomagellanLocalization(odom_publisher)
     rospy.Subscriber('/robot_pose_ekf/odom', PoseWithCovarianceStamped, localization.setup_odom_combined_callback())
+    rospy.Subscriber('/cone_captured', ConeCaptured, localization.setup_cone_captured_callback())
 
     rate = rospy.Rate(10.0)
     while not rospy.is_shutdown():

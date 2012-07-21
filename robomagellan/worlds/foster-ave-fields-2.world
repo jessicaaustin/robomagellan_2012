@@ -51,4 +51,4 @@ rover1( pose [ 80.5 19.3 0 0.000 ] name "rover1" color "blue")
 # place the waypoints
 waypoint( pose [ 85.7 19.3 0 0 ] name "waypoint2" )
 cone( pose [ 98.7 18.3 0 0 ] name "waypoint2" )
-cone( pose [ 105.9 26.9 0 0 ] name "waypoint2" )
+cone( pose [ 105.9 25.4 0 0 ] name "waypoint2" )
