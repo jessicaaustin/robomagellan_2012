@@ -59,7 +59,7 @@ class Strategizer():
         rospy.loginfo("Strategizer loaded with waypoints:\n %s" % self.waypoints)
 
     def setup_goal_actions(self):
-        rospy.loginfo("Waiting for required services...")
+        rospy.logwarn("Waiting for required services...")
         self.capture_cone_client = SimpleActionClient('capture_cone', CaptureWaypointAction)
         self.capture_cone_client.wait_for_server()
         rospy.loginfo("capture_cone action client loaded")
@@ -68,6 +68,7 @@ class Strategizer():
         rospy.loginfo("capture_waypoint action client loaded")
         rospy.wait_for_service('mux_cmd_vel/select')
         rospy.loginfo("mux_cmd_vel client loaded")
+        rospy.logwarn("Services loaded")
 
         # send the first goal
         rospy.loginfo("Strategizer sending initial goal")
@@ -86,10 +87,9 @@ class Strategizer():
     def check_for_cone(self):
         self.flush_outdated_cone_coord_data()
 
-        # if there is no cone, or we're already looking for a cone, or
-        # the next waypoint is a cone... continue
-        if self.cone_coord is None or \
-           self.cone_capture_mode or \
+        # if we're already looking for a cone, or
+        # the next waypoint is not a cone... continue
+        if self.cone_capture_mode or \
            self.waypoints[self.current_waypoint_idx].type != 'C':
             return
 
@@ -98,8 +98,15 @@ class Strategizer():
         cone_coord_in_base_link_frame = self.waypoint_in_base_link_frame(cone_waypoint)
         (x,y) = cone_coord_in_base_link_frame.point.x, cone_coord_in_base_link_frame.point.y
         distance_to_cone = math.sqrt(x*x + y*y)
-        if distance_to_cone < settings.MAX_DISTANCE_TO_CAPTURE:
+        if (distance_to_cone < settings.DISTANCE_TO_CAPTURE):
+            if self.cone_coord:
+                self.switch_to_cone_capture_mode()
+            else:
+                rospy.logwarn("Should be close enough to the cone, but no visual yet! Moving closer...")
+        if (self.cone_coord is None and distance_to_cone < settings.DISTANCE_TO_CAPTURE_NO_VISUAL):
+            rospy.logwarn("We're within %f m of the cone, and still have no visual. Switching to cone capture mode anyway." % settings.DISTANCE_TO_CAPTURE_NO_VISUAL)
             self.switch_to_cone_capture_mode()
+            
 
     def waypoint_in_base_link_frame(self, waypoint_msg):
         waypoint = PointStamped()
@@ -118,29 +125,29 @@ class Strategizer():
 
     def send_next_capture_waypoint_goal(self):
         waypoint_to_capture = self.waypoints[self.current_waypoint_idx]
-        rospy.loginfo("Moving towards next goal:\n %s" % waypoint_to_capture)
+        rospy.logwarn("Moving towards next goal:\n %s" % waypoint_to_capture)
         goal = CaptureWaypointGoal()
         goal.waypoint = waypoint_to_capture
         self.capture_waypoint_client.send_goal(goal, self.recieve_capture_waypoint_done_callback)
 
     def recieve_capture_waypoint_done_callback(self, status, result):
-        rospy.loginfo("capture_waypoint returned with status: %s" % status)
+        rospy.logwarn("capture_waypoint returned with status: %s" % status)
         if status == GoalStatus.PREEMPTED:
             # we cancelled the goal, so capture_cone should be taking care of things... do nothing
             return
 
         if status != GoalStatus.SUCCEEDED:
             rospy.logerr("capture_waypoint failed to achieve goal! result = %s" % result)
-            rospy.loginfo("skipping this waypoint...")
+            rospy.logwarn("skipping this waypoint...")
 
         self.current_waypoint_idx = self.current_waypoint_idx + 1
         if self.current_waypoint_idx == len(self.waypoints):
-            rospy.loginfo("All waypoints reached! Finished strategizing.")
+            rospy.logwarn("All waypoints reached! Finished strategizing.")
         else:
             self.send_next_capture_waypoint_goal()
 
     def switch_to_cone_capture_mode(self):
-        rospy.loginfo("Switching to cone capture mode!")
+        rospy.logwarn("Switching to cone capture mode!")
 
         # cancel the capture_waypoint goal
         self.capture_waypoint_client.cancel_goal()
@@ -152,19 +159,19 @@ class Strategizer():
 
         # send the goal to capture_cone node
         waypoint_to_capture = self.waypoints[self.current_waypoint_idx]
-        rospy.loginfo("Attempting to capture cone at:\n %s" % waypoint_to_capture)
+        rospy.logwarn("Attempting to capture cone at:\n %s" % waypoint_to_capture)
         goal = CaptureWaypointGoal()
         goal.waypoint = waypoint_to_capture
         self.capture_cone_client.send_goal(goal, self.receive_capture_cone_done_callback)
 
     def receive_capture_cone_done_callback(self, status, result):
-        rospy.loginfo("capture_cone returned with status: %s" % status)
+        rospy.logwarn("capture_cone returned with status: %s" % status)
         if status != GoalStatus.SUCCEEDED:
             rospy.logerr("capture_cone failed to achieve goal! result = %s" % result)
-            rospy.loginfo("skipping this waypoint...")
+            rospy.logwarn("skipping this waypoint...")
         self.current_waypoint_idx = self.current_waypoint_idx + 1
         if self.current_waypoint_idx == len(self.waypoints):
-            rospy.loginfo("All waypoints reached! Finished strategizing.")
+            rospy.logwarn("All waypoints reached! Finished strategizing.")
         else:
             # switch back to capture_waypoint for next waypoint
             self.switch_cmd_vel("cmd_vel_capture_waypoint")

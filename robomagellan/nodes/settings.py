@@ -48,7 +48,10 @@ COLLISION_DISTANCE=0.2      # robot will FULL STOP at lower than this distance
                 # 15 degrees
 THETA_TOLERANCE=0.26                # how close we need to get to desired yaw before moving on
 WAYPOINT_THRESHOLD=0.3              # how close we need to get to desired goal before considering it reached
-MAX_DISTANCE_TO_CAPTURE = 2.0       # how close we should be to a cone before we attempt to capture it
+DISTANCE_TO_CAPTURE = 2.0           # how close we should be to a cone before we attempt to capture it
+                                    #  if we also have visual confirmation of the cone
+DISTANCE_TO_CAPTURE_NO_VISUAL = 1.0 # how close we should be to a cone before we attempt to capture it
+                                    #  if we do NOT have visual confirmation of the cone
 
 #
 # Rover contraints
