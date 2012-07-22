@@ -5,7 +5,7 @@
     <xacro:property name="mainWidth" value="0.220" />
     <xacro:property name="mainHeight" value="0.184" />
     <xacro:property name="axleHeight" value="0.049" />
-    <xacro:property name="imuHeight" value="1.165" />
+    <xacro:property name="imuHeight" value="0.743" />
     <xacro:property name="ultrasonicHeight" value="0.230" />
 
     <material name="blue">

@@ -24,10 +24,13 @@ currentOdomTheta = 0.0
 currentImuTheta = 0.0
 currentTranslate = 0.0
 currentRotate = 0.0
+currentOdomTime = 0.0
+currentImuTime = 0.0
 
 def handleOdometryMessage(odometryMessage):
-    global currentX, currentY, currentOdomTheta
+    global currentX, currentY, currentOdomTheta, currentOdomTime
 
+    currentOdomTime = odometryMessage.header.stamp.to_sec()
     currentX = odometryMessage.pose.pose.position.x
     currentY = odometryMessage.pose.pose.position.y
     orientation = [
@@ -41,8 +44,9 @@ def handleOdometryMessage(odometryMessage):
     return
 
 def handleImuMessage(imuMessage):
-    global currentImuTheta
+    global currentImuTheta, currentImuTime
 
+    currentImuTime = imuMessage.header.stamp.to_sec()
     orientation = [
         imuMessage.orientation.x,
         imuMessage.orientation.y,
@@ -63,8 +67,8 @@ def handleTwistMessage(twistMessage):
     return
 
 def displayPoseAndTwist():
-    print "%d - T m/s: %5.2f, R d/s: %d X m: %5.2f, Y m: %5.2f, OdomTheta d: %3d, ImuTheta d: %3d" % (
-        rospy.get_time(),
+    print "Time diff s: %4.3f - T m/s: %5.2f, R d/s: %d X m: %5.2f, Y m: %5.2f, OdomTheta d: %3d, ImuTheta d: %3d" % (
+        currentOdomTime - currentImuTime,
         currentTranslate,
         currentRotate * 360 / (2 * math.pi),
         currentX,
