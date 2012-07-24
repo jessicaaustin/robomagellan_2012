@@ -22,7 +22,7 @@ class PhidgetEncoders:
 
         self.leftEncoder = 0 # forward is negative
         self.rightEncoder = 1 # forward is positive
-        self.roverHasMoved = False
+        self.roverHasntMoved = False
         self.driveWheelRadius = 0.049
         self.wheelSeparation = 0.258
         self.pulsesPerRevolution = 2400 # wheel revolution
@@ -36,12 +36,12 @@ class PhidgetEncoders:
         # enough data points have been received to estimate a reasonable
         # covariance matrix.
         #
-        self.initialCovariance = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                  0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                  0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                  0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                  0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                                  0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        self.initialCovariance = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                  0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
         self.defaultCovariance = [1000.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                                   0.0, 1000.0, 0.0, 0.0, 0.0, 0.0,
                                   0.0, 0.0, 1000.0, 0.0, 0.0, 0.0,
@@ -154,6 +154,7 @@ class PhidgetEncoders:
 
                 self.odometryMessage.pose.covariance = self.defaultCovariance
                 self.odometryMessage.twist.covariance = self.defaultCovariance
+                rospy.loginfo('First motion, updating covariance')
 
         #
         # subtract the leftPulses (current delta) from the rightPulses, in order
