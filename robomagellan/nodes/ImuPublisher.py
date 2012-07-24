@@ -63,7 +63,7 @@ if __name__ == '__main__':
         currentTimestamp = rospy.get_time()
         roll, pitch, yaw, exception = imu.getOrientation()
         if exception:
-            rospy.logwarn("Exception in getOrientation()")
+            rospy.logwarn("getOrientation(): %s" % (exception))
             continue
 
         deltaTime = currentTimestamp - previousTimestamp
