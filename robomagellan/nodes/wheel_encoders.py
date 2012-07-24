@@ -22,6 +22,7 @@ class PhidgetEncoders:
 
         self.leftEncoder = 0 # forward is negative
         self.rightEncoder = 1 # forward is positive
+        self.roverHasMoved = False
         self.driveWheelRadius = 0.049
         self.wheelSeparation = 0.258
         self.pulsesPerRevolution = 2400 # wheel revolution
@@ -29,8 +30,18 @@ class PhidgetEncoders:
         self.pulsesConstant = (pi / self.pulsesPerRevolution) * self.driveWheelRadius
 
         #
-        # these covariance values are complete guesses
+        # the initialCovariance is used before the rover has moved,
+        # because it's position and orientation are known perfectly.
+        # once it has moved, the defaultCovariance is used, until
+        # enough data points have been received to estimate a reasonable
+        # covariance matrix.
         #
+        self.initialCovariance = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         self.defaultCovariance = [1000.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                                   0.0, 1000.0, 0.0, 0.0, 0.0, 0.0,
                                   0.0, 0.0, 1000.0, 0.0, 0.0, 0.0,
@@ -68,8 +79,8 @@ class PhidgetEncoders:
         #
         self.odometryMessage.pose.pose.position.z = 0
 
-        self.odometryMessage.pose.covariance = self.defaultCovariance
-        self.odometryMessage.twist.covariance = self.defaultCovariance
+        self.odometryMessage.pose.covariance = self.initialCovariance
+        self.odometryMessage.twist.covariance = self.initialCovariance
 
         #
         # robot_pose_ekf subscribes (via remapping) to wheel_odom,
@@ -137,16 +148,26 @@ class PhidgetEncoders:
         self.previousLeftPosition += leftPulses
         self.previousRightPosition += rightPulses
 
+        if self.roverHasntMoved:
+            if leftPulses != 0 or rightPulses != 0:
+                self.roverHasntMoved = False
+
+                self.odometryMessage.pose.covariance = self.defaultCovariance
+                self.odometryMessage.twist.covariance = self.defaultCovariance
+
         #
         # subtract the leftPulses (current delta) from the rightPulses, in order
         # to make a left turn have a positive deltaTheta.
         #
         deltaTheta = self.wheelsConstant * (rightPulses - leftPulses) / self.pulsesPerRevolution
 
-        #
-        # this calculation of theta doesn't handle the overflow
-        #
         theta = self.previousTheta + deltaTheta
+        fullCircle = pi * 2.0
+        if theta < -(fullCircle):
+            theta = theta % -(fullCircle)
+        elif theta > (fullCircle):
+            theta = theta % (fullCircle)
+
         deltaX = cos(theta) * (leftPulses + rightPulses) * self.pulsesConstant
         deltaY = sin(theta) * (leftPulses + rightPulses) * self.pulsesConstant
 
