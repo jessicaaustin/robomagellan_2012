@@ -4,7 +4,7 @@
 
 motors_calibration
 
-Subscribe to the imu_data and wheel_odom topics and display
+Subscribe to the imu_data and odom topics and display
 their values
 
 """
@@ -68,7 +68,7 @@ def handleTwistMessage(twistMessage):
 
 def displayPoseAndTwist():
     print "Time diff s: %4.3f - T m/s: %5.2f, R d/s: %d X m: %5.2f, Y m: %5.2f, OdomTheta d: %3d, ImuTheta d: %3d" % (
-        currentOdomTime - currentImuTime,
+        abs(currentOdomTime - currentImuTime),
         currentTranslate,
         currentRotate * 360 / (2 * math.pi),
         currentX,
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     rospy.init_node('motors_calibration')
 
     rospy.Subscriber('imu_data', Imu, handleImuMessage)
-    rospy.Subscriber('wheel_odom', Odometry, handleOdometryMessage)
+    rospy.Subscriber('odom', Odometry, handleOdometryMessage)
     rospy.Subscriber('cmd_vel', Twist, handleTwistMessage)
 
     consistentFrequency = rospy.Rate(4)
