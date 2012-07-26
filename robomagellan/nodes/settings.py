@@ -13,8 +13,6 @@
 MY_CAMERA = 0
 # how many previous positions to interpolate to find our current position. higher smoothness => slower tracking, but less jerkiness 
 SMOOTHNESS = 4
-# Whether or not to show the opencv windows for debug purposes
-SHOW_OPENCV_WINDOWS=False
 # The maximum and minimum values for cone coordinate
 CONE_MAX_Y=0.70
 CONE_MAX_X=0.90

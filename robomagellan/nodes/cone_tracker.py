@@ -35,10 +35,13 @@ from geometry_msgs.msg import Point
 from rospy.exceptions import ROSInitException
 from visualization_msgs.msg import Marker
 from robomagellan.msg import AsciiArt
+from sensor_msgs.msg import Image
 import tf
 
 import cv
 import operator
+
+from cv_bridge import CvBridge
 
 import settings
 from waypoint_reader import WaypointFileReader
@@ -57,11 +60,6 @@ class ConeTracker():
             rospy.logerr(err)
             raise ROSInitException(err)
 
-        # create display windows
-        if settings.SHOW_OPENCV_WINDOWS:
-            cv.NamedWindow('camera', cv.CV_WINDOW_AUTOSIZE)
-            cv.NamedWindow('threshed', cv.CV_WINDOW_AUTOSIZE)
-
         # store the image capture params
         self.smoothness = smoothness
         self.min_thresh = min_thresh
@@ -69,6 +67,11 @@ class ConeTracker():
 
         # initialize position array
         self.positions_x, self.positions_y = [0]*smoothness, [0]*smoothness
+
+        # setup cv bridge, for converting from opencv images to ROS images
+        self.bridge = CvBridge()
+        self.pub_image = rospy.Publisher("camera_image", Image)
+        self.pub_image_threshed = rospy.Publisher("camera_image_threshed", Image)
 
         rospy.loginfo("Successfully initialized ConeTracker")
 
@@ -122,31 +125,28 @@ class ConeTracker():
                 # discard all but the last N positions
                 self.positions_x, self.positions_y = self.positions_x[-self.smoothness:], self.positions_y[-self.smoothness:]
 
-        # object_indicator will be the new image which shows where the identified
-        # blob has been located.
-        object_indicator = cv.CreateImage(cv.GetSize(image), image.depth, 3)
-
         # the average location of the identified blob
         pos_x = int(sum(self.positions_x)/len(self.positions_x))
         pos_y = int(sum(self.positions_y)/len(self.positions_y))
         object_position = (pos_x,pos_y)
 
-        if settings.SHOW_OPENCV_WINDOWS:
+        # If we found a blob, overlay the location on the original image
+        if blobContour:
+            desiredPosition = cv.GetSize(image)
+            desiredPosition = tuple(map(operator.mul, desiredPosition, (0.5, 0.5)))
+            desiredPosition = tuple(map(int, desiredPosition))
+
+            # draw a line to the desiredPosition
+            object_indicator = cv.CreateImage(cv.GetSize(image), image.depth, image.nChannels)
+            cv.SetZero(object_indicator)
+            cv.Circle(object_indicator, desiredPosition, 4, (255,0,0), 2)
+            cv.Line(object_indicator, object_position, desiredPosition, (255,0,0), 3) 
             cv.Circle(object_indicator, object_position, 8, (0,255,0), 2)
-
-            if blobContour:
-                # draw a line to the desiredPosition
-                desiredPosition = cv.GetSize(image)
-                desiredPosition = tuple(map(operator.mul, desiredPosition, (0.5, 0.5)))
-                desiredPosition = tuple(map(int, desiredPosition))
-                cv.Circle(object_indicator, desiredPosition, 4, (255,0,0), 2)
-                cv.Line(object_indicator, object_position, desiredPosition, (255,0,0), 3) 
-
-            # show the images
             cv.Add(image, object_indicator, image)
-            cv.ShowImage('threshed', image_threshed)
-            cv.ShowImage('camera', image)
-            cv.WaitKey(1)
+
+        # publish the image
+        self.pub_image.publish(self.bridge.cv_to_imgmsg(image))
+        self.pub_image_threshed.publish(self.bridge.cv_to_imgmsg(image_threshed))
 
         if blobContour:
             z = 1.0  # we assume the ball is 1 meter away (no depth perception yet!)
