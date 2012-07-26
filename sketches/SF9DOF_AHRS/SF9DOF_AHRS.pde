@@ -81,7 +81,7 @@
 int8_t sensors[3] = {1,2,0};  // Map the ADC channels gyro_x, gyro_y, gyro_z
 int SENSOR_SIGN[9] = {-1,1,-1,1,1,1,-1,-1,-1};  //Correct directions x,y,z - gyros, accels, magnetormeter
 
-float G_Dt = 1.0 / UPDATE_RATE_HZ;    // Integration time (DCM algorithm)
+float G_Dt = MAIN_LOOP_TIME_MS;    // Integration time (DCM algorithm)
 
 long timer=0;   //general purpuse timer
 long timer_old;
@@ -221,7 +221,7 @@ void setup()
 void loop() //Main Loop
 {
   
-  if((DIYmillis()-timer) >= MAIN_LOOP_TIME)  // Main loop rate
+  if((DIYmillis()-timer) >= MAIN_LOOP_TIME_MS)  // Main loop rate
   {
     counter++;
     timer_old = timer;
