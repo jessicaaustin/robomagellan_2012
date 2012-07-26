@@ -118,6 +118,7 @@ class Navigator():
         self.publish_cmd_vel_path(cmd_vel)
 
     def full_stop(self):
+        rospy.logwarn("FULL STOP")
         cmd_vel = Twist()
         self.cmd_vel_pub.publish(cmd_vel)
         self.publish_cmd_vel_path(cmd_vel)
@@ -243,6 +244,7 @@ class WaypointNavigator(Navigator):
         elif self.state == NavigationState.MOVE_TOWARDS_GOAL:
             if self.collided:
                 rospy.logwarn("Oops, we hit something!")
+                self.full_stop()
                 self.state == NavigationState.AVOID_OBSTACLE
             else:
                 return self.move_towards_waypoint(goal)
