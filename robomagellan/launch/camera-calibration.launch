@@ -1,0 +1,8 @@
+<launch>
+
+    <arg name="autonomous" default="false"/>
+    <arg name="simulation" default="false"/>
+
+    <node name="cone_tracker" pkg="robomagellan" type="cone_tracker.py" respawn="false" /> 
+
+</launch>

@@ -193,7 +193,7 @@ class Strategizer():
             waypoint = self.waypoints[i]
             waypoint_marker = Marker()
             waypoint_marker.id = i
-            waypoint_marker.header.frame_id = "/map"
+            waypoint_marker.header.frame_id = "/odom"
             waypoint_marker.header.stamp = rospy.Time.now()
             if (waypoint.type == 'P'):
                 waypoint_marker.type = 5  # Line List
@@ -222,7 +222,7 @@ class Strategizer():
         if self.current_waypoint_idx != len(self.waypoints):
             current_waypoint_marker = Marker()
             current_waypoint_marker.id = 999
-            current_waypoint_marker.header.frame_id = "/map"
+            current_waypoint_marker.header.frame_id = "/odom"
             current_waypoint_marker.header.stamp = rospy.Time.now()
             current_waypoint_marker.type = 2  # Sphere
             current_waypoint_marker.text = 'current_waypoint'

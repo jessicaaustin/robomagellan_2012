@@ -13,6 +13,11 @@
 MY_CAMERA = 0
 # how many previous positions to interpolate to find our current position. higher smoothness => slower tracking, but less jerkiness 
 SMOOTHNESS = 4
+# Whether or not to show the opencv windows for debug purposes
+SHOW_OPENCV_WINDOWS=False
+# The maximum and minimum values for cone coordinate
+CONE_MAX_Y=0.70
+CONE_MAX_X=0.90
 # minimum and maximum threshold value in HSV (hue,sat,val)
 # red
 #MIN_THRESH, MAX_THRESH = (163.0, 85.5, 72.5, 0.0), (189.0, 244.5, 247.5, 0.0)

@@ -34,6 +34,7 @@ from geometry_msgs.msg import PointStamped
 from geometry_msgs.msg import Point
 from rospy.exceptions import ROSInitException
 from visualization_msgs.msg import Marker
+from robomagellan.msg import AsciiArt
 import tf
 
 import cv
@@ -57,8 +58,9 @@ class ConeTracker():
             raise ROSInitException(err)
 
         # create display windows
-#        cv.NamedWindow('camera', cv.CV_WINDOW_AUTOSIZE)
-#        cv.NamedWindow('threshed', cv.CV_WINDOW_AUTOSIZE)
+        if settings.SHOW_OPENCV_WINDOWS:
+            cv.NamedWindow('camera', cv.CV_WINDOW_AUTOSIZE)
+            cv.NamedWindow('threshed', cv.CV_WINDOW_AUTOSIZE)
 
         # store the image capture params
         self.smoothness = smoothness
@@ -129,21 +131,22 @@ class ConeTracker():
         pos_y = int(sum(self.positions_y)/len(self.positions_y))
         object_position = (pos_x,pos_y)
 
-#        cv.Circle(object_indicator, object_position, 8, (0,255,0), 2)
-#
-#        if blobContour:
-#            # draw a line to the desiredPosition
-#            desiredPosition = cv.GetSize(image)
-#            desiredPosition = tuple(map(operator.mul, desiredPosition, (0.5, 0.5)))
-#            desiredPosition = tuple(map(int, desiredPosition))
-#            cv.Circle(object_indicator, desiredPosition, 4, (255,0,0), 2)
-#            cv.Line(object_indicator, object_position, desiredPosition, (255,0,0), 3) 
-#
-#        # show the images
-#        cv.Add(image, object_indicator, image)
-#        cv.ShowImage('threshed', image_threshed)
-#        cv.ShowImage('camera', image)
-#        cv.WaitKey(1)
+        if settings.SHOW_OPENCV_WINDOWS:
+            cv.Circle(object_indicator, object_position, 8, (0,255,0), 2)
+
+            if blobContour:
+                # draw a line to the desiredPosition
+                desiredPosition = cv.GetSize(image)
+                desiredPosition = tuple(map(operator.mul, desiredPosition, (0.5, 0.5)))
+                desiredPosition = tuple(map(int, desiredPosition))
+                cv.Circle(object_indicator, desiredPosition, 4, (255,0,0), 2)
+                cv.Line(object_indicator, object_position, desiredPosition, (255,0,0), 3) 
+
+            # show the images
+            cv.Add(image, object_indicator, image)
+            cv.ShowImage('threshed', image_threshed)
+            cv.ShowImage('camera', image)
+            cv.WaitKey(1)
 
         if blobContour:
             z = 1.0  # we assume the ball is 1 meter away (no depth perception yet!)
@@ -234,6 +237,7 @@ if __name__ == '__main__':
 
     pub_cone_coord = rospy.Publisher('cone_coord', PointStamped)
     pub_cone_marker = rospy.Publisher('cone_marker', Marker)
+    pub_cone_coord_ascii = rospy.Publisher('cone_coord_ascii', AsciiArt)
 
     rate = rospy.Rate(10.0)
     while not rospy.is_shutdown():
@@ -258,5 +262,26 @@ if __name__ == '__main__':
             cone_marker.header.stamp = rospy.Time.now()
             cone_marker.pose.position = cone_coord
             pub_cone_marker.publish(cone_marker)
+
+            cone_coord_ascii = AsciiArt()
+            cone_coord_ascii.header.frame_id= "camera_lens_optical"
+            cone_coord_ascii.header.stamp = rospy.Time.now()
+            max_x, max_y = (int)(settings.CONE_MAX_X * 100), (int)((settings.CONE_MAX_Y * 100)/2)
+            ascii_x = (int)(cone_coord.x * 100)
+            ascii_y = (int)((cone_coord.y * 100)/2)
+            art = "\n"
+            for j in range(0, max_y):
+                art += "|"
+                for i in range(0, max_x):
+                    if i == ascii_x and j == ascii_y:
+                        art += "O"
+                    elif i == ((int)(max_x/2)) and j == ((int)(max_y/2)):
+                        art += "+"
+                    else:
+                        art += " "
+                art += "|\n"
+            cone_coord_ascii.art = art
+            pub_cone_coord_ascii.publish(cone_coord_ascii)
+
         rate.sleep()
             

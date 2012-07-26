@@ -411,12 +411,12 @@ class ConeCaptureNavigator(Navigator):
             with yaw commands proportional to the error in the 
             y-direction
         """
-        z = self.cone_coord.point.y
-        if z > 0.2:
-            z = 0.2
-        if z < -0.2:
-            z = -0.2
-        rot_vel = -1 * settings.KP_CT * z
+        yerr = self.cone_coord.point.x - settings.CONE_MAX_X/2 
+        if yerr > 0.2:
+            yerr = 0.2
+        if yerr < -0.2:
+            yerr = -0.2
+        rot_vel = -1 * settings.KP_CT * yerr
         self.publish_cmd_vel(settings.MIN_VELOCITY, rot_vel)
 
     def move_backwards_to_clear_cone(self):
