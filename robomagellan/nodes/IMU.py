@@ -11,9 +11,9 @@ IMU(serialPort)
     serialPort - the serial port where the IMU is connected
 
 getOrientation()
-    returns a 3-tuple:
+    returns a 4-tuple:
 
-    (roll, pitch, yaw)
+    (roll, pitch, yaw, status)
 
 """
 
@@ -29,9 +29,9 @@ getOrientation()
             )
         self.serialPort.setRTS(level = True)
         self.serialPort.setDTR(level = True)
-        self.serialPort.flushInput()
+        # self.serialPort.flushInput()
 
-        self.serialPort.flushInput()
+        self.expectedSequenceNumber = 0
 
         #
         # read whatever is left of the most recent message
@@ -48,11 +48,7 @@ getOrientation()
         #
         # read a whole message
         #
-        self.serialPort.flushInput()
         inputMessageBuffer = ''
-        characterRead = self.serialPort.read(1)
-        while (characterRead != '\r'):
-            characterRead = self.serialPort.read(1)
         characterRead = self.serialPort.read(1)
         while (characterRead != '\r'):
             inputMessageBuffer = inputMessageBuffer + characterRead
@@ -60,6 +56,20 @@ getOrientation()
 
         try:
             firstSplit = inputMessageBuffer.split(':')
+            sequenceNumber = int(firstSplit[0])
+            expectedSequenceNumber = self.expectedSequenceNumber
+            self.expectedSequenceNumber = sequenceNumber + 1
+            if sequenceNumber != expectedSequenceNumber:
+                return (
+                    0.0,
+                    0.0,
+                    0.0,
+                    'Sequence. Expected %d, got %d' % (
+                        expectedSequenceNumber,
+                        sequenceNumber
+                        )
+                        )
+
             values = firstSplit[1].split(',')
 
             roll = float(values[0])
