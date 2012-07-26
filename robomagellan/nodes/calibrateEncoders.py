@@ -123,6 +123,7 @@ print "averageAcceleration", averageAcceleration
 motorControl.setAcceleration(whichMotor, averageAcceleration)
 
 position = encoder.getPosition(whichEncoder)
+print "Starting position", position
 startTime = time.clock()
 motorControl.setVelocity(whichMotor, velocity)
 while position < pulsesWanted:

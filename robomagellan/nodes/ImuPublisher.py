@@ -32,6 +32,8 @@ if __name__ == '__main__':
     imuMessage = ImuMessage()
     imuMessage.header.frame_id = 'imu'
 
+    minYawThreshold = pi * 2 / 100.0 * 0.5
+
     imuMessage.orientation.x = 0.0
     imuMessage.orientation.y = 0.0
     imuMessage.orientation.z = 0.0
@@ -45,9 +47,9 @@ if __name__ == '__main__':
     imuMessage.angular_velocity.x = 0.0
     imuMessage.angular_velocity.y = 0.0
     imuMessage.angular_velocity.z = 0.0
-    imuMessage.angular_velocity_covariance = [1000.0, 0.0, 0.0,
-                                              0.0, 1000.0, 0.0,
-                                              0.0, 0.0, 1000.0]
+    imuMessage.angular_velocity_covariance = [-1.0, 0.0, 0.0,
+                                              0.0, 0.0, 0.0,
+                                              0.0, 0.0, 0.0]
     #
     # linear acceleration not available
     #
@@ -63,7 +65,7 @@ if __name__ == '__main__':
         currentTimestamp = rospy.get_time()
         roll, pitch, yaw, exception = imu.getOrientation()
         if exception:
-            rospy.logwarn("Exception in getOrientation()")
+            rospy.logwarn("getOrientation(): %s" % (exception))
             continue
 
         deltaTime = currentTimestamp - previousTimestamp
@@ -79,7 +81,14 @@ if __name__ == '__main__':
         yaw -= yawOffset
 
         if previousYaw:
-            imuMessage.angular_velocity.z = (yaw - previousYaw) / deltaTime
+
+            if abs(yaw - previousYaw) < minYawThreshold:
+                yaw = previousYaw
+                
+            imuMessage.angular_velocity.z = round(
+                (yaw - previousYaw) / deltaTime, 
+                1
+                )
 
         previousYaw = yaw
         previousTimestamp = currentTimestamp

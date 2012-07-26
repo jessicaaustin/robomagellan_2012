@@ -67,7 +67,7 @@ getOrientation()
             yaw = float(values[2])
 
         except:
-            return (0.0, 0.0, 0.0, 'Exception')
+            return (0.0, 0.0, 0.0, inputMessageBuffer)
 
         return (roll, pitch, yaw, None)
 
