@@ -25,8 +25,8 @@ CONE_MAX_X=0.90
 #MIN_THRESH, MAX_THRESH = ( 75.0, 80.0, 80.0, 0.0), (125.0, 230.0, 230.0, 0.0)
 # yellow tennis ball
 #MIN_THRESH, MAX_THRESH = (37.5, 74.0, 80.0, 0.0), (50.5, 224.0, 230.0, 0.0)
-# orange cone (indoors)
-MIN_THRESH, MAX_THRESH = (171.5, 106.0, 102.0, 0.0), (178.5, 248.0, 250.0, 0.0)
+# orange cone 
+MIN_THRESH, MAX_THRESH = (0.0, 140.0, 160.0, 0.0), (3.0, 250.0, 270.0, 0.0)
 # red bin (backyard)
 #MIN_THRESH, MAX_THRESH = (160.0, 100.0, 100.0, 0.0), (170.0, 250.0, 250.0, 0.0)
 
