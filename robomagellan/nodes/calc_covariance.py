@@ -35,10 +35,10 @@ def calcCovariance(sampleList, newSample, numOfSamples, maxSamples):
     else:
         sampleList = numpy.append(sampleList, [newSample], 0)
 
-    numOfSamples = numOfSamples + 1
-
-    if numOfSamples > maxSamples:
+    if numOfSamples == maxSamples:
         sampleList = numpy.delete(sampleList, 0, 0)
+    else:
+        numOfSamples = numOfSamples + 1
         
     covariance = numpy.cov(sampleList.T)
 
