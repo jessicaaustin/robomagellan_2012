@@ -72,12 +72,7 @@ class Navigator():
 
     def setup_cone_coord_callback(self):
         def cone_coord_callback(data):
-            # only save this data if we are moving towards a cone 
-            # we do this to avoid outdated cone data
-            if self.state == NavigationState.CAPTURE_CONE or self.state == NavigationState.ROTATE_TO_FIND_PATH:
-                self.cone_coord = data
-            else:
-                self.cone_coord = None
+            self.cone_coord = data
         return cone_coord_callback
 
     def setup_collision_callback(self):
@@ -174,6 +169,7 @@ class Navigator():
         return self.transformListener.transformPoint("/odom", goal_coord)
 
     def rotate_towards_goal(self, goal):
+        rospy.loginfo("Rotating towards goal")
         if self.target_coord == None:
             # set up our target the first time through
             self.target_coord = self.target_coord_in_odom_frame(goal)
@@ -189,8 +185,6 @@ class Navigator():
         # difference between these two poses
         theta = tf.transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])[2]
         terr = td - theta
-
-#        rospy.loginfo("(theta, td) = (%.4f, %.4f)" % (theta, td))
 
         if (math.fabs(terr) > math.pi):
             # rotate in the other direction for efficiency 
@@ -369,6 +363,7 @@ class ConeCaptureNavigator(Navigator):
             return False
 
         if self.state == NavigationState.NONE:
+            rospy.loginfo("Moving from %s to %s" % (NavigationState.NONE, NavigationState.ROTATE_INTO_POSITION))
             self.state = NavigationState.ROTATE_INTO_POSITION
 
         elif self.state == NavigationState.ROTATE_INTO_POSITION:
@@ -379,6 +374,7 @@ class ConeCaptureNavigator(Navigator):
             # that by the time a cone waypoint is sent, we are close enough to the cone
             # that we should be able to see it
             self.state = NavigationState.CAPTURE_CONE
+            rospy.loginfo("Moving from %s to %s" % (NavigationState.MOVE_TOWARDS_GOAL, NavigationState.CAPTURE_CONE))
 
         elif self.state == NavigationState.CAPTURE_CONE:
 
@@ -400,7 +396,14 @@ class ConeCaptureNavigator(Navigator):
             # TODO add check for obstacles...
 
         elif self.state == NavigationState.ROTATE_TO_FIND_PATH:
-            self.rotate_in_place_to_find_cone()
+            could_find_cone = self.rotate_in_place_to_find_cone()
+            if not could_find_cone:
+                # time to abort :(
+                rospy.logerr("Could not find cone! Aborting! ='(")
+                self.reset_everything()
+                self.server.set_aborted()
+                # we're finished, so return True
+                return True
 
         # haven't reached our goal yet...
         return False
@@ -442,17 +445,74 @@ class ConeCaptureNavigator(Navigator):
         
         now = rospy.Time.now().to_sec()
         latency = now - self.cone_coord.header.stamp.to_sec()
-        if latency > 0.5:
+        if latency > 1.0:
+            rospy.logwarn("flushing cone_coord data that is %f sec old" % latency)
             self.cone_coord = None
 
     def rotate_in_place_to_find_cone(self):
+        self.full_stop()
+        rospy.sleep(.1)
+
+        # first, try left
+        self.turn_left()
+        if self.pause_and_check_for_cone():
+            return True
+        self.turn_left()
+        if self.pause_and_check_for_cone():
+            return True
+        self.turn_left()
+        if self.pause_and_check_for_cone():
+            return True
+
+        # come back to the original position
+        self.turn_right()
+        self.turn_right()
+        self.turn_right()
+        if self.pause_and_check_for_cone():
+            return True
+
+        # then try right
+        self.turn_right()
+        if self.pause_and_check_for_cone():
+            return True
+        self.turn_right()
+        if self.pause_and_check_for_cone():
+            return True
+        self.turn_right()
+        if self.pause_and_check_for_cone():
+            return True
+
+        # keep searching...
+        for i in range(12):
+            self.turn_right()
+            if self.pause_and_check_for_cone():
+                return True
+
+        return False
+
+    def turn_left(self):
+        rospy.loginfo("Turning left to find cone...")
+        for i in range(settings.CONE_SEARCH_ROT_TIME):
+            self.publish_cmd_vel(0.0, settings.CONE_SEARCH_ROT_VEL)
+            rospy.sleep(.1)
+
+    def turn_right(self):
+        rospy.loginfo("Turning right to find cone...")
+        for i in range(settings.CONE_SEARCH_ROT_TIME):
+            self.publish_cmd_vel(0.0, -1 * settings.CONE_SEARCH_ROT_VEL)
+            rospy.sleep(.1)
+
+    def pause_and_check_for_cone(self):
+        rospy.loginfo("Checking for cone...")
+        rospy.sleep(1)
         if self.cone_coord != None:
-            # we found the cone!
+            rospy.loginfo("Found a cone!")
+            self.full_stop()
+            rospy.sleep(.1)
+            rospy.loginfo("Switching back to %s mode" % NavigationState.CAPTURE_CONE)
             self.state = NavigationState.CAPTURE_CONE
-        else:
-            # rotate in place until the cone comes into view
-            # TODO abort if we can't find the cone after some amount of time
-            self.publish_cmd_vel(0.0, settings.MIN_TURNRATE)
+            return True
+        return False
 
     def publish_cone_captured_msg(self, waypoint):
         cone_captured_msg = ConeCaptured()

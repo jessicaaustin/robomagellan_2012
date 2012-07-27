@@ -85,3 +85,7 @@ KP_T=2.0    # feedback proportional to angular (theta) error
 # Capturing cone
 KP_CT=4    # feedback proproprtional to y-err 
 
+# Rotating to find cone
+CONE_SEARCH_ROT_TIME=10       # How many cycles
+CONE_SEARCH_ROT_VEL=0.30     # m/s
+
