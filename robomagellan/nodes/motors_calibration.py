@@ -18,21 +18,25 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from tf import transformations
 
-currentX = 0.0
-currentY = 0.0
+currentOdomX = 0.0
+currentOdomY = 0.0
+currentWheelOdomX = 0.0
+currentWheelOdomY = 0.0
 currentOdomTheta = 0.0
+currentWheelOdomTheta = 0.0
 currentImuTheta = 0.0
 currentTranslate = 0.0
 currentRotate = 0.0
 currentOdomTime = 0.0
+currentWheelOdomTime = 0.0
 currentImuTime = 0.0
 
 def handleOdometryMessage(odometryMessage):
-    global currentX, currentY, currentOdomTheta, currentOdomTime
+    global currentOdomX, currentOdomY, currentOdomTheta, currentOdomTime
 
     currentOdomTime = odometryMessage.header.stamp.to_sec()
-    currentX = odometryMessage.pose.pose.position.x
-    currentY = odometryMessage.pose.pose.position.y
+    currentOdomX = odometryMessage.pose.pose.position.x
+    currentOdomY = odometryMessage.pose.pose.position.y
     orientation = [
         odometryMessage.pose.pose.orientation.x,
         odometryMessage.pose.pose.orientation.y,
@@ -42,6 +46,23 @@ def handleOdometryMessage(odometryMessage):
     currentOdomTheta = transformations.euler_from_quaternion(orientation)[2]
 
     return
+
+def handleWheelOdometryMessage(odometryMessage):
+    global currentWheelOdomX, currentWheelOdomY, currentWheelOdomTheta, currentWheelOdomTime
+
+    currentWheelOdomTime = odometryMessage.header.stamp.to_sec()
+    currentWheelOdomX = odometryMessage.pose.pose.position.x
+    currentWheelOdomY = odometryMessage.pose.pose.position.y
+    orientation = [
+        odometryMessage.pose.pose.orientation.x,
+        odometryMessage.pose.pose.orientation.y,
+        odometryMessage.pose.pose.orientation.z,
+        odometryMessage.pose.pose.orientation.w
+        ]
+    currentWheelOdomTheta = transformations.euler_from_quaternion(orientation)[2]
+
+    return
+
 
 def handleImuMessage(imuMessage):
     global currentImuTheta, currentImuTime
@@ -67,14 +88,17 @@ def handleTwistMessage(twistMessage):
     return
 
 def displayPoseAndTwist():
-    print "Time diff s: %4.3f - T m/s: %5.2f, R d/s: %d X m: %5.2f, Y m: %5.2f, OdomTheta d: %3d, ImuTheta d: %3d" % (
+    print "Time diff s: %4.3f | T m/s: %5.2f, R d/s: %d | WO_pos: (%5.2f, %5.2f), Odom_pos: (%5.2f, %5.2f) | WO_theta: %3d, IMU_theta: %3d, Odom_theta: %3d" % (
         abs(currentOdomTime - currentImuTime),
         currentTranslate,
         currentRotate * 360 / (2 * math.pi),
-        currentX,
-        currentY,
-        currentOdomTheta  * 360 / (2 * math.pi),
-        currentImuTheta  * 360 / (2 * math.pi)
+        currentWheelOdomX,
+        currentWheelOdomY,
+        currentOdomX,
+        currentOdomY,
+        currentWheelOdomTheta  * 360 / (2 * math.pi),
+        currentImuTheta  * 360 / (2 * math.pi),
+        currentOdomTheta  * 360 / (2 * math.pi)
         )
 
     return
@@ -83,6 +107,7 @@ if __name__ == '__main__':
     rospy.init_node('motors_calibration')
 
     rospy.Subscriber('imu_data', Imu, handleImuMessage)
+    rospy.Subscriber('wheel_odom', Odometry, handleWheelOdometryMessage)
     rospy.Subscriber('odom', Odometry, handleOdometryMessage)
     rospy.Subscriber('cmd_vel', Twist, handleTwistMessage)
 
