@@ -1,16 +1,8 @@
 
-wheel encoders / imu
-   need better IMU/yaw data
-
 navigation:
+  does FULL STOP actually work?
   add obstacle avoidance
-  implement drift offset of robomagellan_localization
-
-cone_capture:
-  better tweaking of parameters on cone_tracker node? why couldn't it see the cone?
-  start storing the camera data in a ros bag
-  get good numbers for the HSV
-   inside, outside, cloudy, sunny, in the shade, partially obscured
+  test drift offset with robomagellan_localization
 
 need a quick way of creating a waypoints file on competition day
 
