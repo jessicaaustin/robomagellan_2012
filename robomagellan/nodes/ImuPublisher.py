@@ -47,9 +47,9 @@ if __name__ == '__main__':
     imuMessage.angular_velocity.x = 0.0
     imuMessage.angular_velocity.y = 0.0
     imuMessage.angular_velocity.z = 0.0
-    imuMessage.angular_velocity_covariance = [-1.0, 0.0, 0.0,
-                                              0.0, 0.0, 0.0,
-                                              0.0, 0.0, 0.0]
+    imuMessage.angular_velocity_covariance = [1000.0, 0.0, 0.0,
+                                              0.0, 1000.0, 0.0,
+                                              0.0, 0.0, 1000.0]
     #
     # linear acceleration not available
     #
