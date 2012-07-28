@@ -41,16 +41,19 @@ class RoverCommander():
         for i in range(timesteps):
             self.publish_cmd_vel(velocity, 0.0, 'move_forward')
             rospy.sleep(.1)
+        self.command_full_stop()
 
     def command_rotate_left(self):
         for i in range(settings.CONE_SEARCH_ROT_TIME):
             self.publish_cmd_vel(0.0, settings.CONE_SEARCH_ROT_VEL, 'turn_left')
             rospy.sleep(.1)
+        self.command_full_stop()
 
     def command_rotate_right(self):
         for i in range(settings.CONE_SEARCH_ROT_TIME):
             self.publish_cmd_vel(0.0, -1 * settings.CONE_SEARCH_ROT_VEL, 'turn_right')
             rospy.sleep(.1)
+        self.command_full_stop()
 
 
     # helpers
@@ -120,43 +123,46 @@ if __name__ == '__main__':
         rospy.logwarn("Waiting for odometry!")
         rospy.sleep(.1)
 
+    stepDelay = 3.0
+
     rospy.logwarn("stopping")
     rover_commander.command_full_stop()
-    rospy.sleep(1)
+    rospy.sleep(stepDelay)
 
-    rospy.logwarn("moving forward 1.2 meter")
-    rover_commander.command_move_forward(1.2)
-    rospy.sleep(1)
+    rospy.logwarn("moving forward 1.0 meter")
+    rover_commander.command_move_forward(1.0)
+    rospy.sleep(stepDelay)
 
     rospy.logwarn("rotating left")
     rover_commander.command_rotate_left()
-    rospy.sleep(1)
+    rospy.sleep(stepDelay)
     rover_commander.command_rotate_left()
-    rospy.sleep(1)
+    rospy.sleep(stepDelay)
     rover_commander.command_rotate_left()
-    rospy.sleep(1)
+    rospy.sleep(stepDelay)
 
     rospy.logwarn("rotating right")
     rover_commander.command_rotate_right()
-    rospy.sleep(1)
+    rospy.sleep(stepDelay)
     rover_commander.command_rotate_right()
-    rospy.sleep(1)
+    rospy.sleep(stepDelay)
     rover_commander.command_rotate_right()
-    rospy.sleep(1)
+    rospy.sleep(stepDelay)
     rover_commander.command_rotate_right()
-    rospy.sleep(1)
+    rospy.sleep(stepDelay)
     rover_commander.command_rotate_right()
-    rospy.sleep(1)
+    rospy.sleep(stepDelay)
     rover_commander.command_rotate_right()
-    rospy.sleep(1)
+    rospy.sleep(stepDelay)
 
     rospy.logwarn("rotating left")
     rover_commander.command_rotate_left()
-    rospy.sleep(1)
+    rospy.sleep(stepDelay)
     rover_commander.command_rotate_left()
-    rospy.sleep(1)
+    rospy.sleep(stepDelay)
     rover_commander.command_rotate_left()
-    rospy.sleep(1)
+    rospy.sleep(stepDelay)
+    rover_commander.command_full_stop()
 
     rospy.logwarn("Done.")
 
