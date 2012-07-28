@@ -197,9 +197,12 @@ class Navigator():
         if (math.fabs(terr) < settings.THETA_TOLERANCE):
             # we've reached the desired orientation, time to move towards our goal
             self.target_coord = None
+            self.full_stop()
+            rospy.sleep(0.5)
             self.state = NavigationState.MOVE_TOWARDS_GOAL
         else:
             # need to keep turning to reach our desired orientation
+            rospy.logwarn("terr=%.2f, should be less than %.2f" % (terr, settings.THETA_TOLERANCE)) 
             turnrate = settings.KP_T*terr
             if (turnrate > 0 and math.fabs(turnrate) < settings.MIN_TURNRATE):
                 turnrate = settings.MIN_TURNRATE
@@ -314,6 +317,7 @@ class WaypointNavigator(Navigator):
             # we've gone well off course... time to stop and rotate again
             rospy.logwarn("We've veered off course! rotating back into position")
             self.full_stop()
+            rospy.sleep(1)
             self.state = NavigationState.ROTATE_INTO_POSITION
             return False
         else:
