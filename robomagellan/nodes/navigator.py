@@ -109,7 +109,7 @@ class Navigator():
         cmd_vel = Twist()
         cmd_vel.linear.x = self.bounded_speed(x)
         cmd_vel.angular.z = self.bounded_turnrate(z)
-#        rospy.loginfo("publishing cmd_vel from [%s] (%.2f, %.2f)" % (source, cmd_vel.linear.x, cmd_vel.angular.z))
+        rospy.loginfo("publishing cmd_vel from [%s] (%.2f, %.2f)" % (source, cmd_vel.linear.x, cmd_vel.angular.z))
         self.cmd_vel_pub.publish(cmd_vel)
         self.publish_cmd_vel_path(cmd_vel)
 
@@ -196,9 +196,12 @@ class Navigator():
         if (math.fabs(terr) < settings.THETA_TOLERANCE):
             # we've reached the desired orientation, time to move towards our goal
             self.target_coord = None
+            self.full_stop()
+            rospy.sleep(0.5)
             self.state = NavigationState.MOVE_TOWARDS_GOAL
         else:
             # need to keep turning to reach our desired orientation
+            rospy.logwarn("terr=%.2f, should be less than %.2f" % (terr, settings.THETA_TOLERANCE)) 
             turnrate = settings.KP_T*terr
             if (turnrate > 0 and math.fabs(turnrate) < settings.MIN_TURNRATE):
                 turnrate = settings.MIN_TURNRATE
@@ -313,6 +316,7 @@ class WaypointNavigator(Navigator):
             # we've gone well off course... time to stop and rotate again
             rospy.logwarn("We've veered off course! rotating back into position")
             self.full_stop()
+            rospy.sleep(1)
             self.state = NavigationState.ROTATE_INTO_POSITION
             return False
         else:

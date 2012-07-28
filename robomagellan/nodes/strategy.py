@@ -29,6 +29,8 @@ from waypoint_reader import WaypointFileReader
 
 from geometry_msgs.msg import Point
 from geometry_msgs.msg import PointStamped
+from nav_msgs.msg import Odometry
+from geometry_msgs.msg import Point
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 from robomagellan.msg import CaptureWaypointAction
@@ -50,6 +52,8 @@ class Strategizer():
         self.transformListener = tf.TransformListener()
         self.load_waypoints()
         self.setup_goal_actions()
+        self.wait_for_odom()
+        self.send_first_goal()
 
     def load_waypoints(self):        
         waypoint_file_reader = WaypointFileReader()
@@ -70,7 +74,20 @@ class Strategizer():
         rospy.loginfo("mux_cmd_vel client loaded")
         rospy.logwarn("Services loaded")
 
-        # send the first goal
+    def wait_for_odom(self):
+        self.odom = None
+        rospy.Subscriber('odom', Odometry, self.setup_odom_callback())
+        while self.odom is None:
+            rospy.logwarn("Waiting for initial odometry...")
+        rospy.logwarn("Initial odom loaded! Sleeping for 3 sec...")
+        rospy.sleep(3)
+
+    def setup_odom_callback(self):
+        def odom_callback(data):
+            self.odom = data
+        return odom_callback
+
+    def send_first_goal(self):
         rospy.loginfo("Strategizer sending initial goal")
         self.current_waypoint_idx = 0
         self.send_next_capture_waypoint_goal()
@@ -243,7 +260,7 @@ class Strategizer():
 
 if __name__ == '__main__':
     rospy.init_node('strategy')
-    rospy.sleep(3)  # let rxconsole boot up
+    rospy.sleep(2)  # let rxconsole boot up
     rospy.loginfo("Initializing strategy node")
 
     if len(sys.argv) < 2 or not os.path.exists(sys.argv[1]) or not os.path.isfile(sys.argv[1]):

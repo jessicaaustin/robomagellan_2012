@@ -65,6 +65,7 @@ class PhidgetMotorController:
         self.maxAcceleration = self.motorControl.getAccelerationMax(self.leftWheels)
 
         self.currentAcceleration = int((self.maxAcceleration - self.minAcceleration) / 2 + self.minAcceleration)
+        self.currentAcceleration = 25
         self.motorControl.setAcceleration(self.leftWheels, self.currentAcceleration)
         self.motorControl.setAcceleration(self.rightWheels, self.currentAcceleration)
         rospy.loginfo('Current acceleration: %d' % (self.currentAcceleration))

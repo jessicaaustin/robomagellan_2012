@@ -38,18 +38,18 @@ if __name__ == '__main__':
     imuMessage.orientation.y = 0.0
     imuMessage.orientation.z = 0.0
     imuMessage.orientation.w = 0.0
-    imuMessage.orientation_covariance = [1000.0, 0.0, 0.0,
-                                         0.0, 1000.0, 0.0,
-                                         0.0, 0.0, 1000.0]
+    imuMessage.orientation_covariance = [500.0, 0.0, 0.0,
+                                         0.0, 500.0, 0.0,
+                                         0.0, 0.0, 500.0]
     #
     # angular velocity
     #
     imuMessage.angular_velocity.x = 0.0
     imuMessage.angular_velocity.y = 0.0
     imuMessage.angular_velocity.z = 0.0
-    imuMessage.angular_velocity_covariance = [1000.0, 0.0, 0.0,
-                                              0.0, 1000.0, 0.0,
-                                              0.0, 0.0, 1000.0]
+    imuMessage.angular_velocity_covariance = [500.0, 0.0, 0.0,
+                                              0.0, 500.0, 0.0,
+                                              0.0, 0.0, 500.0]
     #
     # linear acceleration not available
     #
@@ -65,14 +65,18 @@ if __name__ == '__main__':
         currentTimestamp = rospy.get_time()
         roll, pitch, yaw, exception = imu.getOrientation()
         if exception:
-            rospy.logwarn("getOrientation(): %s" % (exception))
+            rospy.logwarn("getOrientation() exception: %s" % (exception))
             continue
 
         deltaTime = currentTimestamp - previousTimestamp
 
 #        roll = roll / 180 * pi
 #        pitch = pitch / 180 * pi
-        yaw = -1 * yaw / 180 * pi
+        try:
+            yaw = -1 * yaw / 180 * pi
+        except:
+            rospy.logwarn('Exception converting raw yaw %d to radians' % (yaw))
+            continue
 
         if not yawOffset:
             yawOffset = yaw
