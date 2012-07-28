@@ -190,7 +190,6 @@ class Navigator():
 
         if (math.fabs(terr) > math.pi):
             # rotate in the other direction for efficiency 
-            # TODO verify this code makes sense
             terr -= math.pi
             terr *= -1
 

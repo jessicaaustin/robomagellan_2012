@@ -1,10 +1,30 @@
 
-navigation:
-  does FULL STOP actually work?
-  add obstacle avoidance
-  test drift offset with robomagellan_localization
+Testing:
 
-need a quick way of creating a waypoints file on competition day
+  tweak PID controller params
+   concrete
+   grass
 
-robot should avoid going out of the field -- add restriction to our navigation system
+  test updated cone-tracker node
+
+  test HSV values for cone-tracker node
+
+  test obstacle avoidance
+  
+  test drift offset correction with robomagellan_localization
+
+Test run scenarios:
+
+  backyard/hallway
+
+  tennis courts
+
+  park, with path along sidewalk (but chance to go in the grass)
+
+
+TODOs:
+
+  need a quick way of creating a waypoints file on competition day
+
+  robot should avoid going out of the field -- add restriction to our navigation system
 

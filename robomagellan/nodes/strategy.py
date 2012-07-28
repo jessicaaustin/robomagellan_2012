@@ -184,8 +184,6 @@ class Strategizer():
         rospy.loginfo("result of switching cmd_vel_mux to %s: %s" % (topic, resp))
 
 
-    # TODO change the color of the waypoint depending on whether it is 
-    # the next goal, has already been achieved, was skipped, etc
     def publish_waypoint_markers(self):
         pub_waypoint_markers = rospy.Publisher('waypoint_markers', MarkerArray)
         marker_array = MarkerArray()
