@@ -9,8 +9,6 @@ Testing:
 
   test updated cone-tracker node
 
-  test HSV values for cone-tracker node
-
   test obstacle avoidance
 
 Test run scenarios:
