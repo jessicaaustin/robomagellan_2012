@@ -105,14 +105,16 @@ class Navigator():
         else:
             return ""
        
-    def publish_cmd_vel(self, x, z):
+    def publish_cmd_vel(self, x, z, source):
         cmd_vel = Twist()
         cmd_vel.linear.x = self.bounded_speed(x)
         cmd_vel.angular.z = self.bounded_turnrate(z)
+        rospy.logdebug("publishing cmd_vel from [%s] (%.2f, %.2f)" % (source, cmd_vel.linear.x, cmd_vel.angular.z))
         self.cmd_vel_pub.publish(cmd_vel)
         self.publish_cmd_vel_path(cmd_vel)
 
     def full_stop(self):
+        rospy.logwarn("FULL STOP")
         cmd_vel = Twist()
         self.cmd_vel_pub.publish(cmd_vel)
         self.publish_cmd_vel_path(cmd_vel)
@@ -203,7 +205,7 @@ class Navigator():
                 turnrate = settings.MIN_TURNRATE
             elif (turnrate < 0 and math.fabs(turnrate) < settings.MIN_TURNRATE):
                 turnrate = -1 * settings.MIN_TURNRATE
-            self.publish_cmd_vel(0.0, turnrate)
+            self.publish_cmd_vel(0.0, turnrate, 'rotate_towards_goal')
 
     def reset_everything(self):
         self.state = NavigationState.NONE
@@ -343,7 +345,7 @@ class WaypointNavigator(Navigator):
             turnrate = rot_vel_p + rot_vel_i + rot_vel_d
 #            rospy.loginfo("(yerr||p,i,d||total)= %.4f || %.4f %.4f %.4f || %.4f" % (yerr, rot_vel_p, rot_vel_i, rot_vel_d, turnrate))
 
-            self.publish_cmd_vel(speed, turnrate)
+            self.publish_cmd_vel(speed, turnrate, 'move_towards_waypoint')
             return False
 
 
@@ -415,12 +417,13 @@ class ConeCaptureNavigator(Navigator):
             y-direction
         """
         yerr = self.cone_coord.point.x - settings.CONE_MAX_X/2 
+        rospy.logdebug("yerr=%.2f" % yerr)
         if yerr > 0.2:
             yerr = 0.2
         if yerr < -0.2:
             yerr = -0.2
         rot_vel = -1 * settings.KP_CT * yerr
-        self.publish_cmd_vel(settings.MIN_VELOCITY, rot_vel)
+        self.publish_cmd_vel(settings.MIN_VELOCITY, rot_vel, 'move_towards_cone')
 
     def move_backwards_to_clear_cone(self):
         rospy.loginfo("moving backwards to clear cone")
@@ -433,7 +436,7 @@ class ConeCaptureNavigator(Navigator):
         # now, move backwards
         for i in range(30):
             linear_x = -1 * settings.MIN_VELOCITY
-            self.publish_cmd_vel(linear_x, 0.0)
+            self.publish_cmd_vel(linear_x, 0.0, 'move_backwards_to_clear_cone')
             rospy.sleep(.1)
 
         # stop again before continuing
@@ -493,13 +496,13 @@ class ConeCaptureNavigator(Navigator):
     def turn_left(self):
         rospy.loginfo("Turning left to find cone...")
         for i in range(settings.CONE_SEARCH_ROT_TIME):
-            self.publish_cmd_vel(0.0, settings.CONE_SEARCH_ROT_VEL)
+            self.publish_cmd_vel(0.0, settings.CONE_SEARCH_ROT_VEL, 'turn_left')
             rospy.sleep(.1)
 
     def turn_right(self):
         rospy.loginfo("Turning right to find cone...")
         for i in range(settings.CONE_SEARCH_ROT_TIME):
-            self.publish_cmd_vel(0.0, -1 * settings.CONE_SEARCH_ROT_VEL)
+            self.publish_cmd_vel(0.0, -1 * settings.CONE_SEARCH_ROT_VEL, 'turn_right')
             rospy.sleep(.1)
 
     def pause_and_check_for_cone(self):
