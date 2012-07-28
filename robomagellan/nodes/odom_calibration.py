@@ -123,14 +123,14 @@ if __name__ == '__main__':
         rospy.logwarn("Waiting for odometry!")
         rospy.sleep(.1)
 
-    stepDelay = 3.0
+    stepDelay = 1.5
 
     rospy.logwarn("stopping")
     rover_commander.command_full_stop()
     rospy.sleep(stepDelay)
 
-    rospy.logwarn("moving forward 3.0 meter")
-    rover_commander.command_move_forward(3.0)
+    rospy.logwarn("moving forward 4.0 meter")
+    rover_commander.command_move_forward(4.0)
     rospy.sleep(stepDelay)
 
     rospy.logwarn("rotating left")
