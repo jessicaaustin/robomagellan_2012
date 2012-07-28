@@ -509,6 +509,7 @@ class ConeCaptureNavigator(Navigator):
 
     def pause_and_check_for_cone(self):
         rospy.loginfo("Checking for cone...")
+        self.full_stop()
         rospy.sleep(1)
         if self.cone_coord != None:
             rospy.loginfo("Found a cone!")
