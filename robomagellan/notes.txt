@@ -5,13 +5,13 @@ Testing:
    concrete
    grass
 
+  test drift offset correction with robomagellan_localization
+
   test updated cone-tracker node
 
   test HSV values for cone-tracker node
 
   test obstacle avoidance
-  
-  test drift offset correction with robomagellan_localization
 
 Test run scenarios:
 

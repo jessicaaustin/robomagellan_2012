@@ -211,7 +211,7 @@ class ConeTrackerSim():
             x, y, z = point_in_camera_frame.point.x, point_in_camera_frame.point.y, point_in_camera_frame.point.z
             if (z < 5 and math.fabs(x) < .45*z and math.fabs(y) < .35*z):
                 z = 1.0  # we assume the ball is 1 meter away (no depth perception yet!)
-                return Point(x, -1 * y, z)
+                return Point(x, y, z)
         return None
 
 

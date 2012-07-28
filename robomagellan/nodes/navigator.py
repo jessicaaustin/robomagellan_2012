@@ -422,7 +422,7 @@ class ConeCaptureNavigator(Navigator):
             yerr = 0.2
         if yerr < -0.2:
             yerr = -0.2
-        rot_vel = settings.KP_CT * yerr
+        rot_vel = -1 * settings.KP_CT * yerr
         rospy.loginfo("yerr=%.2f, rot_vel=%.2f" % (yerr, rot_vel))
         self.publish_cmd_vel(settings.MIN_VELOCITY, rot_vel, 'move_towards_cone')
 
