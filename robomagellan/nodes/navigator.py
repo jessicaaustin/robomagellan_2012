@@ -109,7 +109,7 @@ class Navigator():
         cmd_vel = Twist()
         cmd_vel.linear.x = self.bounded_speed(x)
         cmd_vel.angular.z = self.bounded_turnrate(z)
-#        rospy.loginfo("publishing cmd_vel from [%s] (%.2f, %.2f)" % (source, cmd_vel.linear.x, cmd_vel.angular.z))
+        rospy.loginfo("publishing cmd_vel from [%s] (%.2f, %.2f)" % (source, cmd_vel.linear.x, cmd_vel.angular.z))
         self.cmd_vel_pub.publish(cmd_vel)
         self.publish_cmd_vel_path(cmd_vel)
 
