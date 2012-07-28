@@ -33,7 +33,7 @@ from navigator import ConeCaptureNavigator
 
 if __name__ == '__main__':
     rospy.init_node('navigator_capture_cone')
-    rospy.sleep(3)  # let rxconsole boot up
+    rospy.sleep(2)  # let rxconsole boot up
     rospy.loginfo("Initializing navigator_capture_cone node")
 
     # create a navigator for capturing cone waypoints

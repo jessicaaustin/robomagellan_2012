@@ -65,14 +65,18 @@ if __name__ == '__main__':
         currentTimestamp = rospy.get_time()
         roll, pitch, yaw, exception = imu.getOrientation()
         if exception:
-            rospy.logwarn("getOrientation(): %s" % (exception))
+            rospy.logwarn("getOrientation() exception: %s" % (exception))
             continue
 
         deltaTime = currentTimestamp - previousTimestamp
 
 #        roll = roll / 180 * pi
 #        pitch = pitch / 180 * pi
-        yaw = -1 * yaw / 180 * pi
+        try:
+            yaw = -1 * yaw / 180 * pi
+        except:
+            rospy.logwarn('Exception converting raw yaw %d to radians' % (yaw))
+            continue
 
         if not yawOffset:
             yawOffset = yaw
