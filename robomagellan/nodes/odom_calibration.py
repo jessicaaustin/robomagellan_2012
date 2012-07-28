@@ -129,8 +129,8 @@ if __name__ == '__main__':
     rover_commander.command_full_stop()
     rospy.sleep(stepDelay)
 
-    rospy.logwarn("moving forward 1.0 meter")
-    rover_commander.command_move_forward(1.0)
+    rospy.logwarn("moving forward 3.0 meter")
+    rover_commander.command_move_forward(3.0)
     rospy.sleep(stepDelay)
 
     rospy.logwarn("rotating left")
