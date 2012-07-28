@@ -53,7 +53,7 @@ class PhidgetMotorController:
             raise
 
         if self.motorControl.isAttached():
-            print("Device: %s, Serial: %d, Version: %d" % (
+            rospy.loginfo("Device: %s, Serial: %d, Version: %d" % (
                     self.motorControl.getDeviceName(),
                     self.motorControl.getSerialNum(),
                     self.motorControl.getDeviceVersion()
@@ -63,6 +63,11 @@ class PhidgetMotorController:
     
         self.minAcceleration = self.motorControl.getAccelerationMin(self.leftWheels)
         self.maxAcceleration = self.motorControl.getAccelerationMax(self.leftWheels)
+
+        self.currentAcceleration = int((self.maxAcceleration - self.minAcceleration) / 2 + self.minAcceleration)
+        self.motorControl.setAcceleration(self.leftWheels, self.currentAcceleration)
+        self.motorControl.setAcceleration(self.rightWheels, self.currentAcceleration)
+        rospy.loginfo('Current acceleration: %d' % (self.currentAcceleration))
 
         rospy.loginfo('PhidgetMotorController initialized')
 
@@ -121,9 +126,17 @@ class PhidgetMotorController:
         leftSpeed *= self.leftAdjustment
         rightSpeed *= self.rightAdjustment
 
-        self.motorControl.setVelocity(self.leftWheels, leftSpeed);
-        self.motorControl.setVelocity(self.rightWheels, rightSpeed);
+        try:
+            self.motorControl.setVelocity(self.leftWheels, leftSpeed);
+            self.motorControl.setVelocity(self.rightWheels, rightSpeed);
 
+        except PhidgetException, e:
+            rospy.logwarn('setVelocity() failed, left: %d, right: %d' % (
+                leftSpeed,
+                rightSpeed
+                ))
+            rospy.logwarn(" code: %d" % e.code)
+            rospy.logwarn("message: %s" % e.message)
        
     def mcAttached(self, e):
         return
