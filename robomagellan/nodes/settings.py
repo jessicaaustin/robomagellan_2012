@@ -74,7 +74,7 @@ MIN_VELOCITY=0.30       # minimum speed in linear direction
 
 # Moving in a straight path towards a goal:
 KP_X=0.35                     # feedback proportional to longitudinal (in x dir) velocity
-KP_Y=0.90                     # feedback proportional to lateral (in y dir) error
+KP_Y=0.05                     # feedback proportional to lateral (in y dir) error
 KI_Y=0.00                     # feedback for integral of lateral error
 YERR_ACCUMULATED_MAX=1.57     # max amount of accumulated integral error (absolute value)
 KD_Y=0.00                     # feedback for derivative of lateral error

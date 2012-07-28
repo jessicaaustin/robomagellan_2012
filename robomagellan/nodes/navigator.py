@@ -239,6 +239,7 @@ class WaypointNavigator(Navigator):
         elif self.state == NavigationState.MOVE_TOWARDS_GOAL:
             if self.collided:
                 rospy.logwarn("Oops, we hit something!")
+                self.full_stop()
                 self.state == NavigationState.AVOID_OBSTACLE
             else:
                 return self.move_towards_waypoint(goal)
