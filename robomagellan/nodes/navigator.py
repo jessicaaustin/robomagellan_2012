@@ -109,7 +109,7 @@ class Navigator():
         cmd_vel = Twist()
         cmd_vel.linear.x = self.bounded_speed(x)
         cmd_vel.angular.z = self.bounded_turnrate(z)
-        rospy.logdebug("publishing cmd_vel from [%s] (%.2f, %.2f)" % (source, cmd_vel.linear.x, cmd_vel.angular.z))
+#        rospy.loginfo("publishing cmd_vel from [%s] (%.2f, %.2f)" % (source, cmd_vel.linear.x, cmd_vel.angular.z))
         self.cmd_vel_pub.publish(cmd_vel)
         self.publish_cmd_vel_path(cmd_vel)
 
@@ -418,12 +418,13 @@ class ConeCaptureNavigator(Navigator):
             y-direction
         """
         yerr = self.cone_coord.point.x - settings.CONE_MAX_X/2 
-        rospy.logdebug("yerr=%.2f" % yerr)
+        rospy.loginfo("yerr=%.2f" % yerr)
         if yerr > 0.2:
             yerr = 0.2
         if yerr < -0.2:
             yerr = -0.2
-        rot_vel = -1 * settings.KP_CT * yerr
+        rot_vel = settings.KP_CT * yerr
+        rospy.loginfo("yerr=%.2f, rot_vel=%.2f" % (yerr, rot_vel))
         self.publish_cmd_vel(settings.MIN_VELOCITY, rot_vel, 'move_towards_cone')
 
     def move_backwards_to_clear_cone(self):
