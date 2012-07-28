@@ -13,6 +13,7 @@ from Phidgets.Devices.Encoder import Encoder
 from Phidgets.PhidgetException import PhidgetException
 from nav_msgs.msg import Odometry
 from tf import transformations
+from calc_covariance import calcCovariance
 
 class PhidgetEncoders:
 
@@ -72,6 +73,15 @@ class PhidgetEncoders:
         self.odometryMessage = Odometry()
         self.odometryMessage.header.frame_id = 'base_link'
         self.odometryMessage.child_frame_id = 'base_link'
+
+        self.currentCovariance, self.sampleList, self.numberOfSamples = calcCovariance(
+            None,
+            [self.previousX,
+             self.previousY,
+             0.0],
+            0,
+            100
+            )
 
         #
         # the rover is incapable of translating along the Z axis,
@@ -177,6 +187,18 @@ class PhidgetEncoders:
         #
         self.odometryMessage.pose.pose.position.x = self.previousX + deltaX
         self.odometryMessage.pose.pose.position.y = self.previousY + deltaY
+
+        self.currentCovariance, self.sampleList, self.numberOfSamples = calcCovariance(
+            self.sampleList,
+            [self.odometryMessage.pose.pose.position.x,
+             self.odometryMessage.pose.pose.position.y,
+             0.0],
+            self.numberOfSamples,
+            100
+            )
+
+        rospy.logdebug('Pose covariance %s' % (repr(self.currentCovariance)))
+
         odometryQuaternion = transformations.quaternion_from_euler(0, 0, theta)
         self.odometryMessage.pose.pose.orientation.x = odometryQuaternion[0]
         self.odometryMessage.pose.pose.orientation.y = odometryQuaternion[1]
