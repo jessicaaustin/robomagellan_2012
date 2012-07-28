@@ -21,10 +21,6 @@ How it works:
 Assumptions:
 - there are no other orange objects in the vicinity (so the most significant orange object in the FOV must be the cone)
 
-TODO
-- publish the camera frames to a ROS topic, so they can show up in rviz
-- update code to track a cone instead of a blob
-
 """
 
 import roslib; roslib.load_manifest('robomagellan')
