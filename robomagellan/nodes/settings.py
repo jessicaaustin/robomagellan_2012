@@ -83,6 +83,8 @@ KD_Y=0.00                     # feedback for derivative of lateral error
 
 # Rotating in place: 
 KP_T=0.5    # feedback proportional to angular (theta) error
+ROTATE_CYCLES=2       # How many cycles
+ROTATE_VEL=2.0        # m/s
 
 # Capturing cone
 KP_CT=1    # feedback proproprtional to y-err 
