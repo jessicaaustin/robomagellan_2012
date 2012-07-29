@@ -119,8 +119,7 @@ class RobomagellanLocalization():
         def recalculate_drift(data):
             rospy.loginfo("waypoint location: %s" % data.waypoint)
             waypoint_offset = self.waypoint_in_base_link_frame(data)
-            # TODO how to correctly invert the transform?
-            self.current_position_offset = Point(-1 * waypoint_offset.point.x, -1 * waypoint_offset.point.y, 0.0)
+            self.current_position_offset = Point(waypoint_offset.point.x, waypoint_offset.point.y, 0.0)
             rospy.loginfo("waypoint offset: %s" % self.current_position_offset)
         return recalculate_drift
 
