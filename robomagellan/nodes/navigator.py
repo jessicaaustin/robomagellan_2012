@@ -42,7 +42,9 @@ class Navigator():
         self.cone_coord = None
         self.target_coord = None
         self.collided = False
+        self.obstacle_detected = False
         self.odom = None
+        self.turning_direction = None
         self.yerr_accumulated = 0
         self.yerr_previous = 0
         self.state = NavigationState.NONE
@@ -79,6 +81,11 @@ class Navigator():
         def collision_callback(data):
             self.collided = data.value
         return collision_callback
+
+    def setup_obstacle_callback(self):
+        def obstacle_callback(data):
+            self.obstacle_detected = data.value
+        return obstacle_callback
 
     def setup_odom_callback(self):
         def odom_callback(data):
@@ -198,16 +205,65 @@ class Navigator():
             self.target_coord = None
             self.full_stop()
             rospy.sleep(0.5)
+            self.turning_direction = None
             self.state = NavigationState.MOVE_TOWARDS_GOAL
         else:
             # need to keep turning to reach our desired orientation
             rospy.logwarn("terr=%.2f, should be less than %.2f" % (terr, settings.THETA_TOLERANCE)) 
-            turnrate = settings.KP_T*terr
-            if (turnrate > 0 and math.fabs(turnrate) < settings.MIN_TURNRATE):
-                turnrate = settings.MIN_TURNRATE
-            elif (turnrate < 0 and math.fabs(turnrate) < settings.MIN_TURNRATE):
-                turnrate = -1 * settings.MIN_TURNRATE
-            self.publish_cmd_vel(0.0, turnrate, 'rotate_towards_goal')
+            if self.turning_direction is None:
+                if terr > 0:
+                    self.turning_direction = 'left'
+                else:
+                    self.turning_direction = 'right'
+            if self.turning_direction == 'left':
+                self.turn_left_to_adjust_orientation()
+                rospy.sleep(.5)
+            else:
+                self.turn_right_to_adjust_orientation()
+                rospy.sleep(.5)
+            
+    def turn_left_to_adjust_orientation(self):
+        self.turn_left(settings.ROTATE_CYCLES, settings.ROTATE_VEL, 'turn_left_to_adjust_orientation')
+
+    def turn_right_to_adjust_orientation(self):
+        self.turn_right(settings.ROTATE_CYCLES, settings.ROTATE_VEL, 'turn_right_to_adjust_orientation')
+
+    def turn_to_avoid_obstacle(self):
+        self.turn_right(settings.CONE_SEARCH_ROT_TIME, settings.CONE_SEARCH_ROT_VEL, 'turn_to_avoid_obstacle')
+
+    def move_backwards(self):
+        rospy.loginfo("moving backwards to clear obstacle")
+
+        # first, make sure we're stopped
+        for i in range(10):
+            self.full_stop()
+            rospy.sleep(.1)
+
+        # now, move backwards
+        for i in range(20):
+            linear_x = -1 * settings.MIN_VELOCITY
+            self.publish_cmd_vel(linear_x, 0.0, 'move_backwards')
+            rospy.sleep(.1)
+
+        # stop again before continuing
+        self.full_stop()
+
+    def turn_left(self, cycles, velocity, description):
+        self.turn(cycles, velocity, description)
+
+    def turn_right(self, cycles, velocity, description):
+        self.turn(cycles, -1 * velocity, description)
+
+    def turn(self, cycles, velocity, description):
+        for i in range(cycles):
+            self.publish_cmd_vel(0.0, velocity, description)
+            rospy.sleep(.1)
+
+    def edge_forward(self):
+        rospy.loginfo("Moving forward a short distance...")
+        for i in range(15):
+            self.publish_cmd_vel(settings.MIN_VELOCITY, 0.0, 'edge_forward')
+            rospy.sleep(.1)
 
     def reset_everything(self):
         self.state = NavigationState.NONE
@@ -242,7 +298,12 @@ class WaypointNavigator(Navigator):
             if self.collided:
                 rospy.logwarn("Oops, we hit something!")
                 self.full_stop()
-                self.state == NavigationState.AVOID_OBSTACLE
+                self.move_backwards()
+                self.state = NavigationState.AVOID_OBSTACLE
+            elif self.obstacle_detected:
+                rospy.logwarn("Obstacle in range!")
+                self.full_stop()
+                self.state = NavigationState.AVOID_OBSTACLE
             else:
                 return self.move_towards_waypoint(goal)
 
@@ -250,9 +311,17 @@ class WaypointNavigator(Navigator):
             self.state = NavigationState.MOVE_TOWARDS_GOAL
 
         elif self.state == NavigationState.AVOID_OBSTACLE:
-            # TODO implement 
-            # until then... full stop
-            self.full_stop()
+            rospy.loginfo("Avoid obstacle mode")
+            if self.obstacle_detected:
+                rospy.loginfo("Obstacle still in range. Turning right")
+                self.turn_to_avoid_obstacle()
+                rospy.sleep(.5)
+            else:
+                rospy.loginfo("No obstacle ahead, edging forward to clear obstacle")
+                self.edge_forward()
+                rospy.sleep(.5)
+                rospy.loginfo("Turning back towards the goal")
+                self.state = NavigationState.ROTATE_INTO_POSITION
 
         # haven't reached our goal yet...
         return False
@@ -358,6 +427,7 @@ class ConeCaptureNavigator(Navigator):
     def __init__(self, server_name):
         Navigator.__init__(self, server_name)
         self.cone_captured_pub = rospy.Publisher('cone_captured', ConeCaptured)
+        self.forward_cycles = 0
 
     def responds_to_waypoint(self, waypoint):
         return waypoint.type == 'C'
@@ -390,16 +460,21 @@ class ConeCaptureNavigator(Navigator):
                 # we're done, time to return the action service
                 rospy.loginfo("cone captured!")
                 self.publish_cone_captured_msg(goal.waypoint)
-                self.move_backwards_to_clear_cone()
+                self.move_backwards()
                 self.reset_everything()
                 self.server.set_succeeded()
                 return True
             elif self.cone_coord == None:
                 rospy.logwarn("Attempting to capture cone but no cone_coord available!")
                 self.state = NavigationState.ROTATE_TO_FIND_PATH
+            elif self.forward_cycles > settings.CONE_CAPTURE_CYCLE_TIME:
+                rospy.logwarn("Pausing to check for cone")
+                self.full_stop()
+                rospy.sleep(0.5)
+                self.forward_cycles = 0
             else:
                 self.move_towards_cone()
-            # TODO add check for obstacles...
+                self.forward_cycles += 1
 
         elif self.state == NavigationState.ROTATE_TO_FIND_PATH:
             could_find_cone = self.rotate_in_place_to_find_cone()
@@ -430,22 +505,11 @@ class ConeCaptureNavigator(Navigator):
         rospy.loginfo("yerr=%.2f, rot_vel=%.2f" % (yerr, rot_vel))
         self.publish_cmd_vel(settings.MIN_VELOCITY, rot_vel, 'move_towards_cone')
 
-    def move_backwards_to_clear_cone(self):
-        rospy.loginfo("moving backwards to clear cone")
+    def turn_left_to_find_cone(self):
+        self.turn_left(settings.CONE_SEARCH_ROT_TIME, settings.CONE_SEARCH_ROT_VEL, 'turn_left_to_find_cone')
 
-        # first, make sure we're stopped
-        for i in range(10):
-            self.full_stop()
-            rospy.sleep(.1)
-
-        # now, move backwards
-        for i in range(30):
-            linear_x = -1 * settings.MIN_VELOCITY
-            self.publish_cmd_vel(linear_x, 0.0, 'move_backwards_to_clear_cone')
-            rospy.sleep(.1)
-
-        # stop again before continuing
-        self.full_stop()
+    def turn_right_to_find_cone(self):
+        self.turn_right(settings.CONE_SEARCH_ROT_TIME, settings.CONE_SEARCH_ROT_VEL, 'turn_right_to_find_cone')
 
     def flush_outdated_cone_coord_data(self):
         if self.cone_coord is None:
@@ -462,53 +526,41 @@ class ConeCaptureNavigator(Navigator):
         rospy.sleep(.1)
 
         # first, try left
-        self.turn_left()
+        self.turn_left_to_find_cone()
         if self.pause_and_check_for_cone():
             return True
-        self.turn_left()
+        self.turn_left_to_find_cone()
         if self.pause_and_check_for_cone():
             return True
-        self.turn_left()
+        self.turn_left_to_find_cone()
         if self.pause_and_check_for_cone():
             return True
 
         # come back to the original position
-        self.turn_right()
-        self.turn_right()
-        self.turn_right()
+        self.turn_right_to_find_cone()
+        self.turn_right_to_find_cone()
+        self.turn_right_to_find_cone()
         if self.pause_and_check_for_cone():
             return True
 
         # then try right
-        self.turn_right()
+        self.turn_right_to_find_cone()
         if self.pause_and_check_for_cone():
             return True
-        self.turn_right()
+        self.turn_right_to_find_cone()
         if self.pause_and_check_for_cone():
             return True
-        self.turn_right()
+        self.turn_right_to_find_cone()
         if self.pause_and_check_for_cone():
             return True
 
         # keep searching...
         for i in range(12):
-            self.turn_right()
+            self.turn_right_to_find_cone()
             if self.pause_and_check_for_cone():
                 return True
 
         return False
-
-    def turn_left(self):
-        rospy.loginfo("Turning left to find cone...")
-        for i in range(settings.CONE_SEARCH_ROT_TIME):
-            self.publish_cmd_vel(0.0, settings.CONE_SEARCH_ROT_VEL, 'turn_left')
-            rospy.sleep(.1)
-
-    def turn_right(self):
-        rospy.loginfo("Turning right to find cone...")
-        for i in range(settings.CONE_SEARCH_ROT_TIME):
-            self.publish_cmd_vel(0.0, -1 * settings.CONE_SEARCH_ROT_VEL, 'turn_right')
-            rospy.sleep(.1)
 
     def pause_and_check_for_cone(self):
         rospy.loginfo("Checking for cone...")

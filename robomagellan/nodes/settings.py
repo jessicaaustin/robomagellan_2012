@@ -14,8 +14,8 @@ MY_CAMERA = 0
 # how many previous positions to interpolate to find our current position. higher smoothness => slower tracking, but less jerkiness 
 SMOOTHNESS = 4
 # The maximum and minimum values for cone coordinate
-CONE_MAX_Y=0.70
-CONE_MAX_X=0.90
+CONE_MAX_Y=0.20
+CONE_MAX_X=0.18
 # minimum and maximum threshold value in HSV (hue,sat,val)
 # red
 #MIN_THRESH, MAX_THRESH = (163.0, 85.5, 72.5, 0.0), (189.0, 244.5, 247.5, 0.0)
@@ -46,18 +46,20 @@ LNG_OFFSET = -0.2683
 #
 # collision detector
 #
-COLLISION_DISTANCE=0.3      # robot will FULL STOP at lower than this distance
+COLLISION_DISTANCE=0.3      # how close we have to get to something (e.g. a cone) to consider "hitting" it
+OBSTACLE_DISTANCE=0.6       # how close something should be to consider it an obstacle
 
 #
 # Navigation
 #
                 # 15 degrees
-THETA_TOLERANCE=0.26                # how close we need to get to desired yaw before moving on
-WAYPOINT_THRESHOLD=0.3              # how close we need to get to desired goal before considering it reached
-DISTANCE_TO_CAPTURE = 2.0           # how close we should be to a cone before we attempt to capture it
-                                    #  if we also have visual confirmation of the cone
-DISTANCE_TO_CAPTURE_NO_VISUAL = 1.0 # how close we should be to a cone before we attempt to capture it
-                                    #  if we do NOT have visual confirmation of the cone
+THETA_TOLERANCE=0.26                  # how close we need to get to desired yaw before moving on
+WAYPOINT_THRESHOLD=0.3                # how close we need to get to desired goal before considering it reached
+DISTANCE_TO_CAPTURE = 2.0             # how close we should be to a cone before we attempt to capture it
+                                      #  if we also have visual confirmation of the cone
+DISTANCE_TO_CAPTURE_NO_VISUAL = 1.0   # how close we should be to a cone before we attempt to capture it
+                                      #  if we do NOT have visual confirmation of the cone
+CONE_CAPTURE_COLLISION_DISTANCE=0.2   # how close we need to get to the cone to consider it "captured"
 
 #
 # Rover contraints
@@ -81,6 +83,8 @@ KD_Y=0.00                     # feedback for derivative of lateral error
 
 # Rotating in place: 
 KP_T=0.5    # feedback proportional to angular (theta) error
+ROTATE_CYCLES=2       # How many cycles
+ROTATE_VEL=2.0        # m/s
 
 # Capturing cone
 KP_CT=1    # feedback proproprtional to y-err 
@@ -88,4 +92,5 @@ KP_CT=1    # feedback proproprtional to y-err
 # Rotating to find cone
 CONE_SEARCH_ROT_TIME=4       # How many cycles
 CONE_SEARCH_ROT_VEL=2.0       # m/s
+CONE_CAPTURE_CYCLE_TIME=8    # How many cycles to move forward before pausing
 

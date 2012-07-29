@@ -11,6 +11,7 @@ listens to:
 
 publishes to:
  /collision
+ /obstacle
 
 """
 
@@ -26,23 +27,29 @@ class CollisionDetector():
     def __init__(self):
         rospy.loginfo("CollisionDetector loaded")
         
-    def setup_base_scan_callback(self, publisher):
+    def setup_collision_info_callback(self):
+        publisher = rospy.Publisher('collision', BoolStamped)
         def base_scan_callback(data):
-            self.publish_collision_info(data, publisher)
+            self.publish_info(data, settings.CONE_CAPTURE_COLLISION_DISTANCE, publisher)
         return base_scan_callback
 
-    def publish_collision_info(self, scan_data, publisher):
-        collision_detected = False
-        for scan in scan_data.ranges:
-            if (scan < settings.COLLISION_DISTANCE): 
-                collision_detected = True
-                break
-        collision_stamped = BoolStamped()
-        collision_stamped.header.frame_id = "base_link"
-        collision_stamped.header.stamp = rospy.Time.now()
-        collision_stamped.value = collision_detected
-        publisher.publish(collision_stamped)
+    def setup_obstacle_info_callback(self):
+        publisher = rospy.Publisher('obstacle', BoolStamped)
+        def base_scan_callback(data):
+            self.publish_info(data, settings.OBSTACLE_DISTANCE, publisher)
+        return base_scan_callback
 
+    def publish_info(self, scan_data, threshold_distance, publisher):
+        detected = False
+        for scan in scan_data.ranges:
+            if (scan < threshold_distance): 
+                detected = True
+                break
+        info = BoolStamped()
+        info.header.frame_id = "base_link"
+        info.header.stamp = rospy.Time.now()
+        info.value = detected
+        publisher.publish(info)
 
 if __name__ == '__main__':
     rospy.init_node('collision_detector')
@@ -50,8 +57,8 @@ if __name__ == '__main__':
     rospy.loginfo("Initializing collision_detector node")
 
     collision_detector = CollisionDetector()
-    publisher = rospy.Publisher('collision', BoolStamped)
-    rospy.Subscriber('base_scan', LaserScan, collision_detector.setup_base_scan_callback(publisher))
+    rospy.Subscriber('base_scan', LaserScan, collision_detector.setup_collision_info_callback())
+    rospy.Subscriber('base_scan', LaserScan, collision_detector.setup_obstacle_info_callback())
 
     rospy.spin()
             

@@ -37,6 +37,7 @@ if __name__ == '__main__':
     # create a navigator for capturing intermediate waypoints
     waypoint_navigator = WaypointNavigator('capture_waypoint')
     rospy.Subscriber('collision', BoolStamped, waypoint_navigator.setup_collision_callback())
+    rospy.Subscriber('obstacle', BoolStamped, waypoint_navigator.setup_obstacle_callback())
     rospy.Subscriber('odom', Odometry, waypoint_navigator.setup_odom_callback())
             
     rospy.spin()

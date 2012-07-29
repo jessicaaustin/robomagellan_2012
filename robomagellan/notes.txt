@@ -1,13 +1,10 @@
 
 Testing:
 
-  tweak PID controller params
-   concrete
-   grass
+  test new cone capture code 
+    should touch cone but not run over it
 
   test drift offset correction with robomagellan_localization
-
-  test updated cone-tracker node
 
   test obstacle avoidance
 
