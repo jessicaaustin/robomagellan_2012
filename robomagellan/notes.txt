@@ -1,13 +1,16 @@
 
+navigation updates
+  to rotate to get back on path, turn in small increments, stopping in between
+  cone capture: move forward in small increments, so that it can get close enough to touch, but doesn't
+    run over the cone
+  add obstacle avoidance at 60cm
+
 Testing:
 
-  tweak PID controller params
-   concrete
-   grass
+  test new cone capture code 
+    should touch cone but not run over it
 
   test drift offset correction with robomagellan_localization
-
-  test updated cone-tracker node
 
   test obstacle avoidance
 
