@@ -46,7 +46,8 @@ LNG_OFFSET = -0.2683
 #
 # collision detector
 #
-COLLISION_DISTANCE=0.3      # robot will FULL STOP at lower than this distance
+COLLISION_DISTANCE=0.3      # how close we have to get to something (e.g. a cone) to consider "hitting" it
+OBSTACLE_DISTANCE=0.6       # how close something should be to consider it an obstacle
 
 #
 # Navigation

@@ -42,6 +42,7 @@ class Navigator():
         self.cone_coord = None
         self.target_coord = None
         self.collided = False
+        self.obstacle_detected = False
         self.odom = None
         self.yerr_accumulated = 0
         self.yerr_previous = 0
@@ -79,6 +80,11 @@ class Navigator():
         def collision_callback(data):
             self.collided = data.value
         return collision_callback
+
+    def setup_obstacle_callback(self):
+        def obstacle_callback(data):
+            self.obstacle_detected = data.value
+        return obstacle_callback
 
     def setup_odom_callback(self):
         def odom_callback(data):
@@ -241,6 +247,10 @@ class WaypointNavigator(Navigator):
         elif self.state == NavigationState.MOVE_TOWARDS_GOAL:
             if self.collided:
                 rospy.logwarn("Oops, we hit something!")
+                self.full_stop()
+                self.state == NavigationState.AVOID_OBSTACLE
+            elif self.obstacle_detected:
+                rospy.logwarn("Obstacle in range!")
                 self.full_stop()
                 self.state == NavigationState.AVOID_OBSTACLE
             else:
