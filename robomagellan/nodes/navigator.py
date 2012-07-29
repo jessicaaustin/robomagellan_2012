@@ -319,10 +319,12 @@ class WaypointNavigator(Navigator):
             if self.obstacle_detected:
                 rospy.loginfo("Obstacle still in range. Turning right")
                 self.turn_to_avoid_obstacle()
+                self.full_stop()
                 rospy.sleep(.5)
             else:
                 rospy.loginfo("No obstacle ahead, edging forward to clear obstacle")
                 self.edge_forward()
+                self.full_stop()
                 rospy.sleep(.5)
                 rospy.loginfo("Turning back towards the goal")
                 self.state = NavigationState.ROTATE_INTO_POSITION
