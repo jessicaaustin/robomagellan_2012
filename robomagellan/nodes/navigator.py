@@ -215,6 +215,41 @@ class Navigator():
                 turnrate = -1 * settings.MIN_TURNRATE
             self.publish_cmd_vel(0.0, turnrate, 'rotate_towards_goal')
 
+    def move_backwards(self):
+        rospy.loginfo("moving backwards to clear obstacle")
+
+        # first, make sure we're stopped
+        for i in range(10):
+            self.full_stop()
+            rospy.sleep(.1)
+
+        # now, move backwards
+        for i in range(30):
+            linear_x = -1 * settings.MIN_VELOCITY
+            self.publish_cmd_vel(linear_x, 0.0, 'move_backwards')
+            rospy.sleep(.1)
+
+        # stop again before continuing
+        self.full_stop()
+
+    def turn_left(self):
+        rospy.loginfo("Turning left...")
+        for i in range(settings.CONE_SEARCH_ROT_TIME):
+            self.publish_cmd_vel(0.0, settings.CONE_SEARCH_ROT_VEL, 'turn_left')
+            rospy.sleep(.1)
+
+    def turn_right(self):
+        rospy.loginfo("Turning right...")
+        for i in range(settings.CONE_SEARCH_ROT_TIME):
+            self.publish_cmd_vel(0.0, -1 * settings.CONE_SEARCH_ROT_VEL, 'turn_right')
+            rospy.sleep(.1)
+
+    def edge_forward(self):
+        rospy.loginfo("Moving forward a short distance...")
+        for i in range(15):
+            self.publish_cmd_vel(settings.MIN_VELOCITY, 0.0, 'edge_forward')
+            rospy.sleep(.1)
+
     def reset_everything(self):
         self.state = NavigationState.NONE
         self.cone_coord = None
@@ -248,11 +283,12 @@ class WaypointNavigator(Navigator):
             if self.collided:
                 rospy.logwarn("Oops, we hit something!")
                 self.full_stop()
-                self.state == NavigationState.AVOID_OBSTACLE
+                self.move_backwards()
+                self.state = NavigationState.AVOID_OBSTACLE
             elif self.obstacle_detected:
                 rospy.logwarn("Obstacle in range!")
                 self.full_stop()
-                self.state == NavigationState.AVOID_OBSTACLE
+                self.state = NavigationState.AVOID_OBSTACLE
             else:
                 return self.move_towards_waypoint(goal)
 
@@ -260,9 +296,18 @@ class WaypointNavigator(Navigator):
             self.state = NavigationState.MOVE_TOWARDS_GOAL
 
         elif self.state == NavigationState.AVOID_OBSTACLE:
-            # TODO implement 
-            # until then... full stop
-            self.full_stop()
+            rospy.loginfo("Avoid obstacle mode")
+            if self.obstacle_detected:
+                rospy.loginfo("Obstacle still in range. Turning right")
+                # TODO choose left or right, depending on where the goal is
+                self.turn_right()
+                rospy.sleep(.5)
+            else:
+                rospy.loginfo("No obstacle ahead, edging forward to clear obstacle")
+                self.edge_forward()
+                rospy.sleep(.5)
+                rospy.loginfo("Turning back towards the goal")
+                self.state = NavigationState.ROTATE_INTO_POSITION
 
         # haven't reached our goal yet...
         return False
@@ -401,7 +446,7 @@ class ConeCaptureNavigator(Navigator):
                 # we're done, time to return the action service
                 rospy.loginfo("cone captured!")
                 self.publish_cone_captured_msg(goal.waypoint)
-                self.move_backwards_to_clear_cone()
+                self.move_backwards()
                 self.reset_everything()
                 self.server.set_succeeded()
                 return True
@@ -445,23 +490,6 @@ class ConeCaptureNavigator(Navigator):
         rot_vel = -1 * settings.KP_CT * yerr
         rospy.loginfo("yerr=%.2f, rot_vel=%.2f" % (yerr, rot_vel))
         self.publish_cmd_vel(settings.MIN_VELOCITY, rot_vel, 'move_towards_cone')
-
-    def move_backwards_to_clear_cone(self):
-        rospy.loginfo("moving backwards to clear cone")
-
-        # first, make sure we're stopped
-        for i in range(10):
-            self.full_stop()
-            rospy.sleep(.1)
-
-        # now, move backwards
-        for i in range(30):
-            linear_x = -1 * settings.MIN_VELOCITY
-            self.publish_cmd_vel(linear_x, 0.0, 'move_backwards_to_clear_cone')
-            rospy.sleep(.1)
-
-        # stop again before continuing
-        self.full_stop()
 
     def flush_outdated_cone_coord_data(self):
         if self.cone_coord is None:
@@ -513,18 +541,6 @@ class ConeCaptureNavigator(Navigator):
                 return True
 
         return False
-
-    def turn_left(self):
-        rospy.loginfo("Turning left to find cone...")
-        for i in range(settings.CONE_SEARCH_ROT_TIME):
-            self.publish_cmd_vel(0.0, settings.CONE_SEARCH_ROT_VEL, 'turn_left')
-            rospy.sleep(.1)
-
-    def turn_right(self):
-        rospy.loginfo("Turning right to find cone...")
-        for i in range(settings.CONE_SEARCH_ROT_TIME):
-            self.publish_cmd_vel(0.0, -1 * settings.CONE_SEARCH_ROT_VEL, 'turn_right')
-            rospy.sleep(.1)
 
     def pause_and_check_for_cone(self):
         rospy.loginfo("Checking for cone...")

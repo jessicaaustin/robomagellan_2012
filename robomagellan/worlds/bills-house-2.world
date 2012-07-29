@@ -49,11 +49,11 @@ floorplan
 rover1( pose [ 1.000 1.000 0 0.000 ] name "rover1" color "blue")
 # place the waypoints
 waypoint( pose [ 2.0 1.0 0 0 ] name "waypoint2" )
-cone( pose [ 4.0 0.8 0 0 ] name "waypoint2" )
+cone( pose [ 4.0 0.5 0 0 ] name "waypoint2" )
 waypoint( pose [ 4.0 3.0 0 0 ] name "waypoint2" )
 waypoint( pose [ 1.0 3.0 0 0 ] name "waypoint2" )
 waypoint( pose [ 1.0 1.0 0 0 ] name "waypoint2" )
 waypoint( pose [ 1.0 3.0 0 0 ] name "waypoint2" )
 waypoint( pose [ 4.0 3.0 0 0 ] name "waypoint2" )
-waypoint( pose [ 4.0 1.0 0 0 ] name "waypoint2" )
+cone( pose [ 4.0 0.5 0 0 ] name "waypoint2" )
 waypoint( pose [ 1.0 1.0 0 0 ] name "waypoint2" )
