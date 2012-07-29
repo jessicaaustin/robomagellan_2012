@@ -1,5 +1,12 @@
 
-if base_controller has not received a message in more than 1 sec, send stop signal
+bill:
+  if base_controller has not received a message in more than 1 sec, send stop signal
+  wedge the camera in place
+  test downstairs, on concrete
+
+jess:
+  add method "stop_and_sleep(sec)" to navigator
+
 
 Testing:
 
