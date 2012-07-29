@@ -101,6 +101,10 @@ class Strategizer():
     # check if next waypoint is a cone, and we are sufficiently close
     # to switch to cone tracking mode
     def check_for_cone(self):
+        if self.current_waypoint_idx == len(self.waypoints):
+            rospy.logwarn("All waypoints reached! Finished strategizing.")
+            return
+
         self.flush_outdated_cone_coord_data()
 
         # if we're already in cone-capture mode, or

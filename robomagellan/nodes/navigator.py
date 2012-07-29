@@ -216,11 +216,15 @@ class Navigator():
                 else:
                     self.turning_direction = 'right'
             if self.turning_direction == 'left':
+                rospy.logwarn("turning left to adjust orientation")
                 self.turn_left_to_adjust_orientation()
-                rospy.sleep(.5)
+                self.full_stop()
+                rospy.sleep(1)
             else:
+                rospy.logwarn("turning right to adjust orientation")
                 self.turn_right_to_adjust_orientation()
-                rospy.sleep(.5)
+                self.full_stop()
+                rospy.sleep(1)
             
     def turn_left_to_adjust_orientation(self):
         self.turn_left(settings.ROTATE_CYCLES, settings.ROTATE_VEL, 'turn_left_to_adjust_orientation')
@@ -379,6 +383,8 @@ class WaypointNavigator(Navigator):
             # we've reached our waypoint! time to return success
             self.reset_everything()
             self.server.set_succeeded()
+            self.full_stop()
+            rospy.sleep(1)
             return True
 
         elif math.fabs(yerr) > settings.THETA_TOLERANCE:
@@ -398,7 +404,7 @@ class WaypointNavigator(Navigator):
             # rotational velocity is calculated using PID control
 
             # proportional
-            rot_vel_p = settings.KP_Y * yerr
+            rot_vel_p = -1 * settings.KP_Y * yerr
 
             # integral
             self.yerr_accumulated += yerr
