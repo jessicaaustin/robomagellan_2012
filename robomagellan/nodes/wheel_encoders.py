@@ -24,6 +24,7 @@ class PhidgetEncoders:
         self.leftEncoder = 0 # forward is negative
         self.rightEncoder = 1 # forward is positive
         self.roverHasntMoved = True
+        self.useCalculatedCovariances = False
         self.driveWheelRadius = 0.049
         self.wheelSeparation = 0.258
         self.pulsesPerRevolution = 2400 # wheel revolution
@@ -43,11 +44,17 @@ class PhidgetEncoders:
                                   0.0, 0.0, 0.0, 0.0001, 0.0, 0.0,
                                   0.0, 0.0, 0.0, 0.0, 0.0001, 0.0,
                                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0001]
+        #
+        # the rover is not able to move along the Z axis, so the Z value
+        # of zero will always be "perfect". the rover is also incapable
+        # of rotating about either the X or the Y axis, so those
+        # zeroes will also always be "perfect".
+        #
         self.defaultCovariance = [1000.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                                   0.0, 1000.0, 0.0, 0.0, 0.0, 0.0,
-                                  0.0, 0.0, 1000.0, 0.0, 0.0, 0.0,
-                                  0.0, 0.0, 0.0, 1000.0, 0.0, 0.0,
-                                  0.0, 0.0, 0.0, 0.0, 1000.0, 0.0,
+                                  0.0, 0.0, 0.0001, 0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0001, 0.0, 0.0,
+                                  0.0, 0.0, 0.0, 0.0, 0.0001, 0.0,
                                   0.0, 0.0, 0.0, 0.0, 0.0, 1000.0]
 
         #
@@ -74,14 +81,29 @@ class PhidgetEncoders:
         self.odometryMessage.header.frame_id = 'base_link'
         self.odometryMessage.child_frame_id = 'base_link'
 
-        self.currentCovariance, self.sampleList, self.numberOfSamples = calcCovariance(
-            None,
-            [self.previousX,
-             self.previousY,
-             0.0],
-            0,
-            100
-            )
+        if self.useCalculatedCovariances:
+	        self.poseCovariance, self.poseSampleList, self.numberOfPoseSamples = calcCovariance(
+	            None,
+	            [0.0,
+	             0.0,
+	             0.0,
+	             0.0,
+	             0.0,
+	             0.0],
+	            0,
+	            100
+	            )
+	        self.twistCovariance, self.twistSampleList, self.numberOfTwistSamples = calcCovariance(
+	            None,
+	            [0.0,
+	             0.0,
+	             0.0,
+	             0.0,
+	             0.0,
+	             0.0],
+	            0,
+	            100
+	            )
 
         #
         # the rover is incapable of translating along the Z axis,
@@ -188,16 +210,18 @@ class PhidgetEncoders:
         self.odometryMessage.pose.pose.position.x = self.previousX + deltaX
         self.odometryMessage.pose.pose.position.y = self.previousY + deltaY
 
-        self.currentCovariance, self.sampleList, self.numberOfSamples = calcCovariance(
-            self.sampleList,
-            [self.odometryMessage.pose.pose.position.x,
-             self.odometryMessage.pose.pose.position.y,
-             0.0],
-            self.numberOfSamples,
-            100
-            )
-
-        rospy.logdebug('Pose covariance %s' % (repr(self.currentCovariance)))
+        if self.useCalculatedCovariances:
+	        self.poseCovariance, self.poseSampleList, self.numberOfPoseSamples = calcCovariance(
+	            self.poseSampleList,
+	            [self.odometryMessage.pose.pose.position.x,
+	             self.odometryMessage.pose.pose.position.y,
+	             0.0,
+	             0.0,
+	             0.0,
+	             theta],
+	            self.numberOfPoseSamples,
+	            100
+	            )
 
         odometryQuaternion = transformations.quaternion_from_euler(0, 0, theta)
         self.odometryMessage.pose.pose.orientation.x = odometryQuaternion[0]
@@ -215,6 +239,31 @@ class PhidgetEncoders:
         self.odometryMessage.twist.twist.angular.x = 0.0
         self.odometryMessage.twist.twist.angular.y = 0.0
         self.odometryMessage.twist.twist.angular.z = deltaTheta / deltaT
+
+        if self.useCalculatedCovariances:
+	        self.twistCovariance, self.twistSampleList, self.numberOfTwistSamples = calcCovariance(
+	            None,
+	            [self.odometryMessage.twist.twist.linear.x,
+	             self.odometryMessage.twist.twist.linear.y,
+	             0.0,
+	             0.0,
+	             0.0,
+	             self.odometryMessage.twist.twist.angular.z],
+	            0,
+	            100
+	            )
+
+        #
+        # this section is not functional
+        #
+        if not self.roverHasntMoved and self.useCalculatedCovariances:
+            for row in range(len(self.poseCovariance)):
+                for column in range(len(self.poseCovariance[row])):
+                    self.odometryMessage.pose.covariance[row * 6 + column] = self.poseCovariance[row][column]
+
+            for row in range(len(self.twistCovariance)):
+                for column in range(len(self.twistCovariance[row])):
+                    self.odometryMessage.twist.covariance[row * 6 + column] = self.twistCovariance[row][column]
 
         #
         # update the records
