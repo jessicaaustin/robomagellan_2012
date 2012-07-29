@@ -88,8 +88,7 @@ def handleTwistMessage(twistMessage):
     return
 
 def displayPoseAndTwist():
-    print "Time diff s: %4.3f | T m/s: %5.2f, R d/s: %d | WO_pos: (%5.2f, %5.2f), Odom_pos: (%5.2f, %5.2f) | WO_theta: %3d, IMU_theta: %3d, Odom_theta: %3d" % (
-        abs(currentOdomTime - currentImuTime),
+    print "T m/s: %5.2f, R d/s: %d | Encod: (%5.2f, %5.2f), EKF: (%5.2f, %5.2f) | Encod_theta: %3d, IMU_theta: %3d, EKF_theta: %3d" % (
         currentTranslate,
         currentRotate * 360 / (2 * math.pi),
         currentWheelOdomX,
