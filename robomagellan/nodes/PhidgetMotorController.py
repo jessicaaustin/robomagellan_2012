@@ -3,7 +3,7 @@
 """
 
 __author__ = 'Bill Mania <bill@manailabs.us>'
-__version__ = '1'
+__version__ = '2'
 
 import rospy
 import time
@@ -11,6 +11,15 @@ from ctypes import *
 from Phidgets.Devices.MotorControl import MotorControl
 from Phidgets.PhidgetException import PhidgetException
 
+#
+# different values for different surfaces, to minimize slippage
+# 
+# hardwood floor 10
+# sealed pavement 20
+# grass 50
+# rough concrete 60
+#
+ACCELERATION=10
 
 class PhidgetMotorController:
 
@@ -65,7 +74,7 @@ class PhidgetMotorController:
         self.maxAcceleration = self.motorControl.getAccelerationMax(self.leftWheels)
 
         self.currentAcceleration = int((self.maxAcceleration - self.minAcceleration) / 2 + self.minAcceleration)
-        self.currentAcceleration = 25
+        self.currentAcceleration = ACCELERATION
         try:
             self.motorControl.setAcceleration(self.leftWheels, self.currentAcceleration)
             self.motorControl.setAcceleration(self.rightWheels, self.currentAcceleration)
