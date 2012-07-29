@@ -1,4 +1,6 @@
 
+if base_controller has not received a message in more than 1 sec, send stop signal
+
 Testing:
 
   test new cone capture code 
