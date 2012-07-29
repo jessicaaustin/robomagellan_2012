@@ -38,22 +38,22 @@ if __name__ == '__main__':
     imuMessage.orientation.y = 0.0
     imuMessage.orientation.z = 0.0
     imuMessage.orientation.w = 0.0
-    imuMessage.orientation_covariance = [500.0, 0.0, 0.0,
-                                         0.0, 500.0, 0.0,
-                                         0.0, 0.0, 500.0]
+    imuMessage.orientation_covariance = [0.0001, 0.0, 0.0,
+                                         0.0, 0.0001, 0.0,
+                                         0.0, 0.0, 100.0]
     #
     # angular velocity
     #
     imuMessage.angular_velocity.x = 0.0
     imuMessage.angular_velocity.y = 0.0
     imuMessage.angular_velocity.z = 0.0
-    imuMessage.angular_velocity_covariance = [500.0, 0.0, 0.0,
-                                              0.0, 500.0, 0.0,
-                                              0.0, 0.0, 500.0]
+    imuMessage.angular_velocity_covariance = [0.0001, 0.0, 0.0,
+                                              0.0, 0.0001, 0.0,
+                                              0.0, 0.0, 100.0]
     #
     # linear acceleration not available
     #
-    imuMessage.linear_acceleration_covariance = [-1, 0.0, 0.0,
+    imuMessage.linear_acceleration_covariance = [-1.0, 0.0, 0.0,
                                                  0.0, 0.0, 0.0,
                                                  0.0, 0.0, 0.0]
 
