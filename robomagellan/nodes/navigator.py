@@ -358,6 +358,7 @@ class ConeCaptureNavigator(Navigator):
     def __init__(self, server_name):
         Navigator.__init__(self, server_name)
         self.cone_captured_pub = rospy.Publisher('cone_captured', ConeCaptured)
+        self.forward_cycles = 0
 
     def responds_to_waypoint(self, waypoint):
         return waypoint.type == 'C'
@@ -397,9 +398,14 @@ class ConeCaptureNavigator(Navigator):
             elif self.cone_coord == None:
                 rospy.logwarn("Attempting to capture cone but no cone_coord available!")
                 self.state = NavigationState.ROTATE_TO_FIND_PATH
+            elif self.forward_cycles > settings.CONE_CAPTURE_CYCLE_TIME:
+                rospy.logwarn("Pausing to check for cone")
+                self.full_stop()
+                rospy.sleep(0.5)
+                self.forward_cycles = 0
             else:
                 self.move_towards_cone()
-            # TODO add check for obstacles...
+                self.forward_cycles += 1
 
         elif self.state == NavigationState.ROTATE_TO_FIND_PATH:
             could_find_cone = self.rotate_in_place_to_find_cone()

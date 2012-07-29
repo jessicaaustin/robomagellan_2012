@@ -34,7 +34,7 @@ class CollisionDetector():
     def publish_collision_info(self, scan_data, publisher):
         collision_detected = False
         for scan in scan_data.ranges:
-            if (scan < settings.COLLISION_DISTANCE): 
+            if (scan < settings.CONE_CAPTURE_COLLISION_DISTANCE): 
                 collision_detected = True
                 break
         collision_stamped = BoolStamped()

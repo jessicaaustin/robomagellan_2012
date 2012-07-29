@@ -52,12 +52,13 @@ COLLISION_DISTANCE=0.3      # robot will FULL STOP at lower than this distance
 # Navigation
 #
                 # 15 degrees
-THETA_TOLERANCE=0.26                # how close we need to get to desired yaw before moving on
-WAYPOINT_THRESHOLD=0.3              # how close we need to get to desired goal before considering it reached
-DISTANCE_TO_CAPTURE = 2.0           # how close we should be to a cone before we attempt to capture it
-                                    #  if we also have visual confirmation of the cone
-DISTANCE_TO_CAPTURE_NO_VISUAL = 1.0 # how close we should be to a cone before we attempt to capture it
-                                    #  if we do NOT have visual confirmation of the cone
+THETA_TOLERANCE=0.26                  # how close we need to get to desired yaw before moving on
+WAYPOINT_THRESHOLD=0.3                # how close we need to get to desired goal before considering it reached
+DISTANCE_TO_CAPTURE = 2.0             # how close we should be to a cone before we attempt to capture it
+                                      #  if we also have visual confirmation of the cone
+DISTANCE_TO_CAPTURE_NO_VISUAL = 1.0   # how close we should be to a cone before we attempt to capture it
+                                      #  if we do NOT have visual confirmation of the cone
+CONE_CAPTURE_COLLISION_DISTANCE=0.2   # how close we need to get to the cone to consider it "captured"
 
 #
 # Rover contraints
@@ -88,4 +89,5 @@ KP_CT=1    # feedback proproprtional to y-err
 # Rotating to find cone
 CONE_SEARCH_ROT_TIME=4       # How many cycles
 CONE_SEARCH_ROT_VEL=2.0       # m/s
+CONE_CAPTURE_CYCLE_TIME=8    # How many cycles to move forward before pausing
 
