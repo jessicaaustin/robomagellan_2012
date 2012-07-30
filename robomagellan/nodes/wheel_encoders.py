@@ -24,7 +24,7 @@ class PhidgetEncoders:
         self.leftEncoder = 0 # forward is negative
         self.rightEncoder = 1 # forward is positive
         self.roverHasntMoved = True
-        self.useCalculatedCovariances = False
+        self.useCalculatedCovariances = True
         self.driveWheelRadius = 0.049
         self.wheelSeparation = 0.258
         self.pulsesPerRevolution = 2400 # wheel revolution
@@ -253,17 +253,12 @@ class PhidgetEncoders:
 	            100
 	            )
 
-        #
-        # this section is not functional
-        #
         if not self.roverHasntMoved and self.useCalculatedCovariances:
-            for row in range(len(self.poseCovariance)):
-                for column in range(len(self.poseCovariance[row])):
-                    self.odometryMessage.pose.covariance[row * 6 + column] = self.poseCovariance[row][column]
+            for element in range(len(self.poseCovariance.flat)):
+                self.odometryMessage.pose.covariance[element] = self.poseCovariance.flat[element]
 
-            for row in range(len(self.twistCovariance)):
-                for column in range(len(self.twistCovariance[row])):
-                    self.odometryMessage.twist.covariance[row * 6 + column] = self.twistCovariance[row][column]
+            for element in range(len(self.twistCovariance.flat)):
+                self.odometryMessage.twist.covariance[element] = self.twistCovariance[element]
 
         #
         # update the records
