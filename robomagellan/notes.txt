@@ -1,11 +1,7 @@
 
-bill:
+TODOs
   if base_controller has not received a message in more than 1 sec, send stop signal
   wedge the camera in place
-  test downstairs, on concrete
-
-jess:
-  add method "stop_and_sleep(sec)" to navigator
 
 
 Testing:
@@ -16,14 +12,10 @@ Testing:
   test drift offset correction with robomagellan_localization
 
   test obstacle avoidance
+    does robot stop in time? 
+    does it get stuck easily?
 
-Test run scenarios:
-
-  backyard/hallway
-
-  tennis courts
-
-  park, with path along sidewalk (but chance to go in the grass)
+  test in a park, with path along sidewalk (but chance to go in the grass)
 
 
 TODOs:
