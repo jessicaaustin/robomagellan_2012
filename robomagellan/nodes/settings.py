@@ -54,7 +54,7 @@ OBSTACLE_DISTANCE=0.6       # how close something should be to consider it an ob
 #
                 # 15 degrees
 THETA_TOLERANCE=0.26                  # how close we need to get to desired yaw before moving on
-WAYPOINT_THRESHOLD=0.3                # how close we need to get to desired goal before considering it reached
+WAYPOINT_THRESHOLD=0.5                # how close we need to get to desired goal before considering it reached
 DISTANCE_TO_CAPTURE = 2.0             # how close we should be to a cone before we attempt to capture it
                                       #  if we also have visual confirmation of the cone
 DISTANCE_TO_CAPTURE_NO_VISUAL = 1.0   # how close we should be to a cone before we attempt to capture it

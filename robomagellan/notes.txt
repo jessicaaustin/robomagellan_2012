@@ -6,9 +6,6 @@ TODOs
 
 Testing:
 
-  test new cone capture code 
-    should touch cone but not run over it
-
   test drift offset correction with robomagellan_localization
 
   test obstacle avoidance
