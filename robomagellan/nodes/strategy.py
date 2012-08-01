@@ -268,7 +268,7 @@ if __name__ == '__main__':
     rospy.loginfo("Initializing strategy node")
 
     if len(sys.argv) < 2 or not os.path.exists(sys.argv[1]) or not os.path.isfile(sys.argv[1]):
-        rospy.logerr("Must supply waypoints file!")
+        rospy.logerr("Waypoint file %s not found" % (sys.argv[1]))
         sys.exit(1)
     else:
         waypoints_file = sys.argv[1]
