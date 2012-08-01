@@ -31,7 +31,8 @@
     <node
         pkg="robot_pose_ekf"
         type="robot_pose_ekf"
-        name="robot_pose_ekf">
+        name="robot_pose_ekf"
+        respawn="true">
 
       <param name="output_frame" value="odom"/>
       <param name="freq" value="30.0"/>

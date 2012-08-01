@@ -10,9 +10,9 @@
     <node name="ultrasonic_to_laser" pkg="robomagellan" type="ultrasound_to_laser.py" respawn="true" /> 
 
     <!-- publishes the location of a cone -->
-    <node name="cone_tracker" pkg="robomagellan" type="cone_tracker.py" respawn="false" /> 
+    <node name="cone_tracker" pkg="robomagellan" type="cone_tracker.py" respawn="true" /> 
     <!-- publishes when we hit something (hopefully a cone!) -->
-    <node name="collision" pkg="robomagellan" type="collision_detector.py" respawn="false" /> 
+    <node name="collision" pkg="robomagellan" type="collision_detector.py" respawn="true" /> 
 
 </launch>
 
