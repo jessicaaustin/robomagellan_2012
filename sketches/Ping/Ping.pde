@@ -12,7 +12,7 @@ int pingThree = 12;
 int pingFour = 13;
 int timeoutValue = 512;
 
-int interPingDelay = 250; /* microseconds */
+int interPingDelay = 150; /* microseconds */
 int loopDelay = 0;     /* microseconds */
 
 void ping(int pingUnit, int pingPin) {
