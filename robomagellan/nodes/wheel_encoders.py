@@ -24,7 +24,7 @@ class PhidgetEncoders:
         self.leftEncoder = 0 # forward is negative
         self.rightEncoder = 1 # forward is positive
         self.roverHasntMoved = True
-        self.useCalculatedCovariances = True
+        self.useCalculatedCovariances = False
         self.driveWheelRadius = 0.049
         self.wheelSeparation = 0.258
         self.pulsesPerRevolution = 2400 # wheel revolution
