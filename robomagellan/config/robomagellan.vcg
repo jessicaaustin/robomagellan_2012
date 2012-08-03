@@ -4,11 +4,8 @@ Background\ ColorB=0
 Fixed\ Frame=/map
 Target\ Frame=/base_link
 Image.Enabled=1
-Image.Image\ Topic=/camera_image_threshed
+Image.Image\ Topic=/camera_image
 Image.Transport\ Hint=raw
-Image2.Enabled=1
-Image2.Image\ Topic=/camera_image
-Image2.Transport\ Hint=raw
 Laser\ Scan.Alpha=1
 Laser\ Scan.Billboard\ Size=0.1
 Laser\ Scan.Color\ Transformer=Intensity
@@ -94,8 +91,8 @@ TF.Update\ Interval=0.05
 Tool\ 2D\ Nav\ GoalTopic=move_base_simple/goal
 Tool\ 2D\ Pose\ EstimateTopic=initialpose
 Camera\ Type=rviz::XYOrbitViewController
-Camera\ Config=0.091 0.433371 7.7448 0.813128 6.43206e-05 0.455915
-Property\ Grid\ State=selection=;expanded=.Global Options,Map.Enabled,Local Plan.Enabled,MarkerArray.Enabled.MarkerArray.Namespaces,TF./base_footprint/base_footprint,TF./base_laser_link/base_laser_link,TF./base_link/base_link,TF./camera_lens/camera_lens,TF./camera_lens_optical/camera_lens_optical,TF./imu/imu,TF./infrared_aft/infrared_aft,TF./infrared_forward/infrared_forward,TF./left_wheel/left_wheel,TF./odom/odom,TF./right_wheel/right_wheel,TF./ultrasonic_1/ultrasonic_1,TF./ultrasonic_2/ultrasonic_2,TF./ultrasonic_3/ultrasonic_3,TF./ultrasonic_4/ultrasonic_4,TF./map/map,TF.Enabled.TF.Tree,TF./mapTree/map,TF./odomTree/odom,TF./base_footprintTree/base_footprint,TF./base_linkTree/base_link,TF./camera_lensTree/camera_lens,TF./camera_lens_opticalTree/camera_lens_optical,TF./imuTree/imu,TF./infrared_aftTree/infrared_aft,TF./infrared_forwardTree/infrared_forward,TF./left_wheelTree/left_wheel,TF./right_wheelTree/right_wheel,TF./ultrasonic_1Tree/ultrasonic_1,TF./ultrasonic_2Tree/ultrasonic_2,TF./ultrasonic_3Tree/ultrasonic_3,TF./ultrasonic_4Tree/ultrasonic_4,TF./base_laser_linkTree/base_laser_link,Marker.Enabled,Marker.Enabled.Marker.Namespaces,Laser Scan.Enabled;scrollpos=0,0;splitterpos=227,455;ispageselected=1
+Camera\ Config=0.116 0.478371 11.0024 0.922747 6.43206e-05 -0.698896
+Property\ Grid\ State=selection=Image.Enabled.Image.StatusTopStatus;expanded=.Global Options,Map.Enabled,Local Plan.Enabled,MarkerArray.Enabled.MarkerArray.Namespaces,TF./base_footprint/base_footprint,TF./base_laser_link/base_laser_link,TF./base_link/base_link,TF./camera_lens/camera_lens,TF./camera_lens_optical/camera_lens_optical,TF./imu/imu,TF./infrared_aft/infrared_aft,TF./infrared_forward/infrared_forward,TF./left_wheel/left_wheel,TF./right_wheel/right_wheel,TF./ultrasonic_1/ultrasonic_1,TF./ultrasonic_2/ultrasonic_2,TF./ultrasonic_3/ultrasonic_3,TF./ultrasonic_4/ultrasonic_4,TF./odom/odom,TF./map/map,TF.Enabled.TF.Tree,TF./base_footprintTree/base_footprint,TF./base_linkTree/base_link,TF./camera_lensTree/camera_lens,TF./camera_lens_opticalTree/camera_lens_optical,TF./imuTree/imu,TF./infrared_aftTree/infrared_aft,TF./infrared_forwardTree/infrared_forward,TF./left_wheelTree/left_wheel,TF./right_wheelTree/right_wheel,TF./ultrasonic_1Tree/ultrasonic_1,TF./ultrasonic_2Tree/ultrasonic_2,TF./ultrasonic_3Tree/ultrasonic_3,TF./ultrasonic_4Tree/ultrasonic_4,TF./base_laser_linkTree/base_laser_link,TF./mapTree/map,TF./odomTree/odom,Marker.Enabled,Marker.Enabled.Marker.Namespaces,Laser Scan.Enabled,Image.Enabled;scrollpos=0,45;splitterpos=149,300;ispageselected=1
 [Display0]
 Name=Map
 Package=rviz
@@ -124,6 +121,10 @@ ClassName=rviz::MarkerDisplay
 Name=Laser Scan
 Package=rviz
 ClassName=rviz::LaserScanDisplay
+[Display7]
+Name=Image
+Package=rviz
+ClassName=rviz::ImageDisplay
 [TF.]
 base_footprintEnabled=1
 base_laser_linkEnabled=1
