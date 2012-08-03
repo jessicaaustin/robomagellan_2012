@@ -133,8 +133,8 @@ class RobomagellanLocalization():
             rospy.logwarn("(x, y), (xd, yd) = (%.2f, %.2f), (%.2f, %.2f)" % (x, y, xd, yd))
 
             # take into account the offset between the center of the cone on the center of /base_link
-            linear_distance += 0.125   # about 5 inches, the radius of the cone
-            linear_distance += 0.09    # the distance between /base_laser_link and /base_link
+            linear_distance -= 0.125   # about 5 inches, the radius of the cone
+            linear_distance -= 0.09    # the distance between /base_laser_link and /base_link
             x_offset, y_offset = -1 * linear_distance * math.cos(theta), -1 * linear_distance * math.sin(theta)
 
             rospy.logwarn("(x_off, y_off) = (%.2f, %.2f)" % (x_offset, y_offset))
