@@ -209,7 +209,7 @@ class ConeTrackerSim():
             waypoint.header.stamp = self.transformListener.getLatestCommonTime("camera_lens_optical", "map")
             point_in_camera_frame = self.transformListener.transformPoint("camera_lens_optical", waypoint)
             x, y, z = point_in_camera_frame.point.x, point_in_camera_frame.point.y, point_in_camera_frame.point.z
-            if (z < 3 and math.fabs(y) < .45*z and math.fabs(x) < .35*z):
+            if (z < 5 and math.fabs(y) < .45*z and math.fabs(x) < .35*z):
                 p = Point()
                 p.z = 1.0  # we assume the ball is 1 meter away (no depth perception yet!)
                 p.y = x
