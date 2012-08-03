@@ -41,21 +41,40 @@ C = arccos((a^^2 + b^^2 - c^^2) / (2ab))
 
 Then to calculate the X and Y offset from the current waypoint:
 
-if B is greater than 90 degrees
+if B is greater than 90 degrees (next waypoint in Q1 or Q4)
+
+    a' = a
+
     A' = 90
 
     B' = 180 - B
 
     C' = 180 - B' - A'
 
-if B is less than 90 degrees
+    X offset = a' * cos(B')
+
+    Y offset = if Q1:  [a' * sin(B')]
+               if Q4: -[a' * sin(B')]
+
+if B is less than 90 degrees (next waypoint in Q2 or Q3)
+
+    a' = a
+
     A' = 90
 
     B' = B
 
     C' = 180 - B' - A'
 
-b' = X offset
+    X offset = -[a' * cos(B')]
 
-c' = Y offset
+    Y offset = if Q2:  [a' * sin(B')]
+               if Q4: -[a' * sin(B')]
+
+if B equals 90 degrees
+    
+    X offset = 0
+
+    Y offset = if Q1 or Q2:  a
+               if Q3 or Q4: -a
 
