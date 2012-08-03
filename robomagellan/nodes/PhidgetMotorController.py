@@ -26,6 +26,7 @@ class PhidgetMotorController:
     def __init__(self):
         self.leftWheels = 0
         self.rightWheels = 1
+        self.whichMotorFirst = self.rightWheels
         self.defaultMotorSpeed = 100.0
         self.motorMaxSpeed = 100
         self.motorMinSpeed = 20
@@ -73,8 +74,7 @@ class PhidgetMotorController:
         self.minAcceleration = self.motorControl.getAccelerationMin(self.leftWheels)
         self.maxAcceleration = self.motorControl.getAccelerationMax(self.leftWheels)
 
-        self.currentAcceleration = int((self.maxAcceleration - self.minAcceleration) / 2 + self.minAcceleration)
-        self.currentAcceleration = ACCELERATION
+        self.currentAcceleration = self.minAcceleration
         try:
             self.motorControl.setAcceleration(self.leftWheels, self.currentAcceleration)
             self.motorControl.setAcceleration(self.rightWheels, self.currentAcceleration)
@@ -83,7 +83,7 @@ class PhidgetMotorController:
             self.motorControl.setVelocity(self.rightWheels, 0)
             rospy.loginfo('Set velocity to %d' % (0))
         except PhidgetException, e:
-            print "Exception while setting starting acceleration and velocity"
+            print "Exception while initialzing acceleration and velocity"
             print " code: %d" % e.code
             print " message: %s" % e.message
             raise
@@ -116,8 +116,15 @@ class PhidgetMotorController:
 
         if (rotationZ == 0 and translationX == 0):
             # FULL STOP
-            self.motorControl.setVelocity(self.leftWheels, 0);
-            self.motorControl.setVelocity(self.rightWheels, 0);
+            if self.whichMotorsFirst == self.leftWheels:
+                self.whichMotorsFirst = self.rightWheels
+                self.motorControl.setVelocity(self.leftWheels, 0);
+                self.motorControl.setVelocity(self.rightWheels, 0);
+            else:
+                self.whichMotorsFirst = self.leftWheels
+                self.motorControl.setVelocity(self.rightWheels, 0);
+                self.motorControl.setVelocity(self.leftWheels, 0);
+
             return
 
         leftSpeed = -19.230 * rotationZ
@@ -147,8 +154,14 @@ class PhidgetMotorController:
         rightSpeed *= self.rightAdjustment
 
         try:
-            self.motorControl.setVelocity(self.leftWheels, leftSpeed);
-            self.motorControl.setVelocity(self.rightWheels, rightSpeed);
+            if self.whichMotorsFirst == self.leftWheels:
+                self.whichMotorsFirst = self.rightWheels
+                self.motorControl.setVelocity(self.leftWheels, leftSpeed);
+                self.motorControl.setVelocity(self.rightWheels, rightSpeed);
+            else:
+                self.whichMotorsFirst = self.leftWheels
+                self.motorControl.setVelocity(self.rightWheels, rightSpeed);
+                self.motorControl.setVelocity(self.leftWheels, leftSpeed);
 
         except PhidgetException, e:
             rospy.logwarn('setVelocity() failed, left: %d, right: %d' % (
