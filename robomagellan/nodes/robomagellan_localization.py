@@ -47,6 +47,8 @@ from nav_msgs.msg import Odometry
 
 from robomagellan.msg import ConeCaptured
 
+import math
+
 class RobomagellanLocalization():
     def __init__(self, odom_publisher):
         self.odom_publisher = odom_publisher
@@ -56,6 +58,8 @@ class RobomagellanLocalization():
         # so we'll just publish a constant for that
         self.unit_quaternion = (0.0, 0.0, 0.0, 1.0)
         self.last_time = None
+        # store the latest odometry
+        self.odom = None
         self.transformListener = tf.TransformListener()
         rospy.loginfo("RobomagellanLocalization initialized")
 
@@ -80,7 +84,7 @@ class RobomagellanLocalization():
         if not self.last_time:
             # set up initial times and pose
             rospy.loginfo("Setting up initial position")
-            self.last_time, self.last_x, self.last_theta = self.current_pose(odom_combined)
+            self.last_time, self.last_x, y, self.last_theta = self.current_pose(odom_combined)
             return
 
         # publish to the /odom topic
@@ -89,7 +93,7 @@ class RobomagellanLocalization():
         odom.header.frame_id = "/base_link"
         odom.pose = odom_combined.pose
 
-        current_time, x, theta = self.current_pose(odom_combined)
+        current_time, x, y, theta = self.current_pose(odom_combined)
         dt = current_time - self.last_time
         dt = dt.to_sec()
         d_x = x - self.last_x
@@ -103,8 +107,9 @@ class RobomagellanLocalization():
     def current_pose(self, odom_combined):
         current_time = odom_combined.header.stamp
         x = odom_combined.pose.pose.position.x
+        y = odom_combined.pose.pose.position.y
         theta = self.yaw_from_quaternion(odom_combined.pose.pose.orientation)
-        return (current_time, x, theta)
+        return (current_time, x, y, theta)
 
     def yaw_from_quaternion(self, q):
         roll, pitch, yaw = tf.transformations.euler_from_quaternion((q.x, q.y, q.z, q.w))
@@ -112,24 +117,31 @@ class RobomagellanLocalization():
 
     def setup_odom_combined_callback(self):
         def odom_combined_callback(data):
+            self.odom = data
             self.publish_odometry(data)
         return odom_combined_callback
 
     def setup_cone_captured_callback(self):
         def recalculate_drift(data):
-            rospy.loginfo("waypoint location: %s" % data.waypoint)
-            waypoint_offset = self.waypoint_in_base_link_frame(data)
-            self.current_position_offset = Point(waypoint_offset.point.x, waypoint_offset.point.y, 0.0)
-            rospy.loginfo("waypoint offset: %s" % self.current_position_offset)
+            rospy.logwarn("waypoint location: %s" % data.waypoint)
+            rospy.logwarn("our current location: %s" % self.odom.pose.pose)
+
+            # calculate the difference between where we think we are and where the cone is
+            current_time, x, y, theta = self.current_pose(self.odom)
+            xd, yd = data.waypoint.coordinate.x, data.waypoint.coordinate.y
+            linear_distance = math.sqrt( (x-xd)*(x-xd) + (y-yd)*(y-yd) )
+            rospy.logwarn("(x, y), (xd, yd) = (%.2f, %.2f), (%.2f, %.2f)" % (x, y, xd, yd))
+
+            # take into account the offset between the center of the cone on the center of /base_link
+            linear_distance += 0.125   # about 5 inches, the radius of the cone
+            linear_distance += 0.09    # the distance between /base_laser_link and /base_link
+            x_offset, y_offset = -1 * linear_distance * math.cos(theta), -1 * linear_distance * math.sin(theta)
+
+            rospy.logwarn("(x_off, y_off) = (%.2f, %.2f)" % (x_offset, y_offset))
+
+            self.current_position_offset = Point(x_offset, y_offset, 0.0)
+            rospy.logwarn("Drift calibration: %s" % self.current_position_offset)
         return recalculate_drift
-
-    def waypoint_in_base_link_frame(self, cone_captured_msg):
-        waypoint = PointStamped()
-        waypoint.header.frame_id = "/map"
-        waypoint.header.stamp = self.transformListener.getLatestCommonTime("base_link", "map")
-        waypoint.point = cone_captured_msg.waypoint.coordinate
-        return self.transformListener.transformPoint("/base_link", waypoint)
-
 
 if __name__ == '__main__':
     rospy.init_node('robomagellan_localization')
@@ -145,4 +157,4 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
         rate.sleep()
         localization.publish_localization()
-            
+
