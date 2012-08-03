@@ -402,7 +402,7 @@ class WaypointNavigator(Navigator):
             # rotational velocity is calculated using PID control
 
             # proportional
-            rot_vel_p = -1 * settings.KP_Y * yerr
+            rot_vel_p = settings.KP_Y * yerr
 
             # integral
             self.yerr_accumulated += yerr
