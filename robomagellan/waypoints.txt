@@ -35,43 +35,43 @@ B is the angle between c and a.
 C is the angle between a and b.
 
 
-b = sqrt(a^^2 + c^^2 - 2ac * cos(B))
+b = sqrt(a² + c² - 2ac × cos(B))
 
-C = arccos((a^^2 + b^^2 - c^^2) / (2ab))
+C = arccos((a² + b² - c²) ÷ (2ab))
 
 Then to calculate the X and Y offset from the current waypoint:
 
-if B is greater than 90 degrees (next waypoint in Q1 or Q4)
+if B is greater than π/2 radians (next waypoint in Q1 or Q4)
 
     a' = a
 
-    A' = 90
+    A' = π/2
 
-    B' = 180 - B
+    B' = π - B
 
-    C' = 180 - B' - A'
+    C' = π - B' - A'
 
     X offset = a' * cos(B')
 
-    Y offset = if Q1:  [a' * sin(B')]
-               if Q4: -[a' * sin(B')]
+    Y offset = if Q1:  [a' × sin(B')]
+               if Q4: -[a' × sin(B')]
 
-if B is less than 90 degrees (next waypoint in Q2 or Q3)
+if B is less than π/2 radians (next waypoint in Q2 or Q3)
 
     a' = a
 
-    A' = 90
+    A' = π/2
 
     B' = B
 
-    C' = 180 - B' - A'
+    C' = π - B' - A'
 
-    X offset = -[a' * cos(B')]
+    X offset = -[a' × cos(B')]
 
-    Y offset = if Q2:  [a' * sin(B')]
-               if Q4: -[a' * sin(B')]
+    Y offset = if Q2:  [a' × sin(B')]
+               if Q4: -[a' × sin(B')]
 
-if B equals 90 degrees
+if B equals π/2 radians
     
     X offset = 0
 
