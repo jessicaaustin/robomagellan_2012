@@ -1,0 +1,61 @@
+How to identify and encode the waypoints
+
+The first (starting) waypoint is located on the positive X axis,
+ie. Y = 0.  The rover begins at the origin, pointed in the
+direction of the positive X axis.
+
+Measurement loop after establishing the starting waypoint
+-----------------------------------------------------------------
+Use a metric tape measure and a hand-bearing compass to determine
+the range and bearing from the current waypoint to the next
+waypoint. If possible, measure the range and bearing from the
+previous waypoint to the next waypoint.
+
+Use the Law of Cosines to determine/verify the distance between
+the previous waypoint and the next waypoint. Then use the same Law of
+Cosines to determine/verify the three angles between the sides.
+
+Next, use the Law of Sines to calculate the X and Y offset from
+the current waypoint to the next waypoint. Use those offsets to
+determine the coordinates of the next waypoint.
+
+
+Formulae
+-----------------------------------------------------------------
+
+c is the distance from the previous waypoint to the current
+waypoint.
+
+a is the distance from the current waypoint to the next waypoint.
+
+b is the distance from the previous waypoint to the next waypoint.
+
+B is the angle between c and a.
+
+C is the angle between a and b.
+
+
+b = sqrt(a^^2 + c^^2 - 2ac * cos(B))
+
+C = arccos((a^^2 + b^^2 - c^^2) / (2ab))
+
+Then to calculate the X and Y offset from the current waypoint:
+
+if B is greater than 90 degrees
+    A' = 90
+
+    B' = 180 - B
+
+    C' = 180 - B' - A'
+
+if B is less than 90 degrees
+    A' = 90
+
+    B' = B
+
+    C' = 180 - B' - A'
+
+b' = X offset
+
+c' = Y offset
+
