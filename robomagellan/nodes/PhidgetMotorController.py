@@ -73,9 +73,8 @@ class PhidgetMotorController:
     
         self.minAcceleration = self.motorControl.getAccelerationMin(self.leftWheels)
         self.maxAcceleration = self.motorControl.getAccelerationMax(self.leftWheels)
-        self.minAcceleration += 5
 
-        self.currentAcceleration = self.minAcceleration
+        self.currentAcceleration = self.minAcceleration + 25
         try:
             self.motorControl.setAcceleration(self.leftWheels, self.currentAcceleration)
             self.motorControl.setAcceleration(self.rightWheels, self.currentAcceleration)
