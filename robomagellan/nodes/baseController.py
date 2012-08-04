@@ -18,13 +18,17 @@ publishes to:
 import roslib; roslib.load_manifest('robomagellan')
 import rospy
 
-from rospy.exceptions import ROSInitException
 from geometry_msgs.msg import Twist
 from PhidgetMotorController import PhidgetMotorController
 
 motorController = None
 
+lastCmdVelTime = None
+
 def handleTwistMessage(twistMessage):
+    global lastCmdVelTime
+
+    lastCmdVelTime = rospy.Time.now().to_sec()
 
     rospy.logdebug("translationX: %f, rotationZ: %f" % (
         twistMessage.linear.x,
@@ -38,6 +42,16 @@ def handleTwistMessage(twistMessage):
 
     return
 
+def check_for_outdated_cmd_vel():
+    global lastCmdVelTime
+
+    now = rospy.Time.now().to_sec()
+    latency = now - lastCmdVelTime
+    if latency > 0.5:
+        rospy.logwarn("cmd_vel command is %.2f seconds old! Stopping!" % latency)
+        motorController.move(0.0, 0.0)
+
+
 if __name__ == '__main__':
     rospy.init_node('base_controller')
     rospy.loginfo("Initializing base_controller node")
@@ -45,10 +59,14 @@ if __name__ == '__main__':
     motorController = PhidgetMotorController()
     motorController.setDefaultSpeed(75.0)
 
+    lastCmdVelTime = rospy.Time.now().to_sec()
+
     rospy.Subscriber('cmd_vel', Twist, handleTwistMessage)
 
+    rate = rospy.Rate(10.0)
     while not rospy.is_shutdown():
-        rospy.spin()
+        check_for_outdated_cmd_vel()
+        rate.sleep()
 
     motorController.move(0.0, 0.0)
 
