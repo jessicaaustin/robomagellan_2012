@@ -47,7 +47,7 @@ def check_for_outdated_cmd_vel():
 
     now = rospy.Time.now().to_sec()
     latency = now - lastCmdVelTime
-    if latency > 0.5:
+    if latency > 2.0:
         rospy.logwarn("cmd_vel command is %.2f seconds old! Stopping!" % latency)
         motorController.move(0.0, 0.0)
 
