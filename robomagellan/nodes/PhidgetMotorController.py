@@ -73,6 +73,7 @@ class PhidgetMotorController:
     
         self.minAcceleration = self.motorControl.getAccelerationMin(self.leftWheels)
         self.maxAcceleration = self.motorControl.getAccelerationMax(self.leftWheels)
+        self.minAcceleration += 5
 
         self.currentAcceleration = self.minAcceleration
         try:
@@ -116,12 +117,12 @@ class PhidgetMotorController:
 
         if (rotationZ == 0 and translationX == 0):
             # FULL STOP
-            if self.whichMotorsFirst == self.leftWheels:
-                self.whichMotorsFirst = self.rightWheels
+            if self.whichMotorFirst == self.leftWheels:
+                self.whichMotorFirst = self.rightWheels
                 self.motorControl.setVelocity(self.leftWheels, 0);
                 self.motorControl.setVelocity(self.rightWheels, 0);
             else:
-                self.whichMotorsFirst = self.leftWheels
+                self.whichMotorFirst = self.leftWheels
                 self.motorControl.setVelocity(self.rightWheels, 0);
                 self.motorControl.setVelocity(self.leftWheels, 0);
 
@@ -154,12 +155,12 @@ class PhidgetMotorController:
         rightSpeed *= self.rightAdjustment
 
         try:
-            if self.whichMotorsFirst == self.leftWheels:
-                self.whichMotorsFirst = self.rightWheels
+            if self.whichMotorFirst == self.leftWheels:
+                self.whichMotorFirst = self.rightWheels
                 self.motorControl.setVelocity(self.leftWheels, leftSpeed);
                 self.motorControl.setVelocity(self.rightWheels, rightSpeed);
             else:
-                self.whichMotorsFirst = self.leftWheels
+                self.whichMotorFirst = self.leftWheels
                 self.motorControl.setVelocity(self.rightWheels, rightSpeed);
                 self.motorControl.setVelocity(self.leftWheels, leftSpeed);
 
