@@ -1,7 +1,7 @@
 <launch>
 
     <!-- if not in autonomous mode, then will run in teleop ("remote control") mode -->
-    <arg name="autonomous" default="true"/>
+    <arg name="autonomous" default="false"/>
 
     <arg name="simulation" default="false"/>
     <!-- 
