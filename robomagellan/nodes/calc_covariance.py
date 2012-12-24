@@ -2,6 +2,9 @@
 
 """Calculate a running covariance
 
+Bill Mania
+bill@manialabs.us
+
 Calculate a covariance based on a collection of samples. The
 collection can be initialized and then grown to a specified
 maximum size. Once the sample set reaches the maximum size,
@@ -10,7 +13,7 @@ to the newest end of the ring and removing the oldest
 sample from the other end.
 
 inputs:
-    the existing sample list of None
+    the existing sample list or None
 
     the new sample to add
 
@@ -24,7 +27,7 @@ outputs:
 
     the updated sample list
 
-    the updated number of samples
+    the new number of samples
 """
 
 import numpy
