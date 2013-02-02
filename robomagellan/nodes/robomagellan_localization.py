@@ -42,7 +42,7 @@ import rospy
 
 import tf
 
-from geometry_msgs.msg import Point, PointStamped, PoseWithCovarianceStamped, Twist, Vector3
+from geometry_msgs.msg import Point
 from nav_msgs.msg import Odometry
 
 from robomagellan.msg import ConeCaptured
@@ -50,8 +50,7 @@ from robomagellan.msg import ConeCaptured
 import math
 
 class RobomagellanLocalization():
-    def __init__(self, odom_publisher):
-        self.odom_publisher = odom_publisher
+    def __init__(self):
         # we start with zero offset in our position
         self.current_position_offset = Point()
         # we don't care about drifts in orientation,
@@ -61,48 +60,27 @@ class RobomagellanLocalization():
         # store the latest odometry
         self.odom = None
         self.transformListener = tf.TransformListener()
+        self.br = tf.TransformBroadcaster()
         rospy.loginfo("RobomagellanLocalization initialized")
 
     def publish_localization(self):
         """
             publish the transformation from /map -> /odom
         """
-        br = tf.TransformBroadcaster()
+        #
+        # does the TransformBroadcaster() need to be created every time
+        # publish_localization is called, or can it be create in the
+        # RobomagellanLocalization() constructor instead?
+        #
+#        br = tf.TransformBroadcaster()
+
+        rospy.logwarn("publishing tf from /map to /odom")
         p = self.current_position_offset
-        br.sendTransform((p.x, p.y, p.z),
+        self.br.sendTransform((p.x, p.y, p.z),
                          self.unit_quaternion,
                          rospy.Time.now(),
                          "odom",
                          "map")
-
-    def publish_odometry(self, odom_combined):
-        """
-            use current pose, along with delta from last pose to publish 
-            the current Odometry on the /odom topic
-        """
-
-        if not self.last_time:
-            # set up initial times and pose
-            rospy.loginfo("Setting up initial position")
-            self.last_time, self.last_x, y, self.last_theta = self.current_pose(odom_combined)
-            return
-
-        # publish to the /odom topic
-        odom = Odometry()
-        odom.header.stamp = rospy.Time.now()
-        odom.header.frame_id = "/base_link"
-        odom.pose = odom_combined.pose
-
-        current_time, x, y, theta = self.current_pose(odom_combined)
-        dt = current_time - self.last_time
-        dt = dt.to_sec()
-        d_x = x - self.last_x
-        d_theta = theta - self.last_theta
-        odom.twist.twist = Twist(Vector3(d_x/dt, 0, 0), Vector3(0, 0, d_theta/dt))
-
-        self.odom_publisher.publish(odom)
-
-        self.last_time, self.last_x, self.last_theta = current_time, x, theta
 
     def current_pose(self, odom_combined):
         current_time = odom_combined.header.stamp
@@ -118,7 +96,6 @@ class RobomagellanLocalization():
     def setup_odom_combined_callback(self):
         def odom_combined_callback(data):
             self.odom = data
-            self.publish_odometry(data)
         return odom_combined_callback
 
     def setup_cone_captured_callback(self):
@@ -148,12 +125,11 @@ if __name__ == '__main__':
     rospy.sleep(3)  # let rxconsole boot up
     rospy.loginfo("Initializing localization node")
 
-    odom_publisher = rospy.Publisher('/odom', Odometry)
-    localization = RobomagellanLocalization(odom_publisher)
-    rospy.Subscriber('/robot_pose_ekf/odom', PoseWithCovarianceStamped, localization.setup_odom_combined_callback())
+    localization = RobomagellanLocalization()
+    rospy.Subscriber('/odom', Odometry, localization.setup_odom_combined_callback())
     rospy.Subscriber('/cone_captured', ConeCaptured, localization.setup_cone_captured_callback())
 
-    rate = rospy.Rate(10.0)
+    rate = rospy.Rate(1.0)
     while not rospy.is_shutdown():
         rate.sleep()
         localization.publish_localization()

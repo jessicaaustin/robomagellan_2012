@@ -49,13 +49,32 @@
       <param name="self_diagnose" value="false"/>
     </node>
 
+	<node
+		name="odom_publisher"
+		pkg="robomagellan"
+		type="odom_publisher.py"
+		respawn="true"
+	/>
+
 	<!-- provide transform from /map->/odom and publish the /odom topic -->
+
+    <!-- localization using only visual tracking of traffic cones
 	<node
 		name="robomagellan_localization"
 		pkg="robomagellan"
 		type="robomagellan_localization.py"
 		respawn="true"
 	/>
+     -->
+
+    <!--  OR -->
+
+    <!-- localization using SLAM -->
+	<node
+		name="slam_gmapping"
+		pkg="gmapping"
+		type="slam_gmapping"
+		respawn="true"
+	/>
 
 </launch>
-
