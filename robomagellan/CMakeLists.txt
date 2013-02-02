@@ -34,3 +34,7 @@ rosbuild_genmsg()
 #rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
+# add dynamic reconfigure api
+find_package(catkin REQUIRED dynamic_reconfigure)
+generate_dynamic_reconfigure_options(config/Parameters.cfg)
+

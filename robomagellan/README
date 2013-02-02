@@ -7,11 +7,16 @@ https://cacoo.com/diagrams/kHPU6kID4jruOZMA
 
 SETUP/PREREQUISITES
 
-Install ROS Electric
+Install ROS Fuerte
   you have two options: install desktop-full, or install comm (bare bones) page and then install:
-    ros-electric-navigation
-    ros-electric-geometry
-    ros-electric-robot-model
+    ros-fuerte-navigation
+    ros-fuerte-geometry
+    ros-fuerte-robot-model
+    ros-fuerte-rqt  (note: this is used for dynamic_reconfigure, and only needs
+                     to be on the controlling machine, not the robot itself)
+  setup dynamic_reconfigure
+    rosdep install dynamic_reconfigure
+    rosmake dynamic_reconfigure
 Install opencv and opencv python bindings
 Install python-pyproj (GPS nodes requires it)
   sudo apt-get install python-pyproj

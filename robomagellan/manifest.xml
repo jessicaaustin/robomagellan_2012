@@ -24,6 +24,7 @@
   <depend package="robot_state_publisher"/>
   <depend package="topic_tools"/>
   <depend package="cv_bridge"/>
+  <depend package="dynamic_reconfigure"/>
 
 </package>
 
