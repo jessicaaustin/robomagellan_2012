@@ -18,6 +18,8 @@ publishes to:
 import roslib; roslib.load_manifest('robomagellan')
 import rospy
 
+import time
+
 from geometry_msgs.msg import Twist
 
 import os
@@ -36,7 +38,7 @@ keyToRate = {
     'h' : (-0.5, -0.5, 'REVERSE LEFT'),
     'k' : (-0.5, 0.5, 'REVERSE RIGHT')
 }
-adjuster = 1.0
+adjuster = 0.5
 
 def driveLoop():
     """
@@ -66,7 +68,7 @@ def driveLoop():
               break
 
             except IOError:
-                pass
+                time.sleep(0.25)
 
         try:
             # build the Twist message

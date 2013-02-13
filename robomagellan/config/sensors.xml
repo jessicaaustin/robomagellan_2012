@@ -8,7 +8,9 @@
     <node name="ultrasonic_to_laser" pkg="robomagellan" type="ultrasound_to_laser.py" respawn="true" /> 
 -->
 
-    <node name="hokuyo_node" pkg="hokuyo_node" type="hokuyo_node" respawn="true" /> 
+    <node name="hokuyo_node" pkg="hokuyo_node" type="hokuyo_node" respawn="true">
+        <param name="frame_id" value="/laser"/>
+    </node> 
 
 
     <!-- read in data from the infrared rangefinder array and publish as Range messages -->
