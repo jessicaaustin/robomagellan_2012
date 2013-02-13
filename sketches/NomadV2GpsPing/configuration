@@ -1,0 +1,38 @@
+$PMTK251,9600*17 - set to 9,600 bps
+
+$PMTK220,200*2C - set to 5 Hz update
+
+$PMTK251,38400*27 = set to 38,400 bps
+$PMTK220,1000*1F - set to 1 Hz update
+$PMTK301,2*2E - enable WAAS
+$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28 - only enable GGA and RMC
+
+http://www.pololu.com/file/download/MTK_Packet_User_Manual.pdf?file_id=0J302
+https://dallasmakerspace.org/wiki/LS20031_GPS#Commands
+
+
+to calculate the checksum:
+--------------------------------------------------
+define CH_CR 0x0D
+define CH_LF 0x0A
+
+const char CRLF[]={CH_CR, CH_LF, 0};
+char NMEA_ComputeChecksum(char s)
+{
+static char ck_string[4];
+static unsigned char chksum;
+for(chksum=0; *s; ++s)
+
+chksum ^= *s;  
+
+sprintf(ck_string, .%02X., chksum);
+return(ck_string);
+}
+char NMEA_ConstructSentence(char s, char msg )
+{
+strcpy(s, .$.);
+strcat(s,msg);
+strcat(s,NMEA_ComputeChecksum(msg));
+strcat(s, CRLF);
+return(s);
+}
