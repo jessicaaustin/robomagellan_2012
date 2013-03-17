@@ -1,11 +1,14 @@
 
 # define an array of ultrasonic distance sensors
 # AKA the poor man's laser scanner... 
-define ping laser
+define ping ranger
 (
-  range_max 3.0
-  fov 60
-  samples 60
+  sensor( 			
+    range [ 0.0  3.0 ]
+    fov 60
+    samples 60
+  )
+
   # generic model properties
   color "black"
   size [ 0.05 0.05 0.1 ]
