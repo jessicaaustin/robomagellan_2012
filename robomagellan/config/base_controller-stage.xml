@@ -13,7 +13,7 @@
     </node>
 
     <!-- start up visualization tools -->
-    <node name="rxconsole" pkg="rxtools" type="rxconsole" respawn="false" />
+    <node name="rqt_console" pkg="rqt_console" type="rqt_console" respawn="false" />
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robomagellan)/config/robomagellan.vcg" />
 
 </launch>
