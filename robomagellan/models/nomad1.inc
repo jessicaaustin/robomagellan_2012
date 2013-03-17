@@ -1,12 +1,11 @@
 
-# define an array of ultrasonic distance sensors
-# AKA the poor man's laser scanner... 
-define ping ranger
+# hokuyo laser scanner
+define hokuyo ranger
 (
   sensor( 			
-    range [ 0.0  3.0 ]
-    fov 60
-    samples 60
+   range [ 0.0  30.0 ]
+   fov 270.25
+   samples 1081
   )
 
   # generic model properties
@@ -20,6 +19,6 @@ define rover1 position
   origin [-0.05 0 0 0]
   gui_nose 1
   drive "diff"
-  ping(pose [ 0.090 0.000 0.000 0.000 ])
+  hokuyo(pose [ 0.090 0.000 0.000 0.000 ])
 )
 
