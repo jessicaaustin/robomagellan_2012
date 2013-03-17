@@ -5,13 +5,6 @@
          navigation
     -->
 
-
-    <!-- publishes an empty map. 
-         due to the nature of the competition, we have no prior information about the map, so that is why the map is empty.
-         see also nodes/robomagellan_localization.py for an explanation for how we are doing localization
-    -->
-    <node name="map_server" pkg="map_server" type="map_server" args="$(find robomagellan)/worlds/empty-map.yaml" respawn="false" />
-
     <!-- sends commands to move the base to a given waypoint -->
     <node name="navigator_capture_waypoint" pkg="robomagellan" type="navigator_capture_waypoint.py" respawn="true">
         <remap from="cmd_vel" to="cmd_vel_capture_waypoint"/>

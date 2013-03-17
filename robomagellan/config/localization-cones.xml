@@ -13,16 +13,10 @@
         respawn="true"
     />
 
-    <!--  OR -->
-
-    <!-- localization using SLAM -->
-    <!--
-    <node
-        name="slam_gmapping"
-        pkg="gmapping"
-        type="slam_gmapping"
-        respawn="true"
-    />
-     -->
+    <!-- publishes an empty map. 
+         due to the nature of the competition, we have no prior information about the map, so that is why the map is empty.
+         see also nodes/robomagellan_localization.py for an explanation for how we are doing localization
+    -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find robomagellan)/worlds/empty-map.yaml" respawn="false" />
 
 </launch>

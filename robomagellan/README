@@ -24,11 +24,15 @@ rosmake
 # see robomagellan.launch for a set of possible WORLDNAME values
 roslaunch robomagellan robomagellan.launch simulation:=true autonomous:=[false|true] worldname:=WORLDNAME
   e.g. roslaunch robomagellan robomagellan.launch simulation:=true autonomous:=true worldname:=foster-ave-fields-2
+       roslaunch robomagellan robomagellan.launch simulation:=true autonomous:=true worldname:=willow-full
+       roslaunch robomagellan robomagellan.launch simulation:=true autonomous:=false worldname:=bills-house
+
 
 TO RUN (PRODUCTION)
 
 rosmake
-roslaunch robomagellan robomagellan.launch
+roslaunch robomagellan robomagellan.launch autonomous:=[false|true] worldname:=WORLDNAME
+  e.g. roslaunch robomagellan robomagellan.launch autonomous:=true worldname:=loyola-park
 
 
 OVERVIEW
