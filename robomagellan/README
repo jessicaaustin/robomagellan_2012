@@ -22,7 +22,8 @@ TO RUN (SIMULATION)
 
 rosmake
 # see robomagellan.launch for a set of possible WORLDNAME values
-roslaunch robomagellan robomagellan.launch simulation:=true worldname:=WORLDNAME
+roslaunch robomagellan robomagellan.launch simulation:=true autonomous:=[false|true] worldname:=WORLDNAME
+  e.g. roslaunch robomagellan robomagellan.launch simulation:=true autonomous:=true worldname:=foster-ave-fields-2
 
 TO RUN (PRODUCTION)
 
