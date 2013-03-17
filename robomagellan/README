@@ -31,3 +31,15 @@ rosmake
 roslaunch robomagellan robomagellan.launch
 
 
+OVERVIEW
+
+launch        launch files for the project. a good place to start to understand the structure
+config        config files, referenced by launch files
+models        models for the robot
+worlds        stage worlds, for use in simulation
+nodes         ROS nodes
+test          test versions of ROS nodes, for use in simulation only
+msg           custom ROS messages
+action        custom ROS actions
+bag           bag files for test runs on actual robot
+
