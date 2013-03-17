@@ -74,7 +74,7 @@ class RobomagellanLocalization():
         #
 #        br = tf.TransformBroadcaster()
 
-        rospy.logwarn("publishing tf from /map to /odom")
+#        rospy.logwarn("publishing tf from /map to /odom")
         p = self.current_position_offset
         self.br.sendTransform((p.x, p.y, p.z),
                          self.unit_quaternion,

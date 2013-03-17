@@ -20,11 +20,21 @@
       <!-- expects a topic publishing on "wheel_odom" -->
       <remap from="odom" to="wheel_odom" />
       <param name="odom_used" value="true"/>
+      <!-- no imu data in sim -->
       <param name="imu_used" value="false"/>
+      <!-- no gps data in sim -->
       <param name="vo_used" value="false"/>
       <param name="debug" value="true"/>
       <param name="self_diagnose" value="false"/>
     </node>
+
+    <!-- use output of robot_pose_ekf to create Odometry messages on /odom topic -->
+    <node
+        name="odom_publisher"
+        pkg="robomagellan"
+        type="odom_publisher.py"
+        respawn="true"
+    />
 
 	<!-- provide transform from /map->/odom and publish the /odom topic -->
 	<node
