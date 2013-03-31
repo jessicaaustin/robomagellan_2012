@@ -24,8 +24,8 @@ ACCELERATION=10
 class PhidgetMotorController:
 
     def __init__(self):
-        self.leftWheels = 0
-        self.rightWheels = 1
+        self.leftWheels = 1
+        self.rightWheels = 0
         self.whichMotorFirst = self.rightWheels
         self.defaultMotorSpeed = 100.0
         self.motorMaxSpeed = 100
@@ -127,8 +127,8 @@ class PhidgetMotorController:
 
             return
 
-        leftSpeed = -19.230 * rotationZ
-        rightSpeed = 19.230 * rotationZ
+        leftSpeed = 19.230 * rotationZ
+        rightSpeed = -19.230 * rotationZ
  
         #
         # these magic numbers are derived from the motor speed and
