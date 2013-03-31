@@ -14,7 +14,7 @@
           type="map_server" 
           args="$(find robomagellan)/worlds/$(arg worldname).yaml"
     />
-    <include file="$(find amcl)/examples/amcl_diff.launch" />
+    <include file="$(find robomagellan)/config/amcl_diff.launch" />
 
 
 </launch>
