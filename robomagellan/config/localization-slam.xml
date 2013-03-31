@@ -1,0 +1,16 @@
+<launch>
+
+    <!-- Localization means using sensor and map data to find the robot in 
+         absolute space.
+         In other words, these nodes provide the transform from /map->/odom
+    -->
+
+    <!-- localization using SLAM -->
+    <node
+        name="slam_gmapping"
+        pkg="gmapping"
+        type="slam_gmapping"
+        respawn="true"
+    />
+
+</launch>

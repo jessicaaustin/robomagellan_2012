@@ -1,0 +1,22 @@
+<launch>
+
+    <!-- Localization means using sensor and map data to find the robot in 
+         absolute space.
+         In other words, these nodes provide the transform from /map->/odom
+    -->
+
+    <!-- localization using only visual tracking of traffic cones -->
+    <node
+        name="robomagellan_localization"
+        pkg="robomagellan"
+        type="robomagellan_localization.py"
+        respawn="true"
+    />
+
+    <!-- publishes an empty map. 
+         due to the nature of the competition, we have no prior information about the map, so that is why the map is empty.
+         see also nodes/robomagellan_localization.py for an explanation for how we are doing localization
+    -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find robomagellan)/worlds/empty-map.yaml" respawn="false" />
+
+</launch>
