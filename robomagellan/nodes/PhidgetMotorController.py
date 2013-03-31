@@ -31,7 +31,7 @@ class PhidgetMotorController:
         self.motorMaxSpeed = 100
         self.motorMinSpeed = 20
         self.leftAdjustment = 1.0
-        self.rightAdjustment = 1.0
+        self.rightAdjustment = -1.0
 
         self.motorControl = MotorControl()
 
@@ -127,15 +127,18 @@ class PhidgetMotorController:
 
             return
 
-        leftSpeed = 19.230 * rotationZ
-        rightSpeed = -19.230 * rotationZ
- 
         #
-        # these magic numbers are derived from the motor speed and
-        # wheel radius. they're based on a maximum translation
-        # speed of 0.66 meters per second.
+        # a positive rotationZ is a turn to the left. To accomplish
+        # that turn, cause the left wheel(s) to rotate slower than
+        # the right wheel(s).
         #
-        wheelSpeed = translationX / 0.0054
+        rotationWheelVelocity = 25.0
+        translationWheelVelocity = 70.0
+
+        leftSpeed = -(rotationWheelVelocity) * rotationZ
+        rightSpeed = rotationWheelVelocity * rotationZ
+
+        wheelSpeed = translationX * translationWheelVelocity
 
         leftSpeed += wheelSpeed
         rightSpeed += wheelSpeed
@@ -149,9 +152,20 @@ class PhidgetMotorController:
         if rightSpeed < -self.motorMaxSpeed:
             rightSpeed = self.motorMaxSpeed
 
-        # adjust for difference in motor speeds
+                #
+        # adjust for difference in motor speeds and in rotation
+                # direction possibly caused by wiring.
+                #
         leftSpeed *= self.leftAdjustment
         rightSpeed *= self.rightAdjustment
+
+        rospy.logwarn('translationX: %f, rotationZ: %f, left: %f, right: %f' % (
+                translationX,
+                rotationZ,
+                leftSpeed,
+                rightSpeed
+                )
+                )
 
         try:
             if self.whichMotorFirst == self.leftWheels:
