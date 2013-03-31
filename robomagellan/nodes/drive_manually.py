@@ -68,6 +68,8 @@ def driveLoop():
               break
 
             except IOError:
+                # in simulation, we need to publish every loop
+#                drivePublisher.publish(twistMessage)
                 time.sleep(0.25)
 
         try:
