@@ -49,8 +49,8 @@ def mcVelocityChanged( e):
     return
 
 if len(sys.argv) < 5:
-	print "usage:", sys.argv[0], "motor velocity pulses encoder sign"
-	sys.exit(1)
+    print "usage:", sys.argv[0], "motor velocity pulses encoder sign"
+    sys.exit(1)
 
 
 whichMotor = int(sys.argv[1])
@@ -118,7 +118,7 @@ else:
 
 encoder.setPosition(whichEncoder, 0)
 encoder.setEnabled(whichEncoder, True)
-averageAcceleration = (motorControl.getAccelerationMax(whichMotor) - motorControl.getAccelerationMin(whichMotor)) / 2.0
+averageAcceleration = (motorControl.getAccelerationMax(whichMotor) - motorControl.getAccelerationMin(whichMotor)) * 0.9
 print "averageAcceleration", averageAcceleration
 motorControl.setAcceleration(whichMotor, averageAcceleration)
 
@@ -126,17 +126,23 @@ position = encoder.getPosition(whichEncoder)
 print "Starting position", position
 startTime = time.clock()
 motorControl.setVelocity(whichMotor, velocity)
-while position < pulsesWanted:
-	position = encoder.getPosition(whichEncoder) * encoderSign
-	print "Position", position, "Current", motorControl.getCurrent(whichMotor), "\r",
-
+try:
+    while position < pulsesWanted:
+        position = encoder.getPosition(whichEncoder) * encoderSign
+        print "Position", position, "Current", motorControl.getCurrent(whichMotor), "\r",
+    
+except:
+    print "Aborted"
+    pass
+    
 endTime = time.clock()
 motorControl.setVelocity(whichMotor, 0)
+
 print ""
 print "Position", encoder.getPosition(whichEncoder) * encoderSign
 print "Pulses per second", position / (endTime - startTime)
 print "Current", motorControl.getCurrent(whichMotor)
-time.sleep(5.0)
+time.sleep(1.0)
 print "Current", motorControl.getCurrent(whichMotor)
 
 

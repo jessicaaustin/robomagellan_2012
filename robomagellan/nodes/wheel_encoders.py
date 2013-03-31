@@ -21,13 +21,13 @@ class PhidgetEncoders:
 
         rospy.loginfo("Initializing PhidgetEncoders")
 
-        self.leftEncoder = 0 # forward is negative
-        self.rightEncoder = 1 # forward is positive
+        self.leftEncoder = 2 # forward is positive
+        self.rightEncoder = 0 # forward is negative
         self.roverHasntMoved = True
         self.useCalculatedCovariances = False
-        self.driveWheelRadius = 0.049
-        self.wheelSeparation = 0.258
-        self.pulsesPerRevolution = 2400 # wheel revolution
+        self.driveWheelRadius = 0.054
+        self.wheelSeparation = 0.275
+        self.pulsesPerRevolution = 4331 # wheel revolution
         self.wheelsConstant = 2 * pi * self.driveWheelRadius / self.wheelSeparation
         self.pulsesConstant = (pi / self.pulsesPerRevolution) * self.driveWheelRadius
 
@@ -174,8 +174,8 @@ class PhidgetEncoders:
         # calculate the delta between the current encoder value for each wheel and
         # the value from the previous reading.
         #
-        leftPulses = (-1 * self.encoder.getPosition(self.leftEncoder)) - self.previousLeftPosition
-        rightPulses = self.encoder.getPosition(self.rightEncoder) - self.previousRightPosition
+        leftPulses = (self.encoder.getPosition(self.leftEncoder)) - self.previousLeftPosition
+        rightPulses = (-1 * self.encoder.getPosition(self.rightEncoder)) - self.previousRightPosition
 
         self.previousLeftPosition += leftPulses
         self.previousRightPosition += rightPulses
