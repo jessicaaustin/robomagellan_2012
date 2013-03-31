@@ -7,11 +7,16 @@ https://cacoo.com/diagrams/kHPU6kID4jruOZMA
 
 SETUP/PREREQUISITES
 
-Install ROS Electric
+Install ROS Groovy
   you have two options: install desktop-full, or install comm (bare bones) page and then install:
-    ros-electric-navigation
-    ros-electric-geometry
-    ros-electric-robot-model
+    ros-groovy-rospack
+    ros-groovy-navigation
+    ros-groovy-geometry
+    ros-groovy-robot-model
+    ros-groovy-rostopic
+    ros-groovy-xacro
+    ros-groovy-stage
+    ros-groovy-cv-bridge
 Install opencv and opencv python bindings
 Install python-pyproj (GPS nodes requires it)
   sudo apt-get install python-pyproj
