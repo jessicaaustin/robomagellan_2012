@@ -1,0 +1,7 @@
+<launch>
+
+    <!-- No localization. Used if just driving the robot around manually, 
+         e.g. to gather map data.
+    -->
+
+</launch>
