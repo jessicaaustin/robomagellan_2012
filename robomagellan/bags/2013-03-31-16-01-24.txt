@@ -1,0 +1,5 @@
+We gathered this bag by driving the robot around manually. 
+
+After gathering that data, we played back the file and used gmapping 
+(http://www.ros.org/wiki/slam_gmapping/Tutorials/MappingFromLoggedData)
+to generate the maps under worlds/bills-dining-room.*
