@@ -41,6 +41,7 @@
     </include>
 <!--    <include file="$(find robomagellan)/config/localization-slam.xml"/>  -->
 <!--    <include file="$(find robomagellan)/config/localization-cones.xml"/>  -->
+<!--    <include file="$(find robomagellan)/config/localization-none.xml"/> -->
 
     <!-- sensing -->
     <include unless="$(arg simulation)"
