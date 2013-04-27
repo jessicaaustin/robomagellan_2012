@@ -1,8 +1,6 @@
 <!-- This is copied from examples/ in the amcl package -->
 <launch>
 <node pkg="amcl" type="amcl" name="amcl" output="screen">
-  <!-- we're publishing on /base_scan, not /scan -->
-  <remap from="scan" to="base_scan"/>
 
   <!-- Publish scans from best pose at a max of 10 Hz -->
   <param name="odom_model_type" value="diff"/>
