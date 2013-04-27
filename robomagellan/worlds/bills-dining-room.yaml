@@ -1,4 +1,5 @@
-image: map.pgm
+image: bills-dining-room.pgm
+# a 4000 X 4000 map @ 0.050 m/cell
 resolution: 0.050000
 origin: [-100.000000, -100.000000, 0.000000]
 negate: 0

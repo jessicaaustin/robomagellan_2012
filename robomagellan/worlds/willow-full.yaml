@@ -1,4 +1,5 @@
 image: willow-full.pgm
+# a 584 X 526 map @ 0.100 m/cell
 resolution: 0.1
 origin: [0.0, 0.0, 0.0]
 occupied_thresh: 0.65
