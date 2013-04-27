@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 
-"""Phidgets dual encoders
+"""
+PhidgetsEncoders() - Read the encoder values from a
+	Phidgets 1047, filter the data a bit and then
+	publish the Odometry message.
+
+    Looking at the top of the encoder board, with the
+    digital input terminals on the right and the
+    encoder inputs on the top, encoder port number 0
+    is at the top right and port 3 is at the top left.
 
 """
 
@@ -21,12 +29,17 @@ class PhidgetEncoders:
 
         rospy.loginfo("Initializing PhidgetEncoders")
 
-        self.leftEncoder = 2 # forward is positive
-        self.rightEncoder = 0 # forward is negative
+        self.leftFrontEncoder = 1
+        self.rightFrontEncoder = 0
+        self.leftRearEncoder = 3
+        self.rightRearEncoder = 2
+        self.leftSignAdjust = 1 # forward is positive
+        self.rightSignAdjust = -1 # forward is negative
+
         self.roverHasntMoved = True
         self.useCalculatedCovariances = False
         self.driveWheelRadius = 0.054
-        self.wheelSeparation = 0.275
+        self.wheelSeparation = 0.277
         self.pulsesPerRevolution = 4331 # wheel revolution
         self.wheelsConstant = 2 * pi * self.driveWheelRadius / self.wheelSeparation
         self.pulsesConstant = (pi / self.pulsesPerRevolution) * self.driveWheelRadius
@@ -63,8 +76,10 @@ class PhidgetEncoders:
         #
         self.previousX = 0
         self.previousY = 0
-        self.previousLeftPosition = 0
-        self.previousRightPosition = 0
+        self.previousLeftFrontPosition = 0
+        self.previousLeftRearPosition = 0
+        self.previousRightFrontPosition = 0
+        self.previousRightRearPosition = 0
 
         #
         # the rover begins oriented along the positive X of both the
@@ -171,14 +186,29 @@ class PhidgetEncoders:
         self.odometryMessage.header.stamp = currentTime
 
         #
-        # calculate the delta between the current encoder value for each wheel and
-        # the value from the previous reading.
+        # calculate the delta between the current encoder value for
+        # each wheel and the value from the previous reading. Always
+        # take the lower encoder value from each side, as a simple
+        # way of countering any wheel slippage.
         #
-        leftPulses = (self.encoder.getPosition(self.leftEncoder)) - self.previousLeftPosition
-        rightPulses = (-1 * self.encoder.getPosition(self.rightEncoder)) - self.previousRightPosition
+        leftFrontPulses = (self.leftSignAdjust * self.encoder.getPosition(self.leftFrontEncoder)) - self.previousLeftFrontPosition
+        leftRearPulses = (self.leftSignAdjust * self.encoder.getPosition(self.leftRearEncoder)) - self.previousLeftRearPosition
+        rightFrontPulses = (self.rightSignAdjust * self.encoder.getPosition(self.rightFrontEncoder)) - self.previousRightFrontPosition
+        rightRearPulses = (self.rightSignAdjust * self.encoder.getPosition(self.rightRearEncoder)) - self.previousRightRearPosition
 
-        self.previousLeftPosition += leftPulses
-        self.previousRightPosition += rightPulses
+        self.previousLeftFrontPosition += leftFrontPulses
+        self.previousLeftRearPosition += leftRearPulses
+        self.previousRightFrontPosition += rightFrontPulses
+        self.previousRightRearPosition += rightRearPulses
+
+        if leftFrontPulses < leftRearPulses:
+            leftPulses = leftFrontPulses
+        else:
+            leftPulses = leftRearPulses
+        if rightFrontPulses < rightRearPulses:
+            rightPulses = rightFrontPulses
+        else:
+            rightPulses = rightRearPulses
 
         if self.roverHasntMoved:
             if leftPulses != 0 or rightPulses != 0:
@@ -273,19 +303,35 @@ class PhidgetEncoders:
         rospy.loginfo('encoderAttached() called')
 
         self.encoder.setPosition(
-                self.leftEncoder,
-                self.previousLeftPosition,
+                self.leftFrontEncoder,
+                self.previousLeftFrontPosition
                 )
         self.encoder.setPosition(
-                self.rightEncoder,
-                self.previousRightPosition,
+                self.leftRearEncoder,
+                self.previousLeftRearPosition
+                )
+        self.encoder.setPosition(
+                self.rightFrontEncoder,
+                self.previousRightFrontPosition
+                )
+        self.encoder.setPosition(
+                self.rightRearEncoder,
+                self.previousRightRearPosition
                 )
         self.encoder.setEnabled(
-                self.leftEncoder,
+                self.leftFrontEncoder,
                 True
                 )
         self.encoder.setEnabled(
-                self.rightEncoder,
+                self.leftRearEncoder,
+                True
+                )
+        self.encoder.setEnabled(
+                self.rightFrontEncoder,
+                True
+                )
+        self.encoder.setEnabled(
+                self.rightRearEncoder,
                 True
                 )
 

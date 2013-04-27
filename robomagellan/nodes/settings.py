@@ -34,6 +34,12 @@ MIN_THRESH, MAX_THRESH = (0.0, 140.0, 160.0, 0.0), (3.0, 250.0, 270.0, 0.0)
 PIXELS_TO_CM = 6.92
 
 #
+# IMU module
+#
+minYawThreshold = 0.03
+maxYawThreshold = 0.78
+
+#
 # GPS module
 # TODO: figure out LAT_OFFSET and LNG_OFFSET
 #

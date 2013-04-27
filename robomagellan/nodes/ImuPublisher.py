@@ -8,6 +8,7 @@ Author: Bill Mania <bill@manialabs.us>
 
 import roslib; roslib.load_manifest('robomagellan')
 import rospy
+from settings import minYawThreshold, maxYawThreshold
 
 import sys
 
@@ -31,8 +32,6 @@ if __name__ == '__main__':
 
     imuMessage = ImuMessage()
     imuMessage.header.frame_id = 'imu'
-
-    minYawThreshold = pi * 2 / 100.0 * 0.5
 
     imuMessage.orientation.x = 0.0
     imuMessage.orientation.y = 0.0
@@ -88,6 +87,9 @@ if __name__ == '__main__':
 
             if abs(yaw - previousYaw) < minYawThreshold:
                 yaw = previousYaw
+            elif abs(yaw - previousYaw) > maxYawThreshold:
+                yaw = previousYaw
+                rospy.logwarn('Yaw value exceeded max threshold, damping')
                 
             imuMessage.angular_velocity.z = round(
                 (yaw - previousYaw) / deltaTime, 
