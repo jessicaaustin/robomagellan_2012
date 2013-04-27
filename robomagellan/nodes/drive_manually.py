@@ -33,12 +33,14 @@ keyToRate = {
     ' ' : (0.0, 0.0, 'FULL STOP'),
     'j' : (-0.5, 0.0, 'REVERSE HALF'),
     'm' : (-1.0, 0.0, 'REVERSE FULL'),
-    'y' : (0.5, 0.5, 'AHEAD LEFT'),
-    'i' : (0.5, -0.5, 'AHEAD RIGHT'),
-    'h' : (-0.5, -0.5, 'REVERSE LEFT'),
-    'k' : (-0.5, 0.5, 'REVERSE RIGHT')
+    'y' : (0.5, 1.0, 'AHEAD LEFT'),
+    'i' : (0.5, -1.0, 'AHEAD RIGHT'),
+    'h' : (-0.5, -1.0, 'REVERSE LEFT'),
+    'k' : (-0.5, 1.0, 'REVERSE RIGHT'),
+    'o' : (0.0, 2.5, 'ROTATE IN PLACE TO THE LEFT'),
+    'p' : (0.0, -2.5, 'ROTATE IN PLACE TO THE RIGHT')
 }
-adjuster = 0.5
+adjuster = 1.0
 
 def driveLoop():
     """

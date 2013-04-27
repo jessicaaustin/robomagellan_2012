@@ -51,12 +51,4 @@
       <param name="self_diagnose" value="false"/>
     </node>
 
-    <!-- use output of robot_pose_ekf to create Odometry messages on /odom topic -->
-    <node
-        name="odom_publisher"
-        pkg="robomagellan"
-        type="odom_publisher.py"
-        respawn="true"
-    />
-
 </launch>
