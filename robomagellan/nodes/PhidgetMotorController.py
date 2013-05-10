@@ -10,6 +10,7 @@ import time
 from ctypes import *
 from Phidgets.Devices.MotorControl import MotorControl
 from Phidgets.PhidgetException import PhidgetException
+from settings import rotationWheelSpeed, translationWheelSpeed
 
 #
 # different values for different surfaces, to minimize slippage
@@ -101,6 +102,21 @@ class PhidgetMotorController:
     def getDefaultSpeed(self):
         return self.defaultMotorSpeed
 
+    def motorsDirect(self, leftVelocity, rightVelocity):
+        try:
+            self.motorControl.setVelocity(self.leftWheels, leftVelocity);
+            self.motorControl.setVelocity(self.rightWheels, rightVelocity);
+
+        except PhidgetException, e:
+            rospy.logwarn('setVelocity() failed, left: %d, right: %d' % (
+                leftVelocity,
+                rightVelocity
+                ))
+            rospy.logwarn(" code: %d" % e.code)
+            rospy.logwarn(" message: %s" % e.message)
+
+        return
+
     def move(self, translationX, rotationZ):
         """Move the rover base
     
@@ -132,13 +148,18 @@ class PhidgetMotorController:
         # that turn, cause the left wheel(s) to rotate slower than
         # the right wheel(s).
         #
-        rotationWheelVelocity = 25.0
-        translationWheelVelocity = 70.0
+        leftSpeed = -(rotationWheelSpeed) * rotationZ
+        rightSpeed = rotationWheelSpeed * rotationZ
 
-        leftSpeed = -(rotationWheelVelocity) * rotationZ
-        rightSpeed = rotationWheelVelocity * rotationZ
-
-        wheelSpeed = translationX * translationWheelVelocity
+        wheelSpeed = translationX * translationWheelSpeed
+        rospy.logwarn('translationX: %5.2f, wheelSpeed: %5.2f, rotationZ: %5.2f, leftSpeed: %5.2f, rightSpeed: %5.2f' % (
+            translationX,
+            wheelSpeed,
+            rotationZ,
+            leftSpeed,
+            rightSpeed
+            )
+            )
 
         leftSpeed += wheelSpeed
         rightSpeed += wheelSpeed

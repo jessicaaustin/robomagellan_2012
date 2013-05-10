@@ -34,6 +34,16 @@ MIN_THRESH, MAX_THRESH = (0.0, 140.0, 160.0, 0.0), (3.0, 250.0, 270.0, 0.0)
 PIXELS_TO_CM = 6.92
 
 #
+# motors
+#
+# the percentage of maximum motor rotational speed, at which
+# the motors should run, in order to rotate the rover.
+rotationWheelSpeed = 25.0
+# the percentage of maximum motor rotational speed, at which
+# the motors should run, in order to translate the rover
+translationWheelSpeed = 70.0
+
+#
 # IMU module
 #
 minYawThreshold = 0.03
