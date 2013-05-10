@@ -27,18 +27,20 @@ import sys
 import termios
 import fcntl
 
+translateRate = 10.0
+rotateRate = 1.0
 keyToRate = {
-    '7' : (1.0, 0.0, 'AHEAD FULL'),
-    'u' : (0.5, 0.0, 'AHEAD HALF'),
+    '7' : (translateRate, 0.0, 'AHEAD FULL'),
+    'u' : (translateRate / 2, 0.0, 'AHEAD HALF'),
     ' ' : (0.0, 0.0, 'FULL STOP'),
-    'j' : (-0.5, 0.0, 'REVERSE HALF'),
-    'm' : (-1.0, 0.0, 'REVERSE FULL'),
-    'y' : (0.5, 1.0, 'AHEAD LEFT'),
-    'i' : (0.5, -1.0, 'AHEAD RIGHT'),
-    'h' : (-0.5, -1.0, 'REVERSE LEFT'),
-    'k' : (-0.5, 1.0, 'REVERSE RIGHT'),
-    'o' : (0.0, 2.5, 'ROTATE IN PLACE TO THE LEFT'),
-    'p' : (0.0, -2.5, 'ROTATE IN PLACE TO THE RIGHT')
+    'j' : (-translateRate / 2, 0.0, 'REVERSE HALF'),
+    'm' : (-translateRate, 0.0, 'REVERSE FULL'),
+    'y' : (translateRate, rotateRate, 'AHEAD LEFT'),
+    'i' : (translateRate, -rotateRate, 'AHEAD RIGHT'),
+    'h' : (-translateRate, -rotateRate, 'REVERSE LEFT'),
+    'k' : (-translateRate, rotateRate, 'REVERSE RIGHT'),
+    'o' : (0.0, rotateRate * 2, 'ROTATE IN PLACE TO THE LEFT'),
+    'p' : (0.0, -rotateRate * 2, 'ROTATE IN PLACE TO THE RIGHT')
 }
 adjuster = 1.0
 
@@ -71,7 +73,7 @@ def driveLoop():
 
             except IOError:
                 # in simulation, we need to publish every loop
-#                drivePublisher.publish(twistMessage)
+                drivePublisher.publish(twistMessage)
                 time.sleep(0.25)
 
         try:

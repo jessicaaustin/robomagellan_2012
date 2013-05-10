@@ -1,12 +1,6 @@
 <launch>
 
-    <!-- wheel encoder odometry -->
-    <node
-        name="wheel_encoders"
-        pkg="robomagellan"
-        type="wheel_encoders.py"
-        respawn="true"
-    /> 
+    <!-- wheel encoder odometry is in base controller config -->
 
     <!-- fuse odometry from the above sources into a single robot pose -->
     <node

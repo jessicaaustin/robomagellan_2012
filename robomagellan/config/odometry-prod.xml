@@ -2,13 +2,7 @@
 
     <!-- This contains the odometery nodes used in actual runs -->
 
-    <!-- wheel encoder odometry -->
-    <node
-        name="wheel_encoders"
-        pkg="robomagellan"
-        type="wheel_encoders.py"
-        respawn="true"
-    /> 
+    <!-- wheel encoder odometry is in base controller config -->
 
     <!-- imu odometry -->
     <node

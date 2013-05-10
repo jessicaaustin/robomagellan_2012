@@ -1,0 +1,61 @@
+<launch>
+
+    <node
+        pkg="robomagellan"
+        type="diff_baseController.py"
+        name="diff_baseController"
+        respawn="true"
+    />
+    
+    <node
+        pkg="robomagellan"
+        type="diff_wheelEncoders.py"
+        name="diff_wheelEncoders"
+        respawn="false"
+    /> 
+
+  <node pkg="differential_drive" type="diff_tf.py" name="diff_tf">
+	  <rosparam param="ticks_meter">12764</rosparam>
+	  <rosparam param="base_width">0.277</rosparam>
+      <remap from="odom" to="wheel_odom"/>
+  </node>
+
+  <node pkg="differential_drive" type="pid_velocity.py" name="lpid_velocity">
+      <remap from="wheel" to="lwheel"/>
+      <remap from="motor_cmd" to="lmotor"/>
+      <remap from="wheel_vtarget" to="lwheel_vtarget"/>
+      <remap from="wheel_vel" to="lwheel_vel"/>
+      <rosparam param="Kp">30</rosparam>
+      <rosparam param="Ki">0</rosparam>
+      <rosparam param="Kd">0</rosparam>
+      <rosparam param="out_min">-100</rosparam>
+      <rosparam param="out_max">100</rosparam>
+      <rosparam param="rate">10</rosparam>
+      <rosparam param="timeout_ticks">4</rosparam>
+      <rosparam param="rolling_pts">5</rosparam>
+  </node>
+  <node pkg="differential_drive" type="pid_velocity.py" name="rpid_velocity">
+      <remap from="wheel" to="rwheel"/>
+      <remap from="motor_cmd" to="rmotor"/>
+      <remap from="wheel_vtarget" to="rwheel_vtarget"/>
+      <remap from="wheel_vel" to="rwheel_vel"/>
+      <rosparam param="Kp">30</rosparam>
+      <rosparam param="Ki">0</rosparam>
+      <rosparam param="Kd">0</rosparam>
+      <rosparam param="out_min">-100</rosparam>
+      <rosparam param="out_max">100</rosparam>
+      <rosparam param="rate">10</rosparam>
+      <rosparam param="timeout_ticks">4</rosparam>
+      <rosparam param="rolling_pts">5</rosparam>
+  </node>
+
+  <node
+    pkg="differential_drive"
+    type="twist_to_motors.py"
+    name="twist_to_motors"
+    output="screen">
+      <remap from="twist" to="cmd_vel"/>
+    <rosparam param="base_width">0.277</rosparam>
+  </node>
+
+</launch>
