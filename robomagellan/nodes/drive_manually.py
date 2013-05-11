@@ -27,8 +27,8 @@ import sys
 import termios
 import fcntl
 
-translateRate = 10.0
-rotateRate = 1.0
+translateRate = 0.7
+rotateRate = 0.6
 keyToRate = {
     '7' : (translateRate, 0.0, 'AHEAD FULL'),
     'u' : (translateRate / 2, 0.0, 'AHEAD HALF'),

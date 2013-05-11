@@ -14,7 +14,7 @@ PhidgetsEncoders() - Read the encoder values from a
 
 import roslib; roslib.load_manifest('robomagellan')
 import rospy
-from std_msgs.msg import Int64, Int16
+from std_msgs.msg import Int16
 
 from Phidgets.Devices.Encoder import Encoder
 from Phidgets.PhidgetException import PhidgetException
@@ -31,9 +31,10 @@ class PhidgetEncoders:
         self.rightRearEncoder = 2
         self.leftSignAdjust = 1 # forward is positive
         self.rightSignAdjust = -1 # forward is negative
+        self.rollover = 32768
 
-        self.leftEncoder = Int64(0)
-        self.rightEncoder = Int64(0)
+        self.leftEncoder = Int16(0)
+        self.rightEncoder = Int16(0)
 
         # publish the Odometry message to describe the current position
         # and orientation of the origin of the base_link frame.
@@ -81,19 +82,74 @@ class PhidgetEncoders:
     def updatePulseValues(self):
 
         leftFrontPulses = (self.leftSignAdjust * self.encoder.getPosition(self.leftFrontEncoder))
-        leftRearPulses = (self.leftSignAdjust * self.encoder.getPosition(self.leftRearEncoder))
         rightFrontPulses = (self.rightSignAdjust * self.encoder.getPosition(self.rightFrontEncoder))
+        leftRearPulses = (self.leftSignAdjust * self.encoder.getPosition(self.leftRearEncoder))
         rightRearPulses = (self.rightSignAdjust * self.encoder.getPosition(self.rightRearEncoder))
 
-        if leftFrontPulses < leftRearPulses:
-            self.leftEncoder.data = leftFrontPulses
-        else:
-            self.leftEncoder.data = leftRearPulses
+        leftPulses = (leftFrontPulses + leftRearPulses) / 2
+        rightPulses = (rightFrontPulses + rightRearPulses) / 2
 
-        if rightFrontPulses < rightRearPulses:
-            self.rightEncoder.data = rightFrontPulses
-        else:
-            self.rightEncoder.data = rightRearPulses
+        rospy.logdebug('leftEncoder: %d, front: %d, rear: %d' % (
+            leftPulses,
+            leftFrontPulses,
+            leftRearPulses
+            ))
+        rospy.logdebug('rightEncoder: %d, front: %d, rear: %d' % (
+            rightPulses,
+            rightFrontPulses,
+            rightRearPulses
+            ))
+
+        #
+        # actively manage the encoder value rollover
+        #
+        if leftPulses > self.rollover:
+            rospy.logdebug('left rolled over forward')
+            leftPulses = leftPulses - self.rollover
+            self.encoder.setPosition(
+                self.leftFrontEncoder,
+                leftPulses
+                )
+            self.encoder.setPosition(
+                self.leftRearEncoder,
+                leftPulses
+                )
+        elif leftPulses < -(self.rollover):
+            rospy.logdebug('left rolled over backward')
+            leftPulses = leftPulses + self.rollover
+            self.encoder.setPosition(
+                self.leftFrontEncoder,
+                leftPulses
+                )
+            self.encoder.setPosition(
+                self.leftRearEncoder,
+                leftPulses
+                )
+        if rightPulses > self.rollover:
+            rospy.logdebug('right rolled over forward')
+            rightPulses = rightPulses - self.rollover
+            self.encoder.setPosition(
+                self.rightFrontEncoder,
+                rightPulses
+                )
+            self.encoder.setPosition(
+                self.rightRearEncoder,
+                rightPulses
+                )
+        elif rightPulses < -(self.rollover):
+            rospy.logdebug('right rolled over backward')
+            rightPulses = rightPulses + self.rollover
+            self.encoder.setPosition(
+                self.rightFrontEncoder,
+                rightPulses
+                )
+            self.encoder.setPosition(
+                self.rightRearEncoder,
+                rightPulses
+                )
+
+        self.leftEncoder.data = leftPulses
+        self.rightEncoder.data = rightPulses
 
         return
 
@@ -160,10 +216,9 @@ if __name__ == "__main__":
     consistentFrequency = rospy.Rate(5)
     while not rospy.is_shutdown():
         encoder.updatePulseValues()
+
 #        encoder.leftEncoderPublisher.publish(encoder.leftEncoder)
 #        encoder.rightEncoderPublisher.publish(encoder.rightEncoder)
-        rospy.logdebug('leftEncoder: %d' % (encoder.leftEncoder.data))
-        rospy.logdebug('rightEncoder: %d' % (encoder.rightEncoder.data))
 
         consistentFrequency.sleep()
 
