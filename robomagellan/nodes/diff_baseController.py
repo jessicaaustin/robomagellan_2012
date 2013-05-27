@@ -31,27 +31,43 @@ motorController = None
 
 leftVelocity = 0.0
 rightVelocity = 0.0
-conversionFactor = 70.0
+
+maxMetersPerSecond = 0.0
+minMetersPerSecond = 0.0
 
 def handleRightMotorMessage(rightMotorMessage):
     global rightVelocity
 
-    rospy.logdebug("rightVelocity: %f" % (
-        rightMotorMessage.data
-        ))
+    if -(minMetersPerSecond) < rightMotorMessage.data < minMetersPerSecond:
+        rightVelocity = 0
+        return
+    elif rightMotorMessage.data >= minMetersPerSecond:
+        rightVelocity = int(rightMotorMessage.data / maxMetersPerSecond * 100)
+        if rightVelocity > 100:
+            rightVelocity = 100
+    else:
+        rightVelocity = int(rightMotorMessage.data / maxMetersPerSecond * 100)
+        if rightVelocity < -100:
+            rightVelocity = -100
 
-    rightVelocity = int(-(rightMotorMessage.data) * conversionFactor)
+    rightVelocity = -(rightVelocity)
 
     return
 
 def handleLeftMotorMessage(leftMotorMessage):
     global leftVelocity
 
-    rospy.logdebug("leftVelocity: %f" % (
-        leftMotorMessage.data
-        ))
-
-    leftVelocity = int(leftMotorMessage.data * conversionFactor)
+    if -(minMetersPerSecond) < leftMotorMessage.data < minMetersPerSecond:
+        leftVelocity = 0
+        return
+    elif leftMotorMessage.data >= minMetersPerSecond:
+        leftVelocity = int(leftMotorMessage.data / maxMetersPerSecond * 100)
+        if leftVelocity > 100:
+            leftVelocity = 100
+    else:
+        leftVelocity = int(leftMotorMessage.data / maxMetersPerSecond * 100)
+        if leftVelocity < -100:
+            leftVelocity = -100
 
     return
 
@@ -64,6 +80,9 @@ if __name__ == '__main__':
 
     motorController = PhidgetMotorController()
     motorController.setDefaultSpeed(75.0)
+
+    maxMetersPerSecond = rospy.get_param("~maxMetersPerSecond", 0.5)
+    minMetersPerSecond = rospy.get_param("~minMetersPerSecond", 0.1)
 
     rospy.Subscriber('lmotor', Float32, handleLeftMotorMessage)
     rospy.Subscriber('rmotor', Float32, handleRightMotorMessage)

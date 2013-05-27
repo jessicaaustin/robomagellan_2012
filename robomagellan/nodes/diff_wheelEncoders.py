@@ -217,8 +217,8 @@ if __name__ == "__main__":
     while not rospy.is_shutdown():
         encoder.updatePulseValues()
 
-#        encoder.leftEncoderPublisher.publish(encoder.leftEncoder)
-#        encoder.rightEncoderPublisher.publish(encoder.rightEncoder)
+        encoder.leftEncoderPublisher.publish(encoder.leftEncoder)
+        encoder.rightEncoderPublisher.publish(encoder.rightEncoder)
 
         consistentFrequency.sleep()
 
