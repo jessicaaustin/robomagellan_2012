@@ -28,8 +28,8 @@
       <rosparam param="Kp">1</rosparam>
       <rosparam param="Ki">0</rosparam>
       <rosparam param="Kd">0</rosparam>
-      <rosparam param="out_min">-100</rosparam>
-      <rosparam param="out_max">100</rosparam>
+      <rosparam param="out_min">-2</rosparam>
+      <rosparam param="out_max">2</rosparam>
       <rosparam param="rate">10</rosparam>
       <rosparam param="timeout_ticks">4</rosparam>
       <rosparam param="rolling_pts">5</rosparam>
@@ -39,11 +39,11 @@
       <remap from="motor_cmd" to="rmotor"/>
       <remap from="wheel_vtarget" to="rwheel_vtarget"/>
       <remap from="wheel_vel" to="rwheel_vel"/>
-      <rosparam param="Kp">30</rosparam>
+      <rosparam param="Kp">1</rosparam>
       <rosparam param="Ki">0</rosparam>
       <rosparam param="Kd">0</rosparam>
-      <rosparam param="out_min">-100</rosparam>
-      <rosparam param="out_max">100</rosparam>
+      <rosparam param="out_min">-2</rosparam>
+      <rosparam param="out_max">2</rosparam>
       <rosparam param="rate">10</rosparam>
       <rosparam param="timeout_ticks">4</rosparam>
       <rosparam param="rolling_pts">5</rosparam>

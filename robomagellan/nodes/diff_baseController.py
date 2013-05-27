@@ -13,6 +13,12 @@ listens to:
 
 publishes to:
 
+The message on the motor topic is std_msgs/Float32, whose
+data element is interpreted as the number of meters per
+second at which the wheel should be rotated. The sign of
+that value is interpreted as the direction to rotate
+the wheel.
+
 """
 
 import roslib; roslib.load_manifest('robomagellan')
@@ -25,6 +31,7 @@ motorController = None
 
 leftVelocity = 0.0
 rightVelocity = 0.0
+conversionFactor = 70.0
 
 def handleRightMotorMessage(rightMotorMessage):
     global rightVelocity
@@ -33,7 +40,7 @@ def handleRightMotorMessage(rightMotorMessage):
         rightMotorMessage.data
         ))
 
-    rightVelocity = -(rightMotorMessage.data)
+    rightVelocity = int(-(rightMotorMessage.data) * conversionFactor)
 
     return
 
@@ -44,7 +51,7 @@ def handleLeftMotorMessage(leftMotorMessage):
         leftMotorMessage.data
         ))
 
-    leftVelocity = leftMotorMessage.data
+    leftVelocity = int(leftMotorMessage.data * conversionFactor)
 
     return
 

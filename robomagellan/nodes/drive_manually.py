@@ -27,8 +27,9 @@ import sys
 import termios
 import fcntl
 
-translateRate = 0.7
-rotateRate = 0.6
+translateRate = 0.7  # meters per second
+rotateRate = 0.6 # radians per second
+adjuster = 1.0
 keyToRate = {
     '7' : (translateRate, 0.0, 'AHEAD FULL'),
     'u' : (translateRate / 2, 0.0, 'AHEAD HALF'),
@@ -42,7 +43,6 @@ keyToRate = {
     'o' : (0.0, rotateRate * 2, 'ROTATE IN PLACE TO THE LEFT'),
     'p' : (0.0, -rotateRate * 2, 'ROTATE IN PLACE TO THE RIGHT')
 }
-adjuster = 1.0
 
 def driveLoop():
     """
