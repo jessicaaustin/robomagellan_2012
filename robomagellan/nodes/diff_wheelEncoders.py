@@ -101,11 +101,14 @@ class PhidgetEncoders:
             ))
 
         #
-        # actively manage the encoder value rollover
+        # actively manage the encoder value rollover. The encoder value,
+        # when rolling forward, will start at 0 and move toward self.rollover.
+        # When it exceeds self.rollover, it is reset to -self.rollover plus
+        # the amount by which it exceeded self.rollover.
         #
         if leftPulses > self.rollover:
             rospy.logdebug('left rolled over forward')
-            leftPulses = leftPulses - self.rollover
+            leftPulses = -(self.rollover) + leftPulses - self.rollover
             self.encoder.setPosition(
                 self.leftFrontEncoder,
                 leftPulses
@@ -116,7 +119,7 @@ class PhidgetEncoders:
                 )
         elif leftPulses < -(self.rollover):
             rospy.logdebug('left rolled over backward')
-            leftPulses = leftPulses + self.rollover
+            leftPulses = self.rollover + leftPulses + self.rollover
             self.encoder.setPosition(
                 self.leftFrontEncoder,
                 leftPulses
@@ -127,7 +130,7 @@ class PhidgetEncoders:
                 )
         if rightPulses > self.rollover:
             rospy.logdebug('right rolled over forward')
-            rightPulses = rightPulses - self.rollover
+            rightPulses = -(self.rollover) + rightPulses - self.rollover
             self.encoder.setPosition(
                 self.rightFrontEncoder,
                 rightPulses
@@ -138,7 +141,7 @@ class PhidgetEncoders:
                 )
         elif rightPulses < -(self.rollover):
             rospy.logdebug('right rolled over backward')
-            rightPulses = rightPulses + self.rollover
+            rightPulses = self.rollover + rightPulses + self.rollover
             self.encoder.setPosition(
                 self.rightFrontEncoder,
                 rightPulses

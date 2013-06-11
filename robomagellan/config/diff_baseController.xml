@@ -3,6 +3,8 @@
   <rosparam param="ticks_meter">13480</rosparam>
   <rosparam param="encoder_min">-32768</rosparam>
   <rosparam param="encoder_max">32768</rosparam>
+  <rosparam param="wheel_low_wrap">-30000</rosparam>
+  <rosparam param="wheel_high_wrap">30000</rosparam>
 
     <node
         pkg="robomagellan"
@@ -33,12 +35,12 @@
       <remap from="wheel_vtarget" to="lwheel_vtarget"/>
       <remap from="wheel_vel" to="lwheel_vel"/>
 
-      <rosparam param="Kp">0.7</rosparam>
+      <rosparam param="Kp">1.5</rosparam>
       <rosparam param="Ki">0</rosparam>
       <rosparam param="Kd">0</rosparam>
       <rosparam param="out_min">-0.8</rosparam>
       <rosparam param="out_max">0.8</rosparam>
-      <rosparam param="rate">5</rosparam>
+      <rosparam param="rate">50</rosparam>
       <rosparam param="rolling_pts">2</rosparam>
       <rosparam param="timeout_ticks">3</rosparam>
   </node>
@@ -49,12 +51,12 @@
       <remap from="wheel_vtarget" to="rwheel_vtarget"/>
       <remap from="wheel_vel" to="rwheel_vel"/>
 
-      <rosparam param="Kp">0.7</rosparam>
+      <rosparam param="Kp">1.5</rosparam>
       <rosparam param="Ki">0</rosparam>
       <rosparam param="Kd">0</rosparam>
       <rosparam param="out_min">-0.8</rosparam>
       <rosparam param="out_max">0.8</rosparam>
-      <rosparam param="rate">5</rosparam>
+      <rosparam param="rate">50</rosparam>
       <rosparam param="rolling_pts">2</rosparam>
       <rosparam param="timeout_ticks">3</rosparam>
   </node>
@@ -63,7 +65,7 @@
     <remap from="twist" to="cmd_vel"/>
 
     <rosparam param="base_width">0.277</rosparam>
-    <rosparam param="rate">5</rosparam>
+    <rosparam param="rate">50</rosparam>
     <rosparam param="timeout_ticks">3</rosparam>
   </node>
 

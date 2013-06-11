@@ -62,7 +62,7 @@ def driveLoop():
     oldflags = fcntl.fcntl(fd, fcntl.F_GETFL)
     fcntl.fcntl(fd, fcntl.F_SETFL, oldflags | os.O_NONBLOCK)
 
-    rate = rospy.Rate(5.0)
+    rate = rospy.Rate(50.0)
     while not rospy.is_shutdown():
 
         # read one character
@@ -74,7 +74,7 @@ def driveLoop():
             except IOError:
                 # in simulation, we need to publish every loop
                 drivePublisher.publish(twistMessage)
-                time.sleep(0.25)
+                rate.sleep()
 
         try:
             # build the Twist message
