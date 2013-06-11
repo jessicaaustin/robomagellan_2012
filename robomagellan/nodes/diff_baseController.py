@@ -83,6 +83,7 @@ if __name__ == '__main__':
 
     maxMetersPerSecond = rospy.get_param("~maxMetersPerSecond", 0.5)
     minMetersPerSecond = rospy.get_param("~minMetersPerSecond", 0.1)
+    rospy.loginfo("Max m/s: %0.3f, Min m/s: %0.3f" % (maxMetersPerSecond, minMetersPerSecond))
 
     rospy.Subscriber('lmotor', Float32, handleLeftMotorMessage)
     rospy.Subscriber('rmotor', Float32, handleRightMotorMessage)

@@ -12,7 +12,7 @@
         name="diff_baseController"
         respawn="true"
         >
-     <rosparam param="maxMetersPerSecond">0.8</rosparam>
+     <rosparam param="maxMetersPerSecond">2.0</rosparam>
      <rosparam param="minMetersPerSecond">0.1</rosparam>
   </node>
     
