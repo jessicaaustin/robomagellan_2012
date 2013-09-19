@@ -80,8 +80,8 @@ setup() {
     /*
      * - select the NMEA sentences - GPGGA only
      */
-    Serial.println("Only the GPGGA sentence");
-    sendSentence("PMTK314,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
+    Serial.println("GPMRC, GPGGA and GPGSA sentences");
+    sendSentence("PMTK314,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
 
     /*
      * - set the update frequency - once per second
