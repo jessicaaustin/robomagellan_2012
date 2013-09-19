@@ -22,16 +22,12 @@ calcChecksum(
     static unsigned char checksum;
     static char checksumString[2];
 
-    Serial.print("Checksum> ");
-
     checksum = (unsigned char) 0;
     for (int index = 0; index < messageLength; index++) {
-        Serial.print(message[index]); Serial.print(" ");
         checksum ^= message[index];
     };
 
     sprintf(checksumString, "%02X", checksum);
-    Serial.println(checksumString);
 
     return checksumString;
 }
@@ -47,16 +43,16 @@ findDataRate() {
         Serial.println(dataRates[index]);
 
         gpsDevice.begin(dataRates[index]);
+        gpsDevice.flush();
         gpsDevice.println("$PMTK000*32");
         bytesRead = gpsDevice.readBytes(inputBuffer, 255);
         inputBuffer[bytesRead] = 0;
-        Serial.print("Read> ");
-        Serial.println(inputBuffer);
         if (strstr(inputBuffer, "$PMTK001") != NULL) {
             Serial.print("Found data rate ");
             Serial.println(dataRates[index]);
             break;
         };
+        gpsDevice.end();
         delay(500);
     };
 
