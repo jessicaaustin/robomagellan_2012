@@ -34,7 +34,7 @@ calcChecksum(
 
 void
 findDataRate() {
-	long dataRates[] = { 4800, 9600, 14400, 19200, 38400, 57600, 115200 };
+	long dataRates[] = { 57600, 115200, 9600, 4800, 14400, 19200, 38400 };
 
     gpsDevice.setTimeout((unsigned long) 1000);
 
@@ -53,7 +53,7 @@ findDataRate() {
             break;
         };
         gpsDevice.end();
-        delay(500);
+        delay(100);
     };
 
     return;
@@ -75,13 +75,13 @@ setup() {
     Serial.println("GPS sketch 1");
     
     findDataRate();
-    delay(10000);
+    delay(1000);
 
     /*
-     * - select the NMEA sentences - GPGGA only
+     * - select the NMEA sentences
      */
-    Serial.println("GPMRC, GPGGA and GPGSA sentences");
-    sendSentence("PMTK314,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
+    Serial.println("GPMRC, GPGGA sentences");
+    sendSentence("PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
 
     /*
      * - set the update frequency - once per second
