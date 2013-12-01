@@ -10,11 +10,13 @@ uint8_t receivePin = 3,
 SoftwareSerial gpsDevice(receivePin, transmitPin);
 char sentence[MAX_SENTENCE_LENGTH + 1];
 char inputBuffer[256];
-int bytesRead;
+int bytesRead = 0,
+    bufferIndex = 0;
+short sentenceIncomplete = 1;
 char eostr = ((char) 0);
 
 char*
-calcChecksum(
+calcCheckSum(
     char* message,
     int messageLength
     ) {
@@ -30,7 +32,7 @@ calcChecksum(
     sprintf(checksumString, "%02X", checksum);
 
     return checksumString;
-}
+};
 
 void
 findDataRate() {
@@ -64,7 +66,7 @@ sendSentence(char *message) {
     gpsDevice.print("$");
     gpsDevice.print(message);
     gpsDevice.print("*");
-    gpsDevice.println(calcChecksum(message, strlen(message)));
+    gpsDevice.println(calcCheckSum(message, strlen(message)));
 
     return;
 };
@@ -72,7 +74,7 @@ sendSentence(char *message) {
 void
 setup() {
     Serial.begin(115200);
-    Serial.println("GPS sketch 1");
+    Serial.println("GPS sketch 4");
     
     findDataRate();
     delay(1000);
@@ -101,13 +103,88 @@ setup() {
 
 void
 readGpsSentence() {
-    bytesRead = gpsDevice.readBytes(inputBuffer, 255);
-    if (bytesRead == 0) {
-        Serial.println("No bytes read");
-    } else {
-        inputBuffer[bytesRead] = (char) 0;
-        Serial.print(inputBuffer);
+    int sentenceIncomplete = 1,
+        needCheckSum = 0,
+        foundStart = 0;
+    char checkSum[2],
+         *calculatedCheckSum;
+    int checkSumIndex = 0;
+
+    Serial.print("bytesRead ");
+    Serial.print(bytesRead);
+    Serial.print(" bufferIndex ");
+    Serial.println(bufferIndex);
+    while (sentenceIncomplete) {
+        if (bufferIndex == 0) {
+            Serial.println("readBytes()");
+	        bytesRead = gpsDevice.readBytes(inputBuffer, 255);
+        };
+
+	    if (bytesRead == 0) {
+            /*
+             * No part of a sentence was available.
+             */
+            Serial.println("Nothing read");
+	        return;
+	    } else {
+            while (bufferIndex < bytesRead) {
+                if (needCheckSum) {
+                    checkSum[checkSumIndex] = inputBuffer[bufferIndex];
+                    checkSumIndex++;
+
+                    if (checkSumIndex == 2) {
+                        /*
+                         * A complete sentence with checksum was received.
+                         * Calculate the checksum of the sentence and
+                         * compare it with the checksum included with the
+                         * sentence. If they match, a valid sentence was
+                         * received.
+                         */
+                        calculatedCheckSum = calcCheckSum(
+                            sentence,
+                            sentenceIndex
+                            );
+                        if (calculatedCheckSum[0] == checkSum[0] &&
+                            calculatedCheckSum[1] == checkSum[1]) {
+                            sentenceIncomplete = 0;
+                            Serial.println("Checksum valid");
+                            break;
+                        } else {
+                            Serial.println("Checksum comparison failed");
+                            return;
+                        };
+                    };
+                } else if (inputBuffer[bufferIndex] == '$') {
+                    /*
+                     * The $ starts every sentence.
+                     */
+                    foundStart = 1;
+                    needCheckSum = 0;
+                    sentenceIndex = 0;
+                    Serial.println("Start");
+                } else if (foundStart) {
+                    if (inputBuffer[bufferIndex] == '*') {
+                        /*
+                         * The * ends every sentence.
+                         */
+                        needCheckSum = 1;
+                        checkSumIndex = 0;
+                        foundStart = 0;
+                        Serial.println("End");
+                    } else {
+                        sentence[sentenceIndex] = inputBuffer[bufferIndex];
+                        sentenceIndex++;
+                    };
+                };
+
+                bufferIndex++;
+            };
+            bufferIndex = 0;
+        };
     };
+
+	sentence[sentenceIndex] = (char) 0;
+	Serial.println(sentence);
         
 };
 
