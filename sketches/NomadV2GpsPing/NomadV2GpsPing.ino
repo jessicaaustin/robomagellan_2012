@@ -80,7 +80,7 @@ readGpsSentence() {
     int checkSumIndex = 0;
 
     while (sentenceIncomplete) {
-        if (bufferIndex == 0 && gpsDevice.available()) {
+        if (bufferIndex == 0 && gpsDevice.available() > 0) {
 	        bytesRead = gpsDevice.readBytes(inputBuffer, gpsDevice.available());
             inputBuffer[bytesRead] = 0;
         };
@@ -161,13 +161,13 @@ setup() {
     /*
      * - select the NMEA sentences
      */
-    Serial.println("GPMRC sentence");
+    Serial.println("Sentences");
     sendSentence("PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
 
     /*
      * - set the update frequency - once per second
      */
-    Serial.println("Set update frequency to 1 Hz");
+    Serial.println("Set update frequency");
     sendSentence("PMTK220,1000");
 
     /*
